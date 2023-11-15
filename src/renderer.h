@@ -5,6 +5,11 @@
 
 using namespace gfx::gl;
 
+struct Sphere {
+  glm::vec3 center; 
+  float radius;
+};
+
 class Renderer : public Window {
 public:
   Renderer(int width, int height);

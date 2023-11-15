@@ -9,16 +9,17 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
 {
 
-  constexpr glm::vec3 size = glm::vec3(0.25f);
+  // setup screen quad
+  const glm::vec3 size = glm::vec3(0.25f);
 
   const std::vector<glm::vec2> vertices = {
-      {-size.x, size.y},  {0, 1},  // top left
+      {-size.x, +size.y}, {0, 1},  // top left
       {-size.x, -size.y}, {0, 0},  // bottom left
-      {size.x, size.y},   {1, 1},  // top right
+      {+size.x, +size.y}, {1, 1},  // top right
 
-      {size.x, size.x},   {1, 1},  // top right
+      {+size.x, +size.x}, {1, 1},  // top right
       {-size.x, -size.y}, {0, 0},  // bottom left
-      {size.x, -size.y},  {1, 0},  // bottom right
+      {+size.x, -size.y}, {1, 0},  // bottom right
   };
 
   m_screen_quad_vao->bind();
@@ -33,6 +34,7 @@ Renderer::Renderer(int width, int height)
 
   m_screen_quad_vao->unbind();
 
+  // setup texture
 }
 
 void Renderer::render(float dt)
