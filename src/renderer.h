@@ -3,11 +3,6 @@
 
 #include <memory>
 
-struct Quad {
-  std::unique_ptr<gfx::gl::VertexBufferObject> vao = nullptr;
-  std::unique_ptr<gfx::gl::VertexBuffer> vbo = nullptr;
-};
-
 class Renderer : public Window {
 public:
   Renderer(int width, int height);

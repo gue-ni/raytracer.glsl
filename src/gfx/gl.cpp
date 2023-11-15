@@ -33,9 +33,34 @@ namespace gfx
       }
     }
 
-    Shader::Shader(const std::string &path)
-      : Shader(read_file_to_string(path + ".vert"), read_file_to_string(path + ".frag"))
+    Shader::Shader(const std::string &compute_shader_source)
     {
+      int success;
+      char log[512];
+
+      const char *shader_source_str = compute_shader_source.c_str();
+
+      GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
+      glShaderSource(compute_shader, 1, &shader_source_str, NULL);
+      glCompileShader(compute_shader);
+      glGetShaderiv(compute_shader, GL_COMPILE_STATUS, &success);
+      if (!success)
+      {
+        glGetShaderInfoLog(compute_shader, 512, NULL, log);
+        std::cerr << "Error: " << log;
+      }
+
+      m_id = glCreateProgram();
+      glAttachShader(m_id, compute_shader);
+      glLinkProgram(m_id);
+      glGetProgramiv(m_id, GL_LINK_STATUS, &success);
+      if (!success)
+      {
+        glGetProgramInfoLog(m_id, 512, NULL, log);
+        std::cerr << "Error: " << log;
+      }
+
+      glDeleteShader(compute_shader);
     }
 
     Shader::Shader(const std::string &vertex_shader_source, const std::string &fragment_shader_source)
@@ -126,6 +151,19 @@ namespace gfx
     {
       GLuint index = glGetUniformBlockIndex(m_id, name.c_str());
       glUniformBlockBinding(m_id, index, binding);
+    }
+
+    std::string Shader::string_from_file(const std::string& path)
+    {
+      std::ifstream file(path);
+      if (!file.is_open())
+      {
+        return std::string();
+      }
+
+      std::stringstream buffer;
+      buffer << file.rdbuf();
+      return buffer.str();
     }
 
     Texture::Texture(const std::string &path) : Texture(path, {})
