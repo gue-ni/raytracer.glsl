@@ -51,6 +51,7 @@ add_executable(renderer
     src/window.cpp src/window.h
     src/renderer.cpp src/renderer.h
 
+    src/gfx/gfx.h
     src/gfx/gl.cpp src/gfx/gl.h
     src/gfx/image.cpp src/gfx/image.h
 )
