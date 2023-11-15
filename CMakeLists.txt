@@ -43,6 +43,7 @@ include_directories(${CMAKE_SOURCE_DIR}/build/_deps/stb-src)
 add_executable(renderer
     src/main.cpp 
     src/window.cpp src/window.h
+    src/renderer.cpp src/renderer.h
 )
 
 target_link_libraries(renderer glm ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})

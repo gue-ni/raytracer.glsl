@@ -1,8 +1,8 @@
-#include "window.h"
+#include "renderer.h"
 
 int main()
 {
-  Window window(640, 480);
-  window.run();
+  Renderer r(640, 480);
+  r.run();
   return 0;
 }
