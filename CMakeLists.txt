@@ -11,6 +11,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+FetchContent_Declare(
+    stb GIT_REPOSITORY 
+    https://github.com/nothings/stb
+)
+FetchContent_MakeAvailable(stb)
+
 if(WIN32)
     FetchContent_Declare(
         GLEW
@@ -44,6 +50,9 @@ add_executable(renderer
     src/main.cpp 
     src/window.cpp src/window.h
     src/renderer.cpp src/renderer.h
+
+    src/gfx/gl.cpp src/gfx/gl.h
+    src/gfx/image.cpp src/gfx/image.h
 )
 
 target_link_libraries(renderer glm ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
