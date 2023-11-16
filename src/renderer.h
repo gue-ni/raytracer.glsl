@@ -10,6 +10,15 @@ struct Sphere {
   float radius;
 };
 
+struct Camera {
+  glm::vec3 position;
+  glm::vec3 target;
+  float fov;
+  float aspect_ratio;
+  float focal_length;
+  float aperture;
+};
+
 class Renderer : public Window {
 public:
   Renderer(int width, int height);
@@ -22,5 +31,5 @@ private:
   std::unique_ptr<VertexArrayObject> m_screen_quad_vao = nullptr;
   std::unique_ptr<VertexBuffer> m_screen_quad_vbo = nullptr;
   
- std::unique_ptr<Texture> m_texture = nullptr;
+  std::unique_ptr<Texture> m_texture = nullptr;
 };
