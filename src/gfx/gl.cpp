@@ -73,18 +73,18 @@ namespace gfx
 
       const char *shader_source_str = compute_shader_source.c_str();
 
-      GLuint compute_shader = glCreateShaderProgram(GL_COMPUTE_SHADER);
-      glShaderProgramSource(compute_shader, 1, &shader_source_str, NULL);
-      glCompileShaderProgram(compute_shader);
-      glGetShaderProgramiv(compute_shader, GL_COMPILE_STATUS, &success);
+      GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
+      glShaderSource(compute_shader, 1, &shader_source_str, NULL);
+      glCompileProgram(compute_shader);
+      glGetShaderiv(compute_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
-        glGetShaderProgramInfoLog(compute_shader, 512, NULL, log);
+        glGetShaderInfoLog(compute_shader, 512, NULL, log);
         std::cerr << "Error: " << log;
       }
 
       m_id = glCreateProgram();
-      glAttachShaderProgram(m_id, compute_shader);
+      glAttachShader(m_id, compute_shader);
       glLinkProgram(m_id);
       glGetProgramiv(m_id, GL_LINK_STATUS, &success);
       if (!success)
@@ -93,7 +93,7 @@ namespace gfx
         std::cerr << "Error: " << log;
       }
 
-      glDeleteShaderProgram(compute_shader);
+      glDeleteShader(compute_shader);
     }
 
     ShaderProgram::ShaderProgram(const std::string &vertex_shader_source, const std::string &fragment_shader_source)
@@ -103,21 +103,21 @@ namespace gfx
 
       const char *vertex_shader_source_str = vertex_shader_source.c_str();
 
-      GLuint vertex_shader = glCreateShaderProgram(GL_VERTEX_SHADER);
-      glShaderProgramSource(vertex_shader, 1, &vertex_shader_source_str, NULL);
-      glCompileShaderProgram(vertex_shader);
-      glGetShaderProgramiv(vertex_shader, GL_COMPILE_STATUS, &success);
+      GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+      glShaderSource(vertex_shader, 1, &vertex_shader_source_str, NULL);
+      glCompileShader(vertex_shader);
+      glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
-        glGetShaderProgramInfoLog(vertex_shader, 512, NULL, log);
+        glGetShaderInfoLog(vertex_shader, 512, NULL, log);
         std::cerr << "Error: " << log;
       }
 
       const char *fragment_shader_source_str = fragment_shader_source.c_str();
-      GLuint fragment_shader = glCreateShaderProgram(GL_FRAGMENT_SHADER);
-      glShaderProgramSource(fragment_shader, 1, &fragment_shader_source_str, NULL);
-      glCompileShaderProgram(fragment_shader);
-      glGetShaderProgramiv(fragment_shader, GL_COMPILE_STATUS, &success);
+      GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+      glShaderSource(fragment_shader, 1, &fragment_shader_source_str, NULL);
+      glCompileShader(fragment_shader);
+      glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
         glGetShaderProgramInfoLog(fragment_shader, 512, NULL, log);
@@ -125,8 +125,8 @@ namespace gfx
       }
 
       m_id = glCreateProgram();
-      glAttachShaderProgram(m_id, vertex_shader);
-      glAttachShaderProgram(m_id, fragment_shader);
+      glAttachShader(m_id, vertex_shader);
+      glAttachShader(m_id, fragment_shader);
       glLinkProgram(m_id);
       glGetProgramiv(m_id, GL_LINK_STATUS, &success);
       if (!success)
@@ -135,8 +135,8 @@ namespace gfx
         std::cerr << "Error: " << log;
       }
 
-      glDeleteShaderProgram(vertex_shader);
-      glDeleteShaderProgram(fragment_shader);
+      glDeleteShader(vertex_shader);
+      glDeleteShader(fragment_shader);
     }
 
     ShaderProgram::~ShaderProgram() { glDeleteProgram(m_id); }
