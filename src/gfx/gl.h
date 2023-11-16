@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <map>
 
 #include "image.h"
 
@@ -157,6 +158,21 @@ namespace gfx
 
     struct ShaderProgram : public Object
     {
+      enum ShaderType {
+        Vertex = GL_VERTEX_SHADER,
+        Fragment = GL_VERTEX_SHADER,
+        Compute = GL_COMPUTE_SHADER,
+        Geometry = GL_GEOMETRY_SHADER,
+      };
+
+      // TODO: search for includes
+      struct File {
+        File(const std::string& path);
+        std::string get_string() const;
+      };
+
+      ShaderProgram() : m_id(glCreateProgram()) {}
+      ShaderProgram(const std::map<ShaderType, File>& sources);
       ShaderProgram(const std::string& compute_shader_source);
       ShaderProgram(const std::string &vertex_shader_source, const std::string &fragment_shader_source);
       ~ShaderProgram();
