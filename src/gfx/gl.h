@@ -125,6 +125,11 @@ namespace gfx
       UniformBuffer() : Buffer(GL_UNIFORM_BUFFER) {}
     };
 
+    struct ShaderStorageBuffer : public Buffer 
+    {
+      ShaderStorageBuffer() : Buffer(GL_SHADER_STORAGE_BUFFER) {}
+    } ;
+
     struct FrameBuffer : public Object
     {
       FrameBuffer() { glGenFramebuffers(1, &m_id); }
