@@ -10,6 +10,11 @@ struct Sphere {
   float radius;
 };
 
+struct Material {
+  glm::vec3 albedo;
+  glm::vec3 emission;
+};
+
 struct Camera {
   glm::vec3 position;
   glm::vec3 target;
@@ -39,6 +44,7 @@ private:
   std::unique_ptr<Texture> m_texture = nullptr;
 
   std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
+  std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
 
   Camera m_camera;
 };

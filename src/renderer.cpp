@@ -8,8 +8,13 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vao(std::make_unique<VertexArrayObject>())
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
   , m_spheres(std::make_unique<ShaderStorageBuffer>())
+  , m_materials(std::make_unique<ShaderStorageBuffer>())
   , m_camera(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
 {
+
+  //static_assert(sizeof(Material) == sizeof(float) * 6);
+  //static_assert(sizeof(Sphere) == (sizeof(float) * 4 + sizeof(int)));
+  //static_assert(sizeof(Sphere) == (sizeof(float) * 7));
 
   // setup screen quad
   const glm::vec2 size = glm::vec2(1.0f);
@@ -47,13 +52,23 @@ Renderer::Renderer(int width, int height)
   // setup spheres
   std::vector<Sphere> spheres = {
     { {+2.5f, 0.0f, 7.0f}, 1.0f },
-    { {0.0f, 0.0f, 7.0f}, 1.0f },
+    { { 0.0f, 0.0f, 7.0f}, 1.0f },
     { {-2.5f, 0.0f, 7.0f}, 1.0f },
-    { {0.0f, -1000.0f, 0.0f}, 1000.0f },
+    //{ {0.0f, -1000.0f, 0.0f}, 1000.0f, 0 },
   };
 
   m_spheres->bind();
   m_spheres->buffer_data(std::span(spheres));
+
+#if 1
+  // setup material 
+  std::vector<Material> materials = {
+    { glm::vec3(), glm::vec3() },
+  };
+
+  m_materials->bind();
+  m_materials->buffer_data(std::span(materials));
+#endif
 }
 
 void Renderer::render(float dt)
@@ -62,11 +77,8 @@ void Renderer::render(float dt)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
-#if 1
-
-  // dispatch compute shaders
-
   m_spheres->bind_buffer_base(1);
+  m_materials->bind_buffer_base(2);
 
   m_render_shader->bind();
   m_render_shader->set_uniform("u_frames", m_frames);
@@ -77,9 +89,9 @@ void Renderer::render(float dt)
 
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
+  // dispatch compute shaders
   glDispatchCompute(m_width, m_height, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-#endif
 
   m_texture->bind(0);
 
@@ -92,6 +104,7 @@ void Renderer::render(float dt)
 
 void Renderer::event(const SDL_Event &event)
 {
+  m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
   // TODO: handle user input
   // TODO: move camera
 }
