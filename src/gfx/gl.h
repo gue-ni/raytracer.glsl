@@ -89,11 +89,6 @@ namespace gfx
         GL_CALL(glBindBufferRange(target, index, m_id, offset, size));
       }
 
-      void buffer_data(const void *data, size_t size, GLenum usage = GL_STATIC_DRAW)
-      {
-        GL_CALL(glBufferData(target, size, data, usage));
-      }
-
       template <typename T>
       void buffer_data(const std::span<T> &data, GLenum usage = GL_STATIC_DRAW)
       {
