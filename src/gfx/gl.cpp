@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
 
 std::string read_file_to_string(const std::string &path)
@@ -33,7 +34,7 @@ namespace gfx
       }
     }
 
-    ShaderProgram::File(const std::string& path) : content(read_file_to_string(path))
+    ShaderProgram::File::File(const std::string& path) : content(read_file_to_string(path))
     {
       if (content.empty()) {
         std::cerr << "could not read file " << path << std::endl;
@@ -47,6 +48,20 @@ namespace gfx
     void ShaderProgram::File::preprocess()
     {
       // TODO: serach and replace header
+
+      std::regex pattern("#include\\s*<([^>]*)>");
+
+      // Search and replace each occurrence of the pattern
+      content = std::regex_replace(content, pattern, [&](const std::smatch &match) {
+        // Extract the file name from the matched pattern
+        std::string filename = match[1].str();
+
+        // Read the content of the included file
+        std::ifstream included_file(filename);
+        std::string included_content((std::istreambuf_iterator<char>(included_file)), std::istreambuf_iterator<char>());
+
+        return included_content;
+    });
     }
 
     ShaderProgram::ShaderProgram(const std::string &compute_shader_source)
