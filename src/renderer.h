@@ -33,4 +33,6 @@ private:
   std::unique_ptr<VertexBuffer> m_screen_quad_vbo = nullptr;
   
   std::unique_ptr<Texture> m_texture = nullptr;
+
+  Camera m_camera;
 };
