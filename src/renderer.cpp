@@ -10,7 +10,7 @@ Renderer::Renderer(int width, int height)
 {
 
   // setup screen quad
-  const glm::vec3 size = glm::vec3(0.25f);
+  const glm::vec2 size = glm::vec2(0.25f);
 
   const std::vector<glm::vec2> vertices = {
       {-size.x, +size.y}, {0, 1},  // top left
@@ -49,12 +49,14 @@ void Renderer::render(float dt)
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
+#if 0
   // dispatch compute shaders
   m_render_shader->bind();
-  m_render_shader->set_parameter("u_frames", m_frames);
+  m_render_shader->set_uniform("u_frames", m_frames);
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
   glDispatchCompute(m_width, m_height, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+#endif
 
   m_texture->bind(0);
 
