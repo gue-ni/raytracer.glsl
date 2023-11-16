@@ -1,15 +1,24 @@
 #version 430
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-layout(rgba32f, binding = 0) uniform image2D image;
-
-uniform int u_frames;
-uniform int u_samples;
-uniform int u_max_depth;
 
 struct Sphere {
   vec3 center;
   float radius;
 };
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D image;
+
+layout(std430, binding = 1) readonly buffer sphereBuffer
+{
+  Sphere spheres[];
+};
+
+uniform int u_frames;
+uniform int u_samples;
+uniform int u_max_depth;
+
+uniform vec3 u_camera_target;
+uniform vec3 u_camera_position;
 
 struct Ray {
   vec3 origin;
@@ -52,9 +61,36 @@ bool intersect(Ray ray, Sphere sphere, float min_t, float max_t, inout HitInfo i
     }
 }
 
+int find_collision(Ray ray, inout HitInfo closest_hit)
+{
+  float min_t = 0.0;
+  float max_t = 10000.0;
+  int closest_sphere = -1;
+
+  for (int i = 0; i < spheres.length(); i++)
+  {
+    HitInfo hit;
+    if (intersect(ray, spheres[i], min_t, max_t, hit))
+    {
+      if (hit.t < max_t)
+      {
+        closest_hit = hit;
+        max_t = hit.t;
+        closest_sphere = i;
+      }
+    }
+  }
+
+  return closest_sphere;
+}
+
 vec3 trace_path(Ray ray) 
 {
   // TODO
+
+
+
+
   return vec3(0);
 }
 
@@ -65,10 +101,12 @@ void main()
 
   vec4 pixel = imageLoad(image, pixel_coords);
   vec3 previous = pixel.rgb;
+  
+  vec2 uv = vec2(pixel_coords) / vec2(image_size);
 
 #if 1
-  vec2 uv = vec2(pixel_coords) / vec2(image_size);
-  vec3 col = vec3(uv.x,uv.y,0);
+  int tmp = int(u_frames) % int(1000);
+  vec3 col = vec3(uv.x, uv.y, float(tmp) / float(1000));
   pixel = vec4(col, 1);
 #endif
 

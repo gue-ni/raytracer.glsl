@@ -7,6 +7,8 @@ Renderer::Renderer(int width, int height)
   , m_texture(std::make_unique<Texture>())
   , m_screen_quad_vao(std::make_unique<VertexArrayObject>())
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
+  , m_spheres(std::make_unique<ShaderStorageBuffer>())
+  , m_camera(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
 {
 
   // setup screen quad
@@ -41,6 +43,14 @@ Renderer::Renderer(int width, int height)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+
+  // setup spheres
+  std::vector<Sphere> spheres = {
+    { {0.0f, 0.0f, 0.0f}, 1.0f },
+  };
+
+  m_spheres->bind();
+  m_spheres->buffer_data(std::span(spheres));
 }
 
 void Renderer::render(float dt)
@@ -49,13 +59,21 @@ void Renderer::render(float dt)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
-#if 0
+#if 1
+
   // dispatch compute shaders
+
+  m_spheres->bind_buffer_base(1);
+
   m_render_shader->bind();
   m_render_shader->set_uniform("u_frames", m_frames);
   m_render_shader->set_uniform("u_samples", 8);
   m_render_shader->set_uniform("u_max_depth", 5);
+  m_render_shader->set_uniform("u_camera_position", m_camera.position);
+  m_render_shader->set_uniform("u_camera_target", m_camera.target);
+
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
   glDispatchCompute(m_width, m_height, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 #endif

@@ -85,6 +85,11 @@ namespace gfx
         GL_CALL(glBindBufferRange(target, index, m_id, offset, size));
       }
 
+      void bind_buffer_base(GLuint index)
+      {
+        GL_CALL(glBindBufferBase(target, index, m_id));
+      }
+
       template <typename T>
       void buffer_data(const std::span<T> &data, GLenum usage = GL_STATIC_DRAW)
       {
@@ -110,10 +115,10 @@ namespace gfx
       UniformBuffer() : Buffer(GL_UNIFORM_BUFFER) {}
     };
 
-    struct ShaderProgramStorageBuffer : public Buffer 
+    struct ShaderStorageBuffer : public Buffer 
     {
-      ShaderProgramStorageBuffer() : Buffer(GL_SHADER_STORAGE_BUFFER) {}
-    } ;
+      ShaderStorageBuffer() : Buffer(GL_SHADER_STORAGE_BUFFER) {}
+    };
 
     struct FrameBuffer : public Object
     {

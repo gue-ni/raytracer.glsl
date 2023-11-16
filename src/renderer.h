@@ -17,6 +17,10 @@ struct Camera {
   float aspect_ratio;
   float focal_length;
   float aperture;
+
+  Camera(const glm::vec3& position_, const glm::vec3& target_) 
+    : position(position_), target(target_)
+  {}
 };
 
 class Renderer : public Window {
@@ -33,6 +37,8 @@ private:
   std::unique_ptr<VertexBuffer> m_screen_quad_vbo = nullptr;
   
   std::unique_ptr<Texture> m_texture = nullptr;
+
+  std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
 
   Camera m_camera;
 };
