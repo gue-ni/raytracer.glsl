@@ -46,7 +46,7 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {0.0f, 0.0f, 0.0f}, 1.0f },
+    { {0.0f, 0.0f, 5.0f}, 1.0f },
   };
 
   m_spheres->bind();
@@ -68,7 +68,7 @@ void Renderer::render(float dt)
   m_render_shader->bind();
   m_render_shader->set_uniform("u_frames", m_frames);
   m_render_shader->set_uniform("u_samples", 8);
-  m_render_shader->set_uniform("u_max_depth", 5);
+  m_render_shader->set_uniform("u_max_bounce", 1);
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_target", m_camera.target);
 
