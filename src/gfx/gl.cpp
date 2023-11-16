@@ -47,6 +47,7 @@ namespace gfx
 
     void ShaderProgram::File::preprocess()
     {
+#if 0
       // TODO: serach and replace header
 
       std::regex pattern("#include\\s*<([^>]*)>");
@@ -62,6 +63,7 @@ namespace gfx
 
         return included_content;
     });
+#endif
     }
 
     ShaderProgram::ShaderProgram(const std::string &compute_shader_source)
