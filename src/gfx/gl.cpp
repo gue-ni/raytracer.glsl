@@ -33,25 +33,25 @@ namespace gfx
       }
     }
 
-    Shader::Shader(const std::string &compute_shader_source)
+    ShaderProgram::ShaderProgram(const std::string &compute_shader_source)
     {
       int success;
       char log[512];
 
       const char *shader_source_str = compute_shader_source.c_str();
 
-      GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
-      glShaderSource(compute_shader, 1, &shader_source_str, NULL);
-      glCompileShader(compute_shader);
-      glGetShaderiv(compute_shader, GL_COMPILE_STATUS, &success);
+      GLuint compute_shader = glCreateShaderProgram(GL_COMPUTE_SHADER);
+      glShaderProgramSource(compute_shader, 1, &shader_source_str, NULL);
+      glCompileShaderProgram(compute_shader);
+      glGetShaderProgramiv(compute_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
-        glGetShaderInfoLog(compute_shader, 512, NULL, log);
+        glGetShaderProgramInfoLog(compute_shader, 512, NULL, log);
         std::cerr << "Error: " << log;
       }
 
       m_id = glCreateProgram();
-      glAttachShader(m_id, compute_shader);
+      glAttachShaderProgram(m_id, compute_shader);
       glLinkProgram(m_id);
       glGetProgramiv(m_id, GL_LINK_STATUS, &success);
       if (!success)
@@ -60,40 +60,40 @@ namespace gfx
         std::cerr << "Error: " << log;
       }
 
-      glDeleteShader(compute_shader);
+      glDeleteShaderProgram(compute_shader);
     }
 
-    Shader::Shader(const std::string &vertex_shader_source, const std::string &fragment_shader_source)
+    ShaderProgram::ShaderProgram(const std::string &vertex_shader_source, const std::string &fragment_shader_source)
     {
       int success;
       char log[512];
 
       const char *vertex_shader_source_str = vertex_shader_source.c_str();
 
-      GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-      glShaderSource(vertex_shader, 1, &vertex_shader_source_str, NULL);
-      glCompileShader(vertex_shader);
-      glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+      GLuint vertex_shader = glCreateShaderProgram(GL_VERTEX_SHADER);
+      glShaderProgramSource(vertex_shader, 1, &vertex_shader_source_str, NULL);
+      glCompileShaderProgram(vertex_shader);
+      glGetShaderProgramiv(vertex_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, log);
+        glGetShaderProgramInfoLog(vertex_shader, 512, NULL, log);
         std::cerr << "Error: " << log;
       }
 
       const char *fragment_shader_source_str = fragment_shader_source.c_str();
-      GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-      glShaderSource(fragment_shader, 1, &fragment_shader_source_str, NULL);
-      glCompileShader(fragment_shader);
-      glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+      GLuint fragment_shader = glCreateShaderProgram(GL_FRAGMENT_SHADER);
+      glShaderProgramSource(fragment_shader, 1, &fragment_shader_source_str, NULL);
+      glCompileShaderProgram(fragment_shader);
+      glGetShaderProgramiv(fragment_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
-        glGetShaderInfoLog(fragment_shader, 512, NULL, log);
+        glGetShaderProgramInfoLog(fragment_shader, 512, NULL, log);
         std::cerr << "Error: " << log;
       }
 
       m_id = glCreateProgram();
-      glAttachShader(m_id, vertex_shader);
-      glAttachShader(m_id, fragment_shader);
+      glAttachShaderProgram(m_id, vertex_shader);
+      glAttachShaderProgram(m_id, fragment_shader);
       glLinkProgram(m_id);
       glGetProgramiv(m_id, GL_LINK_STATUS, &success);
       if (!success)
@@ -102,58 +102,58 @@ namespace gfx
         std::cerr << "Error: " << log;
       }
 
-      glDeleteShader(vertex_shader);
-      glDeleteShader(fragment_shader);
+      glDeleteShaderProgram(vertex_shader);
+      glDeleteShaderProgram(fragment_shader);
     }
 
-    Shader::~Shader() { glDeleteProgram(m_id); }
+    ShaderProgram::~ShaderProgram() { glDeleteProgram(m_id); }
 
-    void Shader::bind() const { glUseProgram(m_id); }
+    void ShaderProgram::bind() const { glUseProgram(m_id); }
 
-    void Shader::unbind() const { glUseProgram(0); }
+    void ShaderProgram::unbind() const { glUseProgram(0); }
 
-    void Shader::set_uniform(const std::string &name, GLint value) const
+    void ShaderProgram::set_uniform(const std::string &name, GLint value) const
     {
       glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
     }
 
-    void Shader::set_uniform(const std::string &name, GLuint value) const
+    void ShaderProgram::set_uniform(const std::string &name, GLuint value) const
     {
       glUniform1ui(glGetUniformLocation(m_id, name.c_str()), value);
     }
 
-    void Shader::set_uniform(const std::string &name, GLfloat value) const
+    void ShaderProgram::set_uniform(const std::string &name, GLfloat value) const
     {
       glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
     }
 
-    void Shader::set_uniform(const std::string &name, const glm::vec3 &value) const
+    void ShaderProgram::set_uniform(const std::string &name, const glm::vec3 &value) const
     {
       glUniform3fv(glGetUniformLocation(m_id, name.c_str()), 1, glm::value_ptr(value));
     }
 
-    void Shader::set_uniform(const std::string &name, const glm::vec4 &value) const
+    void ShaderProgram::set_uniform(const std::string &name, const glm::vec4 &value) const
     {
       glUniform4fv(glGetUniformLocation(m_id, name.c_str()), 1, glm::value_ptr(value));
     }
 
-    void Shader::set_uniform(const std::string &name, const glm::mat3 &value) const
+    void ShaderProgram::set_uniform(const std::string &name, const glm::mat3 &value) const
     {
       glUniformMatrix3fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
     }
 
-    void Shader::set_uniform(const std::string &name, const glm::mat4 &value) const
+    void ShaderProgram::set_uniform(const std::string &name, const glm::mat4 &value) const
     {
       glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
     }
 
-    void Shader::set_uniform_buffer(const std::string &name, GLuint binding)
+    void ShaderProgram::set_uniform_buffer(const std::string &name, GLuint binding)
     {
       GLuint index = glGetUniformBlockIndex(m_id, name.c_str());
       glUniformBlockBinding(m_id, index, binding);
     }
 
-    std::string Shader::string_from_file(const std::string& path)
+    std::string ShaderProgram::string_from_file(const std::string& path)
     {
       std::ifstream file(path);
       if (!file.is_open())

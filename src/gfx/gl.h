@@ -125,9 +125,9 @@ namespace gfx
       UniformBuffer() : Buffer(GL_UNIFORM_BUFFER) {}
     };
 
-    struct ShaderStorageBuffer : public Buffer 
+    struct ShaderProgramStorageBuffer : public Buffer 
     {
-      ShaderStorageBuffer() : Buffer(GL_SHADER_STORAGE_BUFFER) {}
+      ShaderProgramStorageBuffer() : Buffer(GL_SHADER_STORAGE_BUFFER) {}
     } ;
 
     struct FrameBuffer : public Object
@@ -155,11 +155,11 @@ namespace gfx
       void unbind() const { glBindRenderbuffer(GL_RENDERBUFFER, 0); }
     };
 
-    struct Shader : public Object
+    struct ShaderProgram : public Object
     {
-      Shader(const std::string& compute_shader_source);
-      Shader(const std::string &vertex_shader_source, const std::string &fragment_shader_source);
-      ~Shader();
+      ShaderProgram(const std::string& compute_shader_source);
+      ShaderProgram(const std::string &vertex_shader_source, const std::string &fragment_shader_source);
+      ~ShaderProgram();
       void bind() const;
       void unbind() const;
       void set_uniform(const std::string &name, GLint value) const;

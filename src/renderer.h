@@ -16,8 +16,8 @@ public:
   void render(float dt) override;
 
 private:
-  std::unique_ptr<Shader> m_screen_shader = nullptr; 
-  std::unique_ptr<Shader> m_render_shader = nullptr;
+  std::unique_ptr<ShaderProgram> m_screen_shader = nullptr; 
+  std::unique_ptr<ShaderProgram> m_render_shader = nullptr;
 
   std::unique_ptr<VertexArrayObject> m_screen_quad_vao = nullptr;
   std::unique_ptr<VertexBuffer> m_screen_quad_vbo = nullptr;
