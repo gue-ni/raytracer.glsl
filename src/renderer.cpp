@@ -52,6 +52,8 @@ void Renderer::render(float dt)
   // dispatch compute shaders
   m_render_shader->bind();
   m_render_shader->set_uniform("u_frames", m_frames);
+  m_render_shader->set_uniform("u_samples", 8);
+  m_render_shader->set_uniform("u_max_depth", 5);
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
   glDispatchCompute(m_width, m_height, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

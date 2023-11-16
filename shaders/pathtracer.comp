@@ -3,23 +3,42 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D image;
 
 uniform int u_frames;
+uniform int u_samples;
+uniform int u_max_depth;
 
-void main() {
+vec3 trace_path() 
+{
+  // TODO
+  return vec3(0);
+}
+
+void main() 
+{
   ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
   ivec2 image_size = imageSize(image);
 
   vec4 pixel = imageLoad(image, pixel_coords);
+  vec3 previous = pixel.rgb;
 
-  // [0,1]
+#if 1
   vec2 uv = vec2(pixel_coords) / vec2(image_size);
-
   vec3 col = vec3(uv.x,uv.y,0);
-
   pixel = vec4(col, 1);
+#endif
 
-  //
-  // interesting stuff happens here later
-  //
+#if 0
+  vec3 color = vec3(0);
+
+  for (int sample = 0; sample < u_samples; sample++)
+  {
+    color += trace_path();
+  }
+
+  color /= float(u_samples);
+
+  vec3 color_sum = previous * float(u_frames);
+  vec3 final_color = (color + color_sum) / (u_frames + 1);
+#endif
   
-  imageStore(image, pixel_coords, col);
+  imageStore(image, pixel_coords, pixel);
 }
