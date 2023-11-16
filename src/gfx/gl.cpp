@@ -33,6 +33,22 @@ namespace gfx
       }
     }
 
+    ShaderProgram::File(const std::string& path) : content(read_file_to_string(path))
+    {
+      if (content.empty()) {
+        std::cerr << "could not read file " << path << std::endl;
+      }
+      preprocess();
+      std::cout << "start ===== " << path << " ======\n";
+      std::cout << content << std::endl;
+      std::cout << " end ===== " << path << " ======\n";
+    }
+
+    void ShaderProgram::File::preprocess()
+    {
+      // TODO: serach and replace header
+    }
+
     ShaderProgram::ShaderProgram(const std::string &compute_shader_source)
     {
       int success;

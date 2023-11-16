@@ -168,10 +168,11 @@ namespace gfx
       // TODO: search for includes
       struct File {
         File(const std::string& path);
-        std::string get_string() const;
+        std::string content;
+        void preprocess();
       };
 
-      ShaderProgram() : m_id(glCreateProgram()) {}
+      // ShaderProgram() : m_id(glCreateProgram()) {}
       ShaderProgram(const std::map<ShaderType, File>& sources);
       ShaderProgram(const std::string& compute_shader_source);
       ShaderProgram(const std::string &vertex_shader_source, const std::string &fragment_shader_source);
