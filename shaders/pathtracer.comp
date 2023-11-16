@@ -68,7 +68,7 @@ bool intersect(Ray ray, Sphere sphere, float min_t, float max_t, inout HitInfo i
 
 int find_collision(Ray ray, inout HitInfo closest_hit)
 {
-  float min_t = 0.0;
+  float min_t = 0.001;
   float max_t = 10000.0;
   int closest_sphere = -1;
 
@@ -87,17 +87,6 @@ int find_collision(Ray ray, inout HitInfo closest_hit)
   }
 
   return closest_sphere;
-}
-
-vec3 test_trace(Ray ray)
-{
-    HitInfo hit;
-    if(find_collision(ray, hit))
-    {
-      return vec3(1);
-    } else {
-      return vec3(0,0,1);
-    }
 }
 
 vec3 trace_path(Ray ray) 
@@ -128,15 +117,12 @@ vec3 trace_path(Ray ray)
 void main() 
 {
   ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-  ivec2 image_size = imageSize(image);
 
   vec2 frag_coord = vec2(pixel_coords);
-  vec2 resolution = vec2(image_size);
+  vec2 resolution = vec2(imageSize(image));
 
-  vec4 pixel = imageLoad(image, pixel_coords);
-  vec3 previous = pixel.rgb;
+  vec3 previous = imageLoad(image, pixel_coords).rgb;
   
-  //vec2 uv = vec2(pixel_coords) / vec2(image_size);
   vec2 uv = (frag_coord.xy - 0.5 * resolution.xy) / resolution.y;
 
   Ray ray = Ray(vec3(0.0), normalize(vec3(uv.x, uv.y, 1.0)));  
@@ -159,7 +145,7 @@ void main()
 
   vec3 color_sum = previous * float(u_frames);
   vec3 final_color = (color + color_sum) / (u_frames + 1);
-  pixel = vec4(final_color, 1);
+  vec4 pixel = vec4(final_color, 1);
 #endif
 
   imageStore(image, pixel_coords, pixel);
