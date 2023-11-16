@@ -120,7 +120,7 @@ namespace gfx
       glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
-        glGetShaderProgramInfoLog(fragment_shader, 512, NULL, log);
+        glGetShaderInfoLog(fragment_shader, 512, NULL, log);
         std::cerr << "Error: " << log;
       }
 
