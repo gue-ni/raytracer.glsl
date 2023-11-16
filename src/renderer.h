@@ -5,12 +5,12 @@
 
 using namespace gfx::gl;
 
-struct Sphere {
+__declspec(align(16)) struct Sphere {
   glm::vec3 center; 
   float radius;
 };
 
-struct Material {
+__declspec(align(16)) struct Material {
   glm::vec3 albedo;
   glm::vec3 emission;
 };
