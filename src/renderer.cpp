@@ -35,7 +35,6 @@ Renderer::Renderer(int width, int height)
   m_screen_quad_vao->unbind();
 
   // setup texture
-
   m_texture->bind();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -65,4 +64,10 @@ void Renderer::render(float dt)
   m_screen_shader->set_uniform("u_texture", 0);
   m_screen_quad_vao->bind();
   glDrawArrays(GL_TRIANGLES, 0, 3 * 2);
+}
+
+void Renderer::event(const SDL_Event &event)
+{
+  // TODO: handle user input
+  // TODO: move camera
 }

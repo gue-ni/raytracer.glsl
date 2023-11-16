@@ -1,20 +1,25 @@
 #version 430
-layout(local_size_x = 1, local_size_y = 1) in;
-layout(rgba32f, binding = 0) uniform image2D output_image;
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D image;
 
 uniform int u_frames;
 
 void main() {
-  // base pixel colour for image
-  vec4 pixel = vec4(0.0, 0.5, 0.0, 1.0);
-  
-  // get index in global work group i.e x,y position
   ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-  
+  ivec2 image_size = imageSize(image);
+
+  vec4 pixel = imageLoad(image, pixel_coords);
+
+  // [0,1]
+  vec2 uv = vec2(pixel_coords) / vec2(image_size);
+
+  vec3 col = vec3(uv.x,uv.y,0);
+
+  pixel = vec4(col, 1);
+
   //
   // interesting stuff happens here later
   //
   
-  // output to a specific pixel in the image
-  imageStore(output_image, pixel_coords, pixel);
+  imageStore(image, pixel_coords, col);
 }

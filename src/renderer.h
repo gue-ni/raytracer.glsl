@@ -23,6 +23,7 @@ class Renderer : public Window {
 public:
   Renderer(int width, int height);
   void render(float dt) override;
+  void event(const SDL_Event &event) override;
 
 private:
   std::unique_ptr<ShaderProgram> m_screen_shader = nullptr; 
