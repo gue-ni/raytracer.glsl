@@ -74,14 +74,10 @@ namespace gfx
       void bind() const { GL_CALL(glBindBuffer(target, m_id)); }
       void unbind() const { GL_CALL(glBindBuffer(target, 0)); }
 
-      void buffer_data(const void *data, size_t size, GLenum usage = GL_STATIC_DRAW)
+      template <typename T>
+      void buffer_sub_data(size_t offset, const std::span<T> &data)
       {
-        GL_CALL(glNamedBufferData(m_id, size, data, usage));
-      }
-
-      void buffer_sub_data(size_t offset, size_t size, const void *data)
-      {
-        GL_CALL(glNamedBufferSubData(m_id, offset, size, data));
+        GL_CALL(glBufferSubData(offset, data.size_bytes(), data.data()));
       }
 
       void bind_buffer_range(GLuint index, size_t offset, size_t size)

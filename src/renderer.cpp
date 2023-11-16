@@ -10,7 +10,7 @@ Renderer::Renderer(int width, int height)
 {
 
   // setup screen quad
-  const glm::vec2 size = glm::vec2(0.25f);
+  const glm::vec2 size = glm::vec2(1.0f);
 
   const std::vector<glm::vec2> vertices = {
       {-size.x, +size.y}, {0, 1},  // top left
