@@ -24,7 +24,7 @@ Renderer::Renderer(int width, int height)
 
   m_screen_quad_vao->bind();
   m_screen_quad_vbo->bind();
-  m_screen_quad_vbo->buffer(vertices);
+  m_screen_quad_vbo->buffer_data(std::span(vertices));
 
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void *)0);
   glEnableVertexAttribArray(0);

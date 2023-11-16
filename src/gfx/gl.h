@@ -10,6 +10,7 @@
 #include <array>
 #include <memory>
 #include <map>
+#include <span>
 
 #include "image.h"
 
@@ -75,7 +76,6 @@ namespace gfx
 
       void buffer_data(const void *data, size_t size, GLenum usage = GL_STATIC_DRAW)
       {
-        bind();
         GL_CALL(glNamedBufferData(m_id, size, data, usage));
       }
 
@@ -89,22 +89,15 @@ namespace gfx
         GL_CALL(glBindBufferRange(target, index, m_id, offset, size));
       }
 
-      void buffer(const void *data, size_t size, GLenum usage = GL_STATIC_DRAW)
+      void buffer_data(const void *data, size_t size, GLenum usage = GL_STATIC_DRAW)
       {
-        bind();
         GL_CALL(glBufferData(target, size, data, usage));
       }
 
       template <typename T>
-      void buffer(const std::vector<T> &data, GLenum usage = GL_STATIC_DRAW)
+      void buffer_data(const std::span<T> &data, GLenum usage = GL_STATIC_DRAW)
       {
-        buffer_data(&data[0], sizeof(data[0]) * data.size(), usage);
-      }
-
-      template <typename T>
-      void buffer_2(const std::vector<T> &data, GLenum usage = GL_STATIC_DRAW)
-      {
-        GL_CALL(glBufferData(target, sizeof(data[0]) * data.size(), &data[0], usage));
+        GL_CALL(glBufferData(target, data.size_bytes(), data.data(), usage));
       }
 
     protected:
