@@ -30,6 +30,7 @@ void Window::run()
   m_clock.init();
   while (!m_quit)
   {
+    m_frames++;
     m_clock.tick();
     poll_events();
     render(m_clock.delta);

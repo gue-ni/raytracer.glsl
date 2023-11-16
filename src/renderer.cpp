@@ -50,7 +50,9 @@ void Renderer::render(float dt)
   glClear(GL_COLOR_BUFFER_BIT);
 
   // dispatch compute shaders
-  glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+  m_render_shader->bind();
+  m_render_shader->set_parameter("u_frames", m_frames);
+  glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
   glDispatchCompute(m_width, m_height, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -58,7 +60,7 @@ void Renderer::render(float dt)
 
   // draw scren quad
   m_screen_shader->bind();
-  m_screen_shader->set_uniform("u_Texture", 0);
+  m_screen_shader->set_uniform("u_texture", 0);
   m_screen_quad_vao->bind();
   glDrawArrays(GL_TRIANGLES, 0, 3 * 2);
 }
