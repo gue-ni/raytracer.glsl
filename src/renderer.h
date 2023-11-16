@@ -5,12 +5,21 @@
 
 using namespace gfx::gl;
 
-__declspec(align(16)) struct Sphere {
+#if defined(__GNUC__) || defined(__clang__)
+#  define ALIGN(x) __attribute__ ((aligned(x)))
+#elif defined(_MSC_VER)
+#  define ALIGN(x) __declspec(align(x))
+#else
+#  error "Unknown compiler; can't define ALIGN"
+#endif
+
+ALIGN(16) struct Sphere {
   glm::vec3 center; 
   float radius;
+  int material = 0;
 };
 
-__declspec(align(16)) struct Material {
+ALIGN(16) struct Material {
   glm::vec3 albedo;
   glm::vec3 emission;
 };

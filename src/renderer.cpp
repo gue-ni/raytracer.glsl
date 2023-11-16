@@ -51,9 +51,9 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {+2.5f, 0.0f, 7.0f}, 1.0f },
-    { { 0.0f, 0.0f, 7.0f}, 1.0f },
-    { {-2.5f, 0.0f, 7.0f}, 1.0f },
+    { {+2.5f, 0.0f, 7.0f}, 1.0f, 0 },
+    { { 0.0f, 0.0f, 7.0f}, 1.0f, 1 },
+    { {-2.5f, 0.0f, 7.0f}, 1.0f, 0 },
     //{ {0.0f, -1000.0f, 0.0f}, 1000.0f, 0 },
   };
 
@@ -63,7 +63,8 @@ Renderer::Renderer(int width, int height)
 #if 1
   // setup material 
   std::vector<Material> materials = {
-    { glm::vec3(), glm::vec3() },
+    { {0.75f, 0.0f, 0.0f }, glm::vec3(0.0f) },
+    { {0.75f, 0.75f, 0.75f}, glm::vec3(1.0f) },
   };
 
   m_materials->bind();
