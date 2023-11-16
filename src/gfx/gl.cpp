@@ -75,7 +75,7 @@ namespace gfx
 
       GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
       glShaderSource(compute_shader, 1, &shader_source_str, NULL);
-      glCompileProgram(compute_shader);
+      glCompileShader(compute_shader);
       glGetShaderiv(compute_shader, GL_COMPILE_STATUS, &success);
       if (!success)
       {
