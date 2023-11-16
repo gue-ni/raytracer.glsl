@@ -1,10 +1,13 @@
 #version 430
 out vec4 FragColor;
-
+in vec2 uv;
 uniform sampler2D u_texture;
 
 void main()
 {             
-    //FragColor = vec4(texture(u_texture, TexCoords).rgb, 1.0); 
-    FragColor = vec4(vec3(1,0,1), 1); 
+#if 0
+    FragColor = vec4(texture(u_texture, uv).rgb, 1.0); 
+#else
+    FragColor = vec4(1, 0, 1, 1); 
+#endif
 }
