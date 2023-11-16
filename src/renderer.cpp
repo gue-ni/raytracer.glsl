@@ -26,10 +26,10 @@ Renderer::Renderer(int width, int height)
   m_screen_quad_vbo->bind();
   m_screen_quad_vbo->buffer_data(std::span(vertices));
 
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void *)0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec2), (void *)0);
   glEnableVertexAttribArray(0);
 
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void *)(sizeof(glm::vec2)));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec2), (void *)(sizeof(glm::vec2)));
   glEnableVertexAttribArray(1);
 
   m_screen_quad_vao->unbind();
@@ -45,8 +45,9 @@ Renderer::Renderer(int width, int height)
 
 void Renderer::render(float dt)
 {
-  glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
 
 #if 0
   // dispatch compute shaders
@@ -65,7 +66,7 @@ void Renderer::render(float dt)
   m_screen_shader->bind();
   m_screen_shader->set_uniform("u_texture", 0);
   m_screen_quad_vao->bind();
-  glDrawArrays(GL_TRIANGLES, 0, 3 * 2);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void Renderer::event(const SDL_Event &event)
