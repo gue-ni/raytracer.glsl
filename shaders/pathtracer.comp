@@ -1,5 +1,7 @@
 #version 430
 
+#define PI 3.1415
+
 struct Sphere {
   vec3 center;
   float radius;
@@ -26,9 +28,13 @@ layout(std430, binding = 2) readonly buffer materialBuffer {
 uniform int u_frames;
 uniform int u_samples;
 uniform int u_max_bounce;
+uniform float u_time;
 
 uniform vec3 u_camera_target;
 uniform vec3 u_camera_position;
+
+vec2 frag_coord;
+float rng = u_time; // random number generator state
 
 struct Ray {
   vec3 origin;
@@ -41,9 +47,29 @@ struct HitInfo {
   vec3 normal;
 };
 
-vec3 random_in_hemisphere(vec3 normal)
+float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio
+
+float rand(in vec2 xy, in float seed){
+  return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
+}
+
+float random() {
+  rng += 0.1;
+  return rand(frag_coord, rng);
+}
+
+vec3 random_in_sphere()
 {
-  return vec3(0,1,0);
+    float z = random() * 2.0 - 1.0;
+    float a = random() * 2.0 * PI;
+    float r = sqrt(1.0f - z * z);
+    float x = r * cos(a);
+    float y = r * sin(a);
+    return vec3(x, y, z);
+}
+
+vec3 cosine_weighted(vec3 normal) {
+    return normalize(normal + random_in_sphere()); 
 }
 
 bool intersect(Ray ray, Sphere sphere, float min_t, float max_t, inout HitInfo info) 
@@ -106,8 +132,6 @@ vec3 trace_path(Ray ray)
 
   vec3 background = vec3(0.52, 0.80, 0.92);
 
-  vec3 light_dir = vec3(0,1,0);
-
   for (int bounce = 0; bounce < u_max_bounce; bounce++)
   {
     HitInfo hit;
@@ -124,10 +148,10 @@ vec3 trace_path(Ray ray)
     Material material = materials[sphere.material];
 
     vec3 point = hit.point + hit.normal * 0.001;
-    vec3 wi = random_in_hemisphere(hit.normal);
+    vec3 wi = cosine_weighted(hit.normal);
     ray = Ray(point, wi);
 
-    float cos_theta = dot(hit.normal, light_dir);
+    float cos_theta = dot(hit.normal, wi);
 
     throughput *= material.albedo; 
     radiance += material.emission * throughput;
@@ -140,14 +164,14 @@ void main()
 {
   ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 
-  vec2 frag_coord = vec2(pixel_coords);
+  frag_coord = vec2(pixel_coords);
   vec2 resolution = vec2(imageSize(image));
 
   vec3 previous = imageLoad(image, pixel_coords).rgb;
   
-  vec2 uv = (frag_coord.xy - 0.5 * resolution.xy) / resolution.y;
+  vec2 xy = (frag_coord.xy - 0.5 * resolution.xy) / resolution.y;
 
-  Ray ray = Ray(vec3(0.0), normalize(vec3(uv.x, uv.y, 1.0)));  
+  Ray ray = Ray(vec3(0.0), normalize(vec3(xy, 1.0)));  
 
 #if 0
   int tmp = int(u_frames) % int(1000);
@@ -168,6 +192,15 @@ void main()
   vec3 color_sum = previous * float(u_frames);
   vec3 final_color = (color + color_sum) / (u_frames + 1);
   vec4 pixel = vec4(final_color, 1);
+#endif
+
+#if 0
+  pixel = vec4(
+    random(),
+    random(),
+    random(),
+    1
+  );
 #endif
 
   imageStore(image, pixel_coords, pixel);

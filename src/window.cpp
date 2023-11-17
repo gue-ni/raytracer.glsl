@@ -35,6 +35,7 @@ void Window::run()
     poll_events();
     render(m_clock.delta);
     SDL_GL_SwapWindow(m_window);
+    m_time += m_clock.delta;
   }
 }
 

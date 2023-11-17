@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include <span>
+
 Renderer::Renderer(int width, int height) 
   : Window(width, height)
   , m_screen_shader(std::make_unique<ShaderProgram>(ShaderProgram::string_from_file("shaders/screen.vert"), ShaderProgram::string_from_file("shaders/screen.frag")))
@@ -49,12 +51,14 @@ Renderer::Renderer(int width, int height)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 
+  float r = 500;
+
   // setup spheres
   std::vector<Sphere> spheres = {
     { {+2.5f, 0.0f, 7.0f}, 1.0f, 0 },
     { { 0.0f, 0.0f, 7.0f}, 1.0f, 1 },
     { {-2.5f, 0.0f, 7.0f}, 1.0f, 0 },
-    //{ {0.0f, -1000.0f, 0.0f}, 1000.0f, 0 },
+    { { 0.0f, -(r + 1.0f), 7.0f}, r, 0 },
   };
 
   m_spheres->bind();
@@ -82,9 +86,10 @@ void Renderer::render(float dt)
   m_materials->bind_buffer_base(2);
 
   m_render_shader->bind();
+  m_render_shader->set_uniform("u_time", m_time);
   m_render_shader->set_uniform("u_frames", m_frames);
   m_render_shader->set_uniform("u_samples", 8);
-  m_render_shader->set_uniform("u_max_bounce", 1);
+  m_render_shader->set_uniform("u_max_bounce", 4);
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_target", m_camera.target);
 

@@ -25,6 +25,7 @@ public:
 protected:
     int m_width, m_height;
     int m_frames = 0;
+    float m_time = 0.0f;
     bool m_quit = false;
     SDL_Window *m_window = nullptr;
     SDL_GLContext m_context = nullptr;
