@@ -95,10 +95,12 @@ void Renderer::render(float dt)
   m_render_shader->bind();
   m_render_shader->set_uniform("u_time", m_time);
   m_render_shader->set_uniform("u_frames", m_frames);
-  m_render_shader->set_uniform("u_samples", 8);
-  m_render_shader->set_uniform("u_max_bounce", 4);
+  m_render_shader->set_uniform("u_samples", 4);
+  m_render_shader->set_uniform("u_max_bounce", 3);
+
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_target", m_camera.target);
+  m_render_shader->set_uniform("u_camera_fov", m_camera.fov);
   
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
@@ -126,7 +128,7 @@ void Renderer::render(float dt)
   if (m_timer > 2)
   {
     m_timer = 0;
-    std::cout << "Time: " << m_time << std::endl;
+    std::cout << std::format("Time: {}, Frames: {}, Fps: {}", m_time, m_frames, static_cast<float>(m_frames) / m_time) << std::endl;
   }
 #endif
 }
@@ -141,7 +143,7 @@ void Renderer::save_to_file() const
 
   Image image(pixels, m_width, m_height, 4);
 
-  std::string filename = std::format("render_{}_{}.png", timestamp, m_frames);
+  std::string filename = std::format("render_{}x{}_{}_{}.png", m_width, m_height, timestamp, m_frames);
 
   if (image.write_png(filename, true)) {
     std::cout << "Wrote render to " << filename << std::endl;
@@ -160,6 +162,21 @@ void Renderer::event(const SDL_Event &event)
   {
     break;
   }
+
+  case SDL_MOUSEWHEEL:
+  {
+
+    int y = event.wheel.y; 
+
+    std::cout << y << std::endl;
+
+    m_camera.position.z += y;
+    m_reset = true;
+
+
+    break;
+  }
+
   case SDL_KEYDOWN:
   {
     SDL_KeyboardEvent keyevent = event.key;

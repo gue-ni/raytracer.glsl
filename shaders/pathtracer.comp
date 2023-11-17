@@ -33,8 +33,10 @@ uniform bool u_reset_flag;
 
 uniform vec3 u_camera_target;
 uniform vec3 u_camera_position;
+uniform float u_camera_fov;
 
 vec2 frag_coord;
+float aspect_ratio;
 float rng = u_time; // random number generator state
 
 struct Ray {
@@ -71,6 +73,28 @@ vec3 random_in_sphere()
 
 vec3 cosine_weighted(vec3 normal) {
     return normalize(normal + random_in_sphere()); 
+}
+
+Ray camera_ray(vec2 xy)
+{
+
+  vec3 forward = normalize(u_camera_target - u_camera_position);
+  vec3 right = normalize(cross(forward, vec3(0,1,0)));
+  vec3 up = normalize(cross(right, forward));
+
+  float half_width = tan(u_camera_fov / 2);
+  float half_height = half_width * aspect_ratio;
+
+  float width = 2.0 * half_width;
+  float height = 2.0 * half_height;
+
+  vec3 target = u_camera_position + forward;
+  //vec3 bottom_left = target - (right * half_width) - (up * half_height);
+
+  vec3 view_point = target + (right * width * xy.x) + (up * height * xy.y);
+
+  //return Ray(u_camera_position, normalize(vec3(xy, 1.0)));
+  return Ray(u_camera_position, normalize(view_point - u_camera_position));
 }
 
 bool intersect(Ray ray, Sphere sphere, float min_t, float max_t, inout HitInfo info) 
@@ -131,8 +155,8 @@ vec3 trace_path(Ray ray)
   vec3 radiance = vec3(0);
   vec3 throughput = vec3(1);
 
-  //vec3 background = vec3(0.52, 0.80, 0.92);
-  vec3 background = vec3(0);
+  vec3 background = vec3(0.52, 0.80, 0.92) * 0.5;
+  //vec3 background = vec3(0);
 
   for (int bounce = 0; bounce < u_max_bounce; bounce++)
   {
@@ -169,6 +193,8 @@ void main()
   frag_coord = vec2(pixel_coords);
   vec2 resolution = vec2(imageSize(image));
 
+  aspect_ratio = resolution.y / resolution.x;
+
   vec3 previous = imageLoad(image, pixel_coords).rgb;
 
   if (u_reset_flag)
@@ -177,8 +203,9 @@ void main()
   }
   
   vec2 xy = (frag_coord.xy - 0.5 * resolution.xy) / resolution.y;
+  //vec2 xy = (frag_coord.xy - 0.5 * resolution.xy);
 
-  Ray ray = Ray(vec3(0.0), normalize(vec3(xy, 1.0)));  
+  Ray ray = camera_ray(xy);  
 
 #if 0
   int tmp = int(u_frames) % int(1000);

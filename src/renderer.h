@@ -33,7 +33,7 @@ struct Camera {
   float aperture;
 
   Camera(const glm::vec3& position_, const glm::vec3& target_) 
-    : position(position_), target(target_)
+    : position(position_), target(target_), fov(45.0f)
   {}
 };
 
