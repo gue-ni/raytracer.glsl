@@ -3,32 +3,27 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 #include <iostream>
 #include <utility>
 
 namespace gfx
 {
-  std::optional<Image> Image::open(const std::string& path, bool flip_vertically)
+  std::optional<Image> Image::open(const std::string &path, bool flip_vertically)
   {
     stbi_set_flip_vertically_on_load(flip_vertically);
     int width, height, channels;
-    unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-    if (data != nullptr) {
-      return std::optional{ Image(data, width, height, channels) };
-    } else {
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    if (data != nullptr)
+    {
+      return std::optional{Image(data, width, height, channels)};
+    }
+    else
+    {
       return std::nullopt;
     }
-  }
-
-  Image::Image(const std::string &path, bool flip_vertically)
-  {
-    stbi_set_flip_vertically_on_load(flip_vertically);
-    m_data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
-    if (m_data == nullptr)
-    {
-      std::cerr << "Failed to open Image: " << path << std::endl;
-    }
-    assert(m_data != nullptr);
   }
 
   Image::~Image()
@@ -68,4 +63,16 @@ namespace gfx
     return formats[m_channels - 1];
   }
 
+  bool Image::write_png(const std::string &path, bool flip_vertically) const
+  {
+    stbi_flip_vertically_on_write(flip_vertically);
+    return stbi_write_png(path.c_str(), m_width, m_height, m_channels, m_data, m_width * m_channels) != 0;
+  }
+
+  bool Image::read_png(const std::string &path, bool flip_vertically)
+  {
+    stbi_set_flip_vertically_on_load(flip_vertically);
+    m_data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
+    return m_data != nullptr;
+  }
 }

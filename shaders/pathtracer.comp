@@ -29,6 +29,7 @@ uniform int u_frames;
 uniform int u_samples;
 uniform int u_max_bounce;
 uniform float u_time;
+uniform bool u_reset_flag;
 
 uniform vec3 u_camera_target;
 uniform vec3 u_camera_position;
@@ -130,7 +131,8 @@ vec3 trace_path(Ray ray)
   vec3 radiance = vec3(0);
   vec3 throughput = vec3(1);
 
-  vec3 background = vec3(0.52, 0.80, 0.92);
+  //vec3 background = vec3(0.52, 0.80, 0.92);
+  vec3 background = vec3(0);
 
   for (int bounce = 0; bounce < u_max_bounce; bounce++)
   {
@@ -168,6 +170,11 @@ void main()
   vec2 resolution = vec2(imageSize(image));
 
   vec3 previous = imageLoad(image, pixel_coords).rgb;
+
+  if (u_reset_flag)
+  {
+    previous = vec3(0);
+  }
   
   vec2 xy = (frag_coord.xy - 0.5 * resolution.xy) / resolution.y;
 

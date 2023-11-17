@@ -193,8 +193,6 @@ namespace gfx
 
       Texture(GLenum target_ = GL_TEXTURE_2D) : target(target_) { glGenTextures(1, &m_id); }
       ~Texture() { glDeleteTextures(1, &m_id); }
-      Texture(const std::string &path);
-      Texture(const std::string &path, const Params &params);
       Texture(const Image &image, const Params &params);
       void bind() const;
       void bind(GLuint texture_unit) const;

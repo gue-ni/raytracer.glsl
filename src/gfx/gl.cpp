@@ -199,14 +199,6 @@ namespace gfx
       return buffer.str();
     }
 
-    Texture::Texture(const std::string &path) : Texture(path, {})
-    {
-    }
-
-    Texture::Texture(const std::string &path, const Params &params) : Texture(Image(path, params.flip_vertically), params)
-    {
-    }
-
     Texture::Texture(const Image &image, const Params &params) : Texture(GL_TEXTURE_2D)
     {
       glBindTexture(target, m_id);
@@ -239,7 +231,9 @@ namespace gfx
 
     std::shared_ptr<Texture> Texture::load(const std::string &path, const Params &params)
     {
-      return std::make_shared<Texture>(path, params);
+      Image image;
+      image.read_png(path);
+      return std::make_shared<Texture>(image, params);
     }
 
     std::shared_ptr<Texture> Texture::load(const std::string &path) { return Texture::load(path, {}); }
@@ -251,7 +245,8 @@ namespace gfx
 
       for (int i = 0; i < 6; i++)
       {
-        Image image(paths[i], flip_vertically);
+        Image image;
+        image.read_png(paths[i], flip_vertically);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image.format(), image.width(), image.height(), 0,
                      image.format(), GL_UNSIGNED_BYTE, image.data());
       }

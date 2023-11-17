@@ -1,6 +1,13 @@
 #include "renderer.h"
+#include "gfx/gfx.h"
 
 #include <span>
+#include <iostream>
+#include <chrono>
+#include <format>
+
+using namespace gfx;
+using namespace gfx::gl;
 
 Renderer::Renderer(int width, int height) 
   : Window(width, height)
@@ -92,6 +99,13 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_max_bounce", 4);
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_target", m_camera.target);
+  
+  m_render_shader->set_uniform("u_reset_flag", m_reset);
+  if (m_reset) {
+    m_reset = false;
+    m_time = 0;
+    m_frames = 0;
+  } 
 
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
@@ -106,11 +120,68 @@ void Renderer::render(float dt)
   m_screen_shader->set_uniform("u_texture", 0);
   m_screen_quad_vao->bind();
   glDrawArrays(GL_TRIANGLES, 0, 6);
+
+#if 1
+  m_timer += dt;
+  if (m_timer > 2)
+  {
+    m_timer = 0;
+    std::cout << "Time: " << m_time << std::endl;
+  }
+#endif
+}
+
+void Renderer::save_to_file() const
+{
+  GLubyte* pixels = new GLubyte[m_width * m_height * 4]; 
+  glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+  auto now = std::chrono::system_clock::now();
+  std::time_t timestamp = std::chrono::system_clock::to_time_t(now);
+
+  Image image(pixels, m_width, m_height, 4);
+
+  std::string filename = std::format("render_{}_{}.png", timestamp, m_frames);
+
+  if (image.write_png(filename, true)) {
+    std::cout << "Wrote render to " << filename << std::endl;
+  } else {
+    std::cerr << "Could not write render to " << filename << std::endl;
+  }
 }
 
 void Renderer::event(const SDL_Event &event)
 {
   m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
-  // TODO: handle user input
-  // TODO: move camera
+
+  switch (event.type)
+  {
+  case SDL_MOUSEMOTION:
+  {
+    break;
+  }
+  case SDL_KEYDOWN:
+  {
+    SDL_KeyboardEvent keyevent = event.key;
+    if (keyevent.repeat != 0)
+    {
+      return;
+    }
+
+    switch (keyevent.keysym.sym)
+    {
+    case SDLK_SPACE:
+      save_to_file();
+      break;
+
+    case SDLK_r:
+      m_reset = true;
+      break;
+
+    default:
+      break;
+    }
+    break;
+  }
+  }
 }

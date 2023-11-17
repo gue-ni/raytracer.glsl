@@ -42,6 +42,7 @@ public:
   Renderer(int width, int height);
   void render(float dt) override;
   void event(const SDL_Event &event) override;
+  void save_to_file() const;
 
 private:
   std::unique_ptr<ShaderProgram> m_screen_shader = nullptr; 
@@ -56,4 +57,8 @@ private:
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
 
   Camera m_camera;
+
+  bool m_reset = false;
+
+  float m_timer = 0;
 };

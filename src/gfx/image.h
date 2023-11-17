@@ -18,10 +18,10 @@ namespace gfx
       RGBA = GL_RGBA
     };
 
+    Image() : m_data(nullptr), m_width(0), m_height(0), m_channels(0) {}
     Image(unsigned char *data, int width, int height, int channels)
       : m_data(data), m_width(width), m_height(height), m_channels(channels) {}
 
-    Image(const std::string &path, bool flip_vertically = false);
     ~Image();
 
     Image(const Image &other) = delete;
@@ -36,6 +36,8 @@ namespace gfx
     int height() const;
     int channels() const;
     Format format() const;
+    bool write_png(const std::string& path, bool flip_vertically = false) const;
+    bool read_png(const std::string& path, bool flip_vertically = false);
 
   private:
     unsigned char *m_data = nullptr;
