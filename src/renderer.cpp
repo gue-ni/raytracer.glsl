@@ -18,7 +18,7 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
   , m_spheres(std::make_unique<ShaderStorageBuffer>())
   , m_materials(std::make_unique<ShaderStorageBuffer>())
-  , m_camera(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
+  , m_camera(glm::vec3(0.0f, 0.0f, -1.0f))
 {
   // setup screen quad
   const glm::vec2 size = glm::vec2(1.0f);
@@ -53,14 +53,18 @@ Renderer::Renderer(int width, int height)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 
-  float r = 500;
+  float r = 10000;
+  float w = 4.0f;
+  float h = 2.0f;
 
   // setup spheres
   std::vector<Sphere> spheres = {
     { {+2.5f, 0.0f, 7.0f}, 1.0f, 0 },
     { { 0.0f, 0.0f, 7.0f}, 1.0f, 1 },
     { {-2.5f, 0.0f, 7.0f}, 1.0f, 0 },
-    { { 0.0f, -(r + 1.0f), 7.0f}, r, 0 },
+    { { 0.0f, -(r + h), 7.0f}, r, 0 },
+    { { -(r + w), 0.0f, 7.0f}, r, 0 },
+    { { +(r + w), 0.0f, 7.0f}, r, 0 },
   };
 
   m_spheres->bind();
@@ -69,8 +73,9 @@ Renderer::Renderer(int width, int height)
 #if 1
   // setup material 
   std::vector<Material> materials = {
-    { {0.75f, 0.0f, 0.0f }, glm::vec3(0.0f) },
-    { {0.75f, 0.75f, 0.75f}, glm::vec3(1.0f) },
+    { {0.75f, 0.75f, 0.75f }, glm::vec3(0.0f) },
+    { {0.75f, 0.75f, 0.75f}, glm::vec3(12.0f) },
+    { {0.75f, 0.75f, 0.75f}, glm::vec3(0.0f) },
   };
 
   m_materials->bind();
@@ -232,7 +237,6 @@ void Renderer::event(const SDL_Event &event)
   }
 }
 
-
 void Renderer::keyboard_state(const Uint8* state)
 {
   const float speed = 0.25f;
@@ -251,6 +255,14 @@ void Renderer::keyboard_state(const Uint8* state)
   }
   if (state[SDL_SCANCODE_D]) {
     m_camera.position += (m_camera.right * speed);
+    m_reset = true;
+  }
+  if (state[SDL_SCANCODE_E]) {
+    m_camera.position += (m_camera.up * speed);
+    m_reset = true;
+  }
+  if (state[SDL_SCANCODE_Q]) {
+    m_camera.position -= (m_camera.up * speed);
     m_reset = true;
   }
 }
