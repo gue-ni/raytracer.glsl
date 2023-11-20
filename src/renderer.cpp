@@ -20,11 +20,6 @@ Renderer::Renderer(int width, int height)
   , m_materials(std::make_unique<ShaderStorageBuffer>())
   , m_camera(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
 {
-
-  //static_assert(sizeof(Material) == sizeof(float) * 6);
-  //static_assert(sizeof(Sphere) == (sizeof(float) * 4 + sizeof(int)));
-  //static_assert(sizeof(Sphere) == (sizeof(float) * 7));
-
   // setup screen quad
   const glm::vec2 size = glm::vec2(1.0f);
 
@@ -99,8 +94,10 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_max_bounce", 3);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
-  m_render_shader->set_uniform("u_camera_target", m_camera.target);
   m_render_shader->set_uniform("u_camera_fov", m_camera.fov);
+  m_render_shader->set_uniform("u_camera_forward", m_camera.forward);
+  m_render_shader->set_uniform("u_camera_right", m_camera.right);
+  m_render_shader->set_uniform("u_camera_up", m_camera.up);
   
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
@@ -125,10 +122,12 @@ void Renderer::render(float dt)
 
 #if 1
   m_timer += dt;
-  if (m_timer > 2)
+  if (m_timer > 1)
   {
     m_timer = 0;
-    std::cout << std::format("Time: {}, Frames: {}, Fps: {}", m_time, m_frames, static_cast<float>(m_frames) / m_time) << std::endl;
+    // std::cout << std::format("Time: {}, Frames: {}, Fps: {}", m_time, m_frames, static_cast<float>(m_frames) / m_time) << std::endl;
+    //std::cout << m_camera.orbit_position() << std::endl;
+    //std::cout << m_camera.radius << std::endl;
   }
 #endif
 }
@@ -158,22 +157,52 @@ void Renderer::event(const SDL_Event &event)
 
   switch (event.type)
   {
+  case SDL_MOUSEBUTTONDOWN:
+  {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+      m_mousedown = true;
+    } 
+    break;
+  }
+
+  case SDL_MOUSEBUTTONUP:
+  {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+      m_mousedown = false;
+    }
+    break;
+  }
+
   case SDL_MOUSEMOTION:
   {
+    const float sensitivity = 0.01f;
+    float delta_yaw = static_cast<float>(event.motion.xrel) * sensitivity;
+    float delta_pitch = static_cast<float>(event.motion.yrel) * sensitivity;
+
+    if (m_mousedown) {
+      m_camera.yaw += delta_yaw;
+      m_camera.pitch += delta_pitch;
+
+      printf("%.2f, %.2f\n", m_camera.yaw, m_camera.pitch);
+
+      m_camera.forward = vector_from_spherical(m_camera.pitch, m_camera.yaw);
+      m_camera.right = glm::normalize(glm::cross(m_camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+      m_camera.up = glm::normalize(glm::cross(m_camera.right, m_camera.forward));
+
+      m_reset = true;
+    }
     break;
   }
 
   case SDL_MOUSEWHEEL:
   {
-
     int y = event.wheel.y; 
-
-    std::cout << y << std::endl;
-
-    m_camera.position.z += y;
+#if 1
+    //m_camera.position.z += y;
+#else
+    m_camera.radius += glm::sign(y) * 0.5f;
+#endif
     m_reset = true;
-
-
     break;
   }
 
@@ -200,5 +229,28 @@ void Renderer::event(const SDL_Event &event)
     }
     break;
   }
+  }
+}
+
+
+void Renderer::keyboard_state(const Uint8* state)
+{
+  const float speed = 0.25f;
+
+  if (state[SDL_SCANCODE_W]) {
+    m_camera.position += (m_camera.forward * speed);
+    m_reset = true;
+  }
+  if (state[SDL_SCANCODE_S]) {
+    m_camera.position -= (m_camera.forward * speed);
+    m_reset = true;
+  }
+  if (state[SDL_SCANCODE_A]) {
+    m_camera.position -= (m_camera.right * speed);
+    m_reset = true;
+  }
+  if (state[SDL_SCANCODE_D]) {
+    m_camera.position += (m_camera.right * speed);
+    m_reset = true;
   }
 }

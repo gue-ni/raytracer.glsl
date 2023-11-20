@@ -24,17 +24,39 @@ ALIGN(16) struct Material {
   glm::vec3 emission;
 };
 
+inline glm::vec3 vector_from_spherical(float theta, float phi)
+{
+    float sin_phi = std::sin(phi);
+    float cos_phi = std::cos(phi);
+    float sin_theta = std::sin(theta);
+    float cos_theta = std::cos(theta);
+    return { 
+      cos_phi * sin_theta, 
+      cos_theta,
+      sin_phi * sin_theta, 
+    };
+}
+
 struct Camera {
   glm::vec3 position;
-  glm::vec3 target;
   float fov;
   float aspect_ratio;
   float focal_length;
   float aperture;
+  
+  float pitch = M_PI / 2;
+  float yaw = M_PI / 2;
+  float radius = 1.0f;
+
+  glm::vec3 forward = glm::vec3(0.0f, 0.0f, 1.0f);
+  glm::vec3 up      = glm::vec3(0.0f, 1.0f, 0.0f);
+  glm::vec3 right   = glm::vec3(-1.0f, 0.0f, 0.0f);
 
   Camera(const glm::vec3& position_, const glm::vec3& target_) 
-    : position(position_), target(target_), fov(45.0f)
+    : position(position_), fov(45.0f), forward(glm::normalize(target_ - position_))
   {}
+
+  
 };
 
 class Renderer : public Window {
@@ -42,6 +64,7 @@ public:
   Renderer(int width, int height);
   void render(float dt) override;
   void event(const SDL_Event &event) override;
+  void keyboard_state(const Uint8* state) override;
   void save_to_file() const;
 
 private:
@@ -59,6 +82,7 @@ private:
   Camera m_camera;
 
   bool m_reset = false;
+  bool m_mousedown = false;
 
   float m_timer = 0;
 };

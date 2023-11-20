@@ -35,4 +35,5 @@ protected:
 
     virtual void render(float dt);
     virtual void event(const SDL_Event &event);
+    virtual void keyboard_state(const Uint8* state);
 };

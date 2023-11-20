@@ -33,6 +33,8 @@ void Window::run()
     m_frames++;
     m_clock.tick();
     poll_events();
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    keyboard_state(state);
     render(m_clock.delta);
     SDL_GL_SwapWindow(m_window);
     m_time += m_clock.delta;
@@ -63,6 +65,10 @@ void Window::render(float dt)
 }
 
 void Window::event(const SDL_Event &event)
+{
+}
+
+void Window::keyboard_state(const Uint8 *state)
 {
 }
 

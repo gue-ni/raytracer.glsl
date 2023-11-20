@@ -31,9 +31,12 @@ uniform int u_max_bounce;
 uniform float u_time;
 uniform bool u_reset_flag;
 
-uniform vec3 u_camera_target;
 uniform vec3 u_camera_position;
 uniform float u_camera_fov;
+
+uniform vec3 u_camera_forward;
+uniform vec3 u_camera_up;
+uniform vec3 u_camera_right;
 
 vec2 frag_coord;
 float aspect_ratio;
@@ -77,10 +80,9 @@ vec3 cosine_weighted(vec3 normal) {
 
 Ray camera_ray(vec2 xy)
 {
-
-  vec3 forward = normalize(u_camera_target - u_camera_position);
-  vec3 right = normalize(cross(forward, vec3(0,1,0)));
-  vec3 up = normalize(cross(right, forward));
+  vec3 forward = u_camera_forward;
+  vec3 right = u_camera_right;
+  vec3 up = u_camera_up;
 
   float half_width = tan(u_camera_fov / 2);
   float half_height = half_width * aspect_ratio;
@@ -89,11 +91,9 @@ Ray camera_ray(vec2 xy)
   float height = 2.0 * half_height;
 
   vec3 target = u_camera_position + forward;
-  //vec3 bottom_left = target - (right * half_width) - (up * half_height);
 
   vec3 view_point = target + (right * width * xy.x) + (up * height * xy.y);
 
-  //return Ray(u_camera_position, normalize(vec3(xy, 1.0)));
   return Ray(u_camera_position, normalize(view_point - u_camera_position));
 }
 
