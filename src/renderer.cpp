@@ -5,7 +5,6 @@
 #include <iostream>
 #include <chrono>
 
-
 using namespace gfx;
 using namespace gfx::gl;
 
@@ -150,7 +149,15 @@ void Renderer::save_to_file() const
 
   Image image(pixels, m_width, m_height, 4);
 
-  std::string filename = std::format("render_{}x{}_{}_{}.png", m_width, m_height, timestamp, m_frames);
+  std::string filename = "render_" 
+    + std::to_string(m_width) 
+    + "x"
+    + std::to_string(m_height)
+    + "_"
+    + std::to_string(timestamp)
+    + "_"
+    + std::to_string(m_frames)
+    + ".png";
 
   if (image.write_png(filename, true)) {
     std::cout << "Wrote render to " << filename << std::endl;
