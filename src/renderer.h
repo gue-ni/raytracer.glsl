@@ -6,21 +6,23 @@
 using namespace gfx::gl;
 
 #if defined(__GNUC__) || defined(__clang__)
-#  define ALIGN(x) __attribute__ ((aligned(x)))
+#  define ALIGN_START(x)
+#  define ALIGN_END(x) __attribute__ ((aligned(x)))
 #elif defined(_MSC_VER)
-#  define ALIGN(x) __declspec(align(x))
+#  define ALIGN_START(x) __declspec(align(x))
+#  define ALIGN_END(x)
 #else
 #  error "Unknown compiler; can't define ALIGN"
 #endif
 
-ALIGN(16) struct Sphere {
+ALIGN_START(16) struct Sphere {
   glm::vec3 center; 
   float radius;
   int material = 0;
-};
+} ALIGN_END(16);
 
 // vec4 only for alignment purposes
-ALIGN(16) struct Material {
+ALIGN_START(16) struct Material {
 
   enum MaterialType: int {
     DIFFUSE       = 0,
@@ -31,7 +33,7 @@ ALIGN(16) struct Material {
   glm::vec4 albedo;
   glm::vec3 emission;
   MaterialType type = DIFFUSE;
-};
+} ALIGN_END(16);
 
 inline glm::vec3 vector_from_spherical(float pitch, float yaw)
 {
