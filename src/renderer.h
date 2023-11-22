@@ -21,13 +21,16 @@ ALIGN(16) struct Sphere {
 
 // vec4 only for alignment purposes
 ALIGN(16) struct Material {
+
+  enum MaterialType: int {
+    DIFFUSE       = 0,
+    SPECULAR      = 1,
+    TRANSMISSIVE  = 2,
+  };
+
   glm::vec4 albedo;
-  glm::vec4 emission;
-#if 0
-  Material(const glm::vec3& albedo_, const glm::vec3& emission_)
-    : albedo(glm::vec4(albedo_, 1.0f)), emission(glm::vec4(emission_, 1.0f))
-  {}
-#endif
+  glm::vec3 emission;
+  MaterialType type = DIFFUSE;
 };
 
 inline glm::vec3 vector_from_spherical(float theta, float phi)

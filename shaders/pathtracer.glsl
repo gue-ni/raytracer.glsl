@@ -10,7 +10,8 @@ struct Sphere {
 
 struct Material {
   vec4 albedo;
-  vec4 emission;
+  vec3 emission;
+  int type;
 };
 
 layout(local_size_x = 8, local_size_y = 8) in;
@@ -163,6 +164,11 @@ int find_collision(Ray ray, inout HitInfo closest_hit)
   return closest_sphere;
 }
 
+float fresnel()
+{
+  return 0;
+}
+
 vec3 trace_path(Ray ray) 
 {
   vec3 radiance = vec3(0.0);
@@ -181,25 +187,96 @@ vec3 trace_path(Ray ray)
 
     Sphere sphere = spheres[i];
     Material material = materials[sphere.material];
+
     vec3 albedo = material.albedo.rgb;
     vec3 emission = material.emission.rgb;
     float smoothness = material.albedo.w;
 
     vec3 point = hit.point + hit.normal * 0.001;
+    vec3 normal = hit.normal;
 
-    vec3 diffuse = cosine_weighted(hit.normal);
-    vec3 specular = reflect(ray.direction, hit.normal);
+    if (material.type == 0) { // diffuse
 
-    ray.origin = point;
-    ray.direction = mix(diffuse, specular, smoothness);
+      ray.origin = point;
+      ray.direction = cosine_weighted(hit.normal);
+      throughput *= albedo; 
 
-    float cos_theta = dot(hit.normal, -ray.direction);
+    } else if (material.type == 1) { // specular
 
-    vec3 brdf = albedo / PI;
-    float pdf = cos_theta / PI;
+      vec3 diffuse = cosine_weighted(hit.normal);
+      vec3 specular = reflect(ray.direction, hit.normal);
 
-    throughput *= (brdf * cos_theta / pdf); 
-    radiance += material.emission.rgb * throughput;
+      ray.origin = point;
+      ray.direction = mix(diffuse, specular, smoothness);
+
+      throughput *= albedo; 
+
+    } else if (material.type == 2) { // transparent
+
+      vec3 nl = dot(hit.normal, ray.direction) < 0 ? hit.normal : hit.normal * -1;
+
+      //float a = dot(hit.normal, ray.direction);
+
+      //float ab=dot(hit.normal,ray.direction), ddn=abs(ab);
+
+
+      bool into = dot(hit.normal, nl) > 0;
+      float nc = 1;
+      float nt = 1.5;
+      float nnt = into ? nc / nt : nt / nc;
+
+      float cosTheta = dot(ray.direction, nl);
+
+      double cosTheta2Sqr;
+
+#if 1
+	    if ((cosTheta2Sqr = 1 - nnt * nnt*(1 - cosTheta * cosTheta)) < 0)    // Total internal reflection
+      {
+        throughput *= albedo;
+        ray.direction = reflect(ray.direction, hit.normal);
+        break;
+      }
+#endif
+
+      vec3 tdir = refract(ray.direction, hit.normal, nnt);
+
+      // Schlick's Fresnel approximation:  Schlick, Christophe, An Inexpensive BDRF Model for Physically based Rendering,
+      float a = nt - nc;
+      float b = nt + nc;
+      float R0 = a * a / (b*b);
+      float cosTheta2 = dot(tdir, hit.normal);
+      float c = 1 - (into ? -cosTheta : cosTheta2);
+      float Re = R0 + (1 - R0)*c*c*c*c*c; // reflection weight
+      float Tr = 1 - Re; // refraction weight
+
+      // Russian roulette probability (for reflection)
+      float P = .25 + .5*Re;
+      // reflection weight boosted by the russian roulette probability
+      float RP = Re / P;
+      // refraction weight boosted by the russian roulette probability
+      float TP = Tr / (1 - P);
+
+#if 1
+      // Russian roulette decision (between reflected and refracted ray)
+		  if (rand() < P) {
+        throughput *= (albedo * RP);
+        ray.direction = reflect(ray.direction, hit.normal);
+      } else {
+        throughput *= (albedo * TP);
+        ray.direction = tdir;
+      }
+#else
+      throughput *= (albedo);
+      ray.direction = tdir;
+#endif
+    }
+
+    //float cos_theta = dot(hit.normal, -ray.direction);
+    //vec3 brdf = albedo / PI;
+    //float pdf = cos_theta / PI;
+    //throughput *= (brdf * cos_theta / pdf); 
+
+    radiance += emission * throughput;
   }
 
   return radiance;

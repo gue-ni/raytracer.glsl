@@ -19,7 +19,7 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
   , m_spheres(std::make_unique<ShaderStorageBuffer>())
   , m_materials(std::make_unique<ShaderStorageBuffer>())
-  , m_camera(glm::vec3(0.0f, 0.0f, -1.0f))
+  , m_camera(glm::vec3(0.0f, 0.0f, -2.0f))
 {
   // setup screen quad
   const glm::vec2 size = glm::vec2(1.0f);
@@ -62,13 +62,15 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {+1.5f, -1.0f, 7.5f}, 1.0f, 0 },
+    { {+2.5f, -1.0f, 7.5f}, 1.0f, 0 },
     { { 0.0f, h + l * 0.99f , 7.0f}, l, 1 },
-    { {-1.5f, -1.0f, 6.5f}, 1.0f, 5 },
+    { {-2.5f, -1.0f, 6.5f}, 1.0f, 5 },
+    { {0.0f, -1.0f, 7.0f}, 1.0f, 6 },
 
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
     { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 3 },
+    { { 0.0f, 0.0f, -(r + w)}, r, 3 },
     { { -(r + w), 0.0f, 7.0f}, r, 4 },
     { { +(r + w), 0.0f, 7.0f}, r, 2 },
   };
@@ -79,12 +81,13 @@ Renderer::Renderer(int width, int height)
 #if 1
   // setup material 
   std::vector<Material> materials = {
-    { {0.75f, 0.75f, 0.75f, 0.0f }, glm::vec4(0.0f) },
-    { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(12.0f) },
+    { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
+    { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(20.0f) },
     { {0.75f, 0.00f, 0.00f, 0.0f}, glm::vec4(0.0f) },
     { {0.99f, 0.99, 0.99, 0.0f}, glm::vec4(0.0f) },
     { {0.00f, 0.75f, 0.00f, 0.0f}, glm::vec4(0.0f) },
-    { {0.75f, 0.75f, 0.75f, 0.99f }, glm::vec4(0.0f) },
+    { {0.75f, 0.75f, 0.75f, 0.99f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
+    { {0.75f, 0.75f, 0.75f, 0.0f }, glm::vec4(0.0f), Material::MaterialType::TRANSMISSIVE },
   };
 
   m_materials->bind();
