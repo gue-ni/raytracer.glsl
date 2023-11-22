@@ -1,7 +1,7 @@
 #version 430
 
 #define PI        3.14159265359
-#define EPSILON   0.001 
+#define EPSILON   0.001
 #define INF       1e5
 
 struct Sphere {
@@ -44,7 +44,6 @@ uniform vec3 u_camera_right;
 
 vec2 frag_coord;
 float aspect_ratio;
-float rng = u_time; // random number generator state
 
 struct Ray {
   vec3 origin;
@@ -147,7 +146,9 @@ int find_collision(Ray ray, inout HitInfo closest_hit)
   {
     HitInfo hit;
 
-    if ((t = sphere_intersect(ray, spheres[i])) < INF && t < max_t)
+    float t = sphere_intersect(ray, spheres[i]);
+
+    if (EPSILON < t && t < max_t)
     {
       hit.t = t;
       hit.point = ray.origin + ray.direction * t;
@@ -192,8 +193,7 @@ vec3 trace_path(Ray ray)
 
     bool inside = dot(-ray.direction, hit.normal) < 0;
 
-    vec3 point = hit.point + hit.normal * EPSILON * (inside ? -1 : 1);
-    //vec3 point = hit.point;
+    vec3 point = hit.point;
     vec3 normal = hit.normal;
 
     ray.origin = point;
@@ -214,17 +214,11 @@ vec3 trace_path(Ray ray)
 
     } else if (material.type == 2) { // transparent
 
-      vec3 nl = dot(hit.normal, ray.direction) < 0 ? hit.normal : hit.normal * -1;
+      vec3 nl = inside ? -hit.normal : hit.normal;
 
-      //float a = dot(hit.normal, ray.direction);
-
-      //float ab=dot(hit.normal,ray.direction), ddn=abs(ab);
-
-
-      bool into = dot(hit.normal, nl) > 0;
       float nc = 1;
       float nt = 1.5;
-      float nnt = into ? nc / nt : nt / nc;
+      float nnt = !inside ? nc / nt : nt / nc;
 
       float cosTheta = dot(ray.direction, nl);
 
@@ -239,14 +233,14 @@ vec3 trace_path(Ray ray)
       }
 #endif
 
-      vec3 tdir = refract(ray.direction, hit.normal, nnt);
+      vec3 tdir = refract(ray.direction, nl, nnt);
 
       // Schlick's Fresnel approximation:  Schlick, Christophe, An Inexpensive BDRF Model for Physically based Rendering,
       float a = nt - nc;
       float b = nt + nc;
       float R0 = a * a / (b*b);
       float cosTheta2 = dot(tdir, hit.normal);
-      float c = 1 - (into ? -cosTheta : cosTheta2);
+      float c = 1 - (!inside ? -cosTheta : cosTheta2);
       float Re = R0 + (1 - R0)*c*c*c*c*c; // reflection weight
       float Tr = 1 - Re; // refraction weight
 
@@ -257,7 +251,7 @@ vec3 trace_path(Ray ray)
       // refraction weight boosted by the russian roulette probability
       float TP = Tr / (1 - P);
 
-#if 0
+#if 1
       // Russian roulette decision (between reflected and refracted ray)
 		  if (rand() < P) {
         throughput *= (albedo * RP);
