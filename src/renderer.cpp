@@ -22,16 +22,11 @@ Renderer::Renderer(int width, int height)
   , m_camera(glm::vec3(0.0f, 0.0f, -2.0f))
 {
   // setup screen quad
-  const glm::vec2 size = glm::vec2(1.0f);
-
   const std::vector<glm::vec2> vertices = {
-      {-size.x, +size.y}, {0, 1},  // top left
-      {-size.x, -size.y}, {0, 0},  // bottom left
-      {+size.x, +size.y}, {1, 1},  // top right
-
-      {+size.x, +size.x}, {1, 1},  // top right
-      {-size.x, -size.y}, {0, 0},  // bottom left
-      {+size.x, -size.y}, {1, 0},  // bottom right
+      {-1, +1}, {0, 1},  // top left
+      {-1, -1}, {0, 0},  // bottom left
+      {+1, +1}, {1, 1},  // top right
+      {+1, -1}, {1, 0},  // bottom right
   };
 
   m_screen_quad_vao->bind();
@@ -57,15 +52,15 @@ Renderer::Renderer(int width, int height)
   float r = 10000;
   float w = 5.0f;
   float h = 3.0f;
-
   float l = 10.0f;
+  float sr = 1.1f;
 
   // setup spheres
   std::vector<Sphere> spheres = {
     { { 0.0f, h + l * 0.99f , 7.0f}, l, 1 },
-    { {+2.5f, -1.0f, 7.5f}, 1.0f, 0 },
-    { {-2.5f, -1.0f, 6.5f}, 1.0f, 5 },
-    { {0.0f, -1.0f, 7.0f}, 1.0f, 6 },
+    { {+2.5f, -h + sr, 7.5f}, sr, 0 },
+    { {-2.5f, -h + sr, 6.5f}, sr, 6 },
+    { {0.0f, -h + sr, 7.0f}, sr, 5 },
 
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
@@ -135,7 +130,7 @@ void Renderer::render(float dt)
   m_screen_shader->bind();
   m_screen_shader->set_uniform("u_texture", 0);
   m_screen_quad_vao->bind();
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 #if 1
   m_timer += dt;
