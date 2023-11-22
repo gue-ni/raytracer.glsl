@@ -33,17 +33,13 @@ ALIGN(16) struct Material {
   MaterialType type = DIFFUSE;
 };
 
-inline glm::vec3 vector_from_spherical(float theta, float phi)
+inline glm::vec3 vector_from_spherical(float pitch, float yaw)
 {
-    float sin_phi = std::sin(phi);
-    float cos_phi = std::cos(phi);
-    float sin_theta = std::sin(theta);
-    float cos_theta = std::cos(theta);
-    return { 
-      cos_phi * sin_theta, 
-      cos_theta,
-      sin_phi * sin_theta, 
-    };
+    return {
+        std::cos(yaw) * std::sin(pitch),
+        std::cos(pitch),
+        std::sin(yaw) * std::sin(pitch)
+     };
 }
 
 struct Camera {
