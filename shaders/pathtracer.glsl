@@ -142,7 +142,7 @@ bool intersect(Ray ray, Sphere sphere, float min_t, float max_t, inout HitInfo i
 
 int find_collision(Ray ray, inout HitInfo closest_hit)
 {
-  float min_t = 0.01;
+  float min_t = 0.0001;
   float max_t = 10000.0;
   int closest_sphere = -1;
 
@@ -181,12 +181,24 @@ vec3 trace_path(Ray ray)
 
     Sphere sphere = spheres[i];
     Material material = materials[sphere.material];
+    vec3 albedo = material.albedo.rgb;
+    vec3 emission = material.emission.rgb;
+    float smoothness = material.albedo.w;
 
     vec3 point = hit.point + hit.normal * 0.001;
-    vec3 wi = cosine_weighted(hit.normal);
-    ray = Ray(point, wi);
 
-    throughput *= material.albedo.rgb; 
+    vec3 diffuse = cosine_weighted(hit.normal);
+    vec3 specular = reflect(ray.direction, hit.normal);
+
+    ray.origin = point;
+    ray.direction = mix(diffuse, specular, smoothness);
+
+    float cos_theta = dot(hit.normal, -ray.direction);
+
+    vec3 brdf = albedo / PI;
+    float pdf = cos_theta / PI;
+
+    throughput *= (brdf * cos_theta / pdf); 
     radiance += material.emission.rgb * throughput;
   }
 

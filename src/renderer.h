@@ -23,6 +23,11 @@ ALIGN(16) struct Sphere {
 ALIGN(16) struct Material {
   glm::vec4 albedo;
   glm::vec4 emission;
+#if 0
+  Material(const glm::vec3& albedo_, const glm::vec3& emission_)
+    : albedo(glm::vec4(albedo_, 1.0f)), emission(glm::vec4(emission_, 1.0f))
+  {}
+#endif
 };
 
 inline glm::vec3 vector_from_spherical(float theta, float phi)

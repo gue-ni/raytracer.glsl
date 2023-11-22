@@ -58,11 +58,13 @@ Renderer::Renderer(int width, int height)
   float w = 5.0f;
   float h = 3.0f;
 
+  float l = 10.0f;
+
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {+1.5f, -1.0f, 7.5f}, 1.0f, 2 },
-    { { 0.0f, 3.0f, 7.0f}, 1.0f, 1 },
-    { {-1.5f, -1.0f, 6.5f}, 1.0f, 2 },
+    { {+1.5f, -1.0f, 7.5f}, 1.0f, 0 },
+    { { 0.0f, h + l * 0.99f , 7.0f}, l, 1 },
+    { {-1.5f, -1.0f, 6.5f}, 1.0f, 5 },
 
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
@@ -77,11 +79,12 @@ Renderer::Renderer(int width, int height)
 #if 1
   // setup material 
   std::vector<Material> materials = {
-    { {0.75f, 0.75f, 0.75f, 1.0f }, glm::vec4(0.0f) },
-    { {0.75f, 0.75f, 0.75f, 1.0f}, glm::vec4(12.0f) },
-    { {0.75f, 0.00f, 0.00f, 1.0f}, glm::vec4(0.0f) },
-    { {0.99f, 0.99, 0.99, 1.0f}, glm::vec4(0.0f) },
-    { {0.00f, 0.75f, 0.00f, 1.0f}, glm::vec4(0.0f) },
+    { {0.75f, 0.75f, 0.75f, 0.0f }, glm::vec4(0.0f) },
+    { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(12.0f) },
+    { {0.75f, 0.00f, 0.00f, 0.0f}, glm::vec4(0.0f) },
+    { {0.99f, 0.99, 0.99, 0.0f}, glm::vec4(0.0f) },
+    { {0.00f, 0.75f, 0.00f, 0.0f}, glm::vec4(0.0f) },
+    { {0.75f, 0.75f, 0.75f, 0.99f }, glm::vec4(0.0f) },
   };
 
   m_materials->bind();
@@ -195,8 +198,6 @@ void Renderer::event(const SDL_Event &event)
       m_camera.yaw += delta_yaw;
       m_camera.pitch += delta_pitch;
 
-      // printf("%.2f, %.2f\n", m_camera.yaw, m_camera.pitch);
-
       m_camera.forward = vector_from_spherical(m_camera.pitch, m_camera.yaw);
       m_camera.right = glm::normalize(glm::cross(m_camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
       m_camera.up = glm::normalize(glm::cross(m_camera.right, m_camera.forward));
@@ -246,7 +247,7 @@ void Renderer::event(const SDL_Event &event)
 
 void Renderer::keyboard_state(const Uint8* state)
 {
-  const float speed = 0.25f;
+  const float speed = 10.0f * m_clock.delta;
 
   if (state[SDL_SCANCODE_W]) {
     m_camera.position += (m_camera.forward * speed);
