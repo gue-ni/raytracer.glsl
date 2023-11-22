@@ -54,15 +54,28 @@ struct HitInfo {
   vec3 normal;
 };
 
-float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio
 
-float random_float(in vec2 xy, in float seed){
-  return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
+//RNG from code by Moroz Mykhailo (https://www.shadertoy.com/view/wltcRS)
+//internal RNG state 
+uvec4 seed;
+
+void init_rand(vec2 p, int frame)
+{
+  seed = uvec4(p, uint(frame), uint(p.x) + uint(p.y));
 }
 
-float rand() {
-  rng += 0.1;
-  return random_float(frag_coord, rng);
+void pcg4d(inout uvec4 v)
+{
+  v = v * 1664525u + 1013904223u;
+  v.x += v.y * v.w; v.y += v.z * v.x; v.z += v.x * v.y; v.w += v.y * v.z;
+  v = v ^ (v >> 16u);
+  v.x += v.y * v.w; v.y += v.z * v.x; v.z += v.x * v.y; v.w += v.y * v.z;
+}
+
+float rand()
+{
+  pcg4d(seed); 
+  return float(seed.x) / float(0xffffffffu);
 }
 
 vec3 random_in_sphere()
@@ -167,7 +180,6 @@ vec3 trace_path(Ray ray)
       break;
     }
 
-
     Sphere sphere = spheres[i];
     Material material = materials[sphere.material];
 
@@ -188,6 +200,8 @@ void main()
 
   frag_coord = vec2(pixel_coords);
   vec2 resolution = vec2(imageSize(image));
+
+  init_rand(frag_coord, u_frames);
 
   aspect_ratio = resolution.y / resolution.x;
 
