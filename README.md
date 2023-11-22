@@ -1,7 +1,14 @@
 # OpenGL Pathtracer with Compute Shaders
 
+![](renders/render_1920x1080_1700684449_23336.png)
 
-## TODO
+## Features
 
-- moveable camera
-- object loading
+- [x] moveable camera
+- [ ] object loading
+- [ ] physically based rendering
+
+## Inspiration
+
+- [Shadertoy smallpt](https://www.shadertoy.com/view/4sfGDB)
+
