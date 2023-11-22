@@ -1,7 +1,7 @@
 #version 430
 
 #define PI        3.14159265359
-#define EPSILON   0.001
+#define EPSILON   0.005
 #define INF       1e5
 #define NO_HIT    -1
 
@@ -189,7 +189,11 @@ vec3 trace_path(Ray ray)
 
     bool inside = dot(-ray.direction, hit.normal) < 0;
 
+#if 1
     vec3 point = hit.point;
+#else
+    vec3 point = hit.point + hit.normal * EPSILON * (inside ? -1 : 1);
+#endif
     vec3 normal = hit.normal;
 
     ray.origin = point;

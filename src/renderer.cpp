@@ -17,7 +17,7 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
   , m_spheres(std::make_unique<ShaderStorageBuffer>())
   , m_materials(std::make_unique<ShaderStorageBuffer>())
-  , m_camera(glm::vec3(0.0f, 0.0f, -2.0f))
+  , m_camera(glm::vec3(0.0f, 0.0f, -12.0f))
 {
   // setup screen quad
   const std::vector<glm::vec2> vertices = {
@@ -48,16 +48,16 @@ Renderer::Renderer(int width, int height)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 
   float r = 10000;
-  float w = 5.0f;
-  float h = 3.0f;
-  float l = 10.0f;
-  float sr = 1.1f;
+  float w = 16.0f;
+  float h = 9.0f;
+  float l = 100.0f;
+  float sr = 3.0f;
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { { 0.0f, h + l * 0.99f , 7.0f}, l, 1 },
-    { {+2.5f, -h + sr, 7.5f}, sr, 0 },
-    { {-2.5f, -h + sr, 6.5f}, sr, 6 },
+    { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
+    { {+7.0f, -h + sr, 7.5f}, sr, 0 },
+    { {-7.0f, -h + sr, 6.5f}, sr, 6 },
     { {0.0f, -h + sr, 7.0f}, sr, 5 },
 
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
