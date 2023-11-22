@@ -13,7 +13,7 @@ using namespace gfx::gl;
 Renderer::Renderer(int width, int height) 
   : Window(width, height)
   , m_screen_shader(std::make_unique<ShaderProgram>(ShaderProgram::string_from_file("shaders/screen.vert"), ShaderProgram::string_from_file("shaders/screen.frag")))
-  , m_render_shader(std::make_unique<ShaderProgram>(ShaderProgram::string_from_file("shaders/pathtracer.comp")))
+  , m_render_shader(std::make_unique<ShaderProgram>(ShaderProgram::string_from_file("shaders/pathtracer.glsl")))
   , m_texture(std::make_unique<Texture>())
   , m_screen_quad_vao(std::make_unique<VertexArrayObject>())
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
@@ -55,19 +55,20 @@ Renderer::Renderer(int width, int height)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 
   float r = 10000;
-  float w = 4.0f;
-  float h = 2.0f;
+  float w = 5.0f;
+  float h = 3.0f;
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {+2.5f, 0.0f, 7.0f}, 1.0f, 2 },
-    { { 0.0f, 0.0f, 7.0f}, 1.0f, 1 },
-    { {-2.5f, 0.0f, 7.0f}, 1.0f, 2 },
+    { {+1.5f, -1.0f, 7.5f}, 1.0f, 2 },
+    { { 0.0f, 3.0f, 7.0f}, 1.0f, 1 },
+    { {-1.5f, -1.0f, 6.5f}, 1.0f, 2 },
 
-    { { 0.0f, -(r + h), 7.0f}, r, 0 },
-    //{ { 0.0f, 0.0f, 7.0f + (r + w)}, r, 0 },
-    //{ { -(r + w), 0.0f, 7.0f}, r, 0 },
-    //{ { +(r + w), 0.0f, 7.0f}, r, 0 },
+    { { 0.0f, -(r + h), 7.0f}, r, 3 },
+    { { 0.0f, +(r + h), 7.0f}, r, 3 },
+    { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 3 },
+    { { -(r + w), 0.0f, 7.0f}, r, 3 },
+    { { +(r + w), 0.0f, 7.0f}, r, 3 },
   };
 
   m_spheres->bind();
@@ -77,8 +78,9 @@ Renderer::Renderer(int width, int height)
   // setup material 
   std::vector<Material> materials = {
     { {0.75f, 0.75f, 0.75f, 1.0f }, glm::vec4(0.0f) },
-    { {0.75f, 0.75f, 0.75f, 1.0f}, glm::vec4(5.0f) },
+    { {0.75f, 0.75f, 0.75f, 1.0f}, glm::vec4(12.0f) },
     { {0.75f, 0.00f, 0.00f, 1.0f}, glm::vec4(0.0f) },
+    { {0.99f, 0.99, 0.99, 1.0f}, glm::vec4(0.0f) },
   };
 
   m_materials->bind();
@@ -118,7 +120,8 @@ void Renderer::render(float dt)
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
   // dispatch compute shaders
-  glDispatchCompute(m_width / 4, m_height / 4, 1);
+  int work_group_size = 8;
+  glDispatchCompute(m_width / work_group_size, m_height / work_group_size, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
   m_texture->bind(0);
