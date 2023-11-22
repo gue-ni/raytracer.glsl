@@ -54,7 +54,6 @@ struct HitInfo {
   vec3 normal;
 };
 
-
 //RNG from code by Moroz Mykhailo (https://www.shadertoy.com/view/wltcRS)
 //internal RNG state 
 uvec4 seed;
@@ -205,24 +204,17 @@ void main()
 
   aspect_ratio = resolution.y / resolution.x;
 
-  vec3 previous = imageLoad(image, pixel_coords).rgb;
+  vec3 previous;
 
-  if (u_reset_flag)
-  {
+  if (u_reset_flag) {
     previous = vec3(0);
+  } else {
+    previous = imageLoad(image, pixel_coords).rgb;
   }
   
-  vec2 xy = (frag_coord.xy - 0.5 * resolution.xy) / resolution.y;
-  //vec2 xy = (frag_coord.xy - 0.5 * resolution.xy);
+  vec2 xy = (frag_coord / resolution) * 2.0 - 1.0;
 
   Ray ray = camera_ray(xy);  
-
-#if 0
-  int tmp = int(u_frames) % int(1000);
-  vec3 col = vec3(uv.x, uv.y, float(tmp) / float(1000));
-  vec4 pixel = vec4(col, 1);
-
-#else
 
   vec3 color = vec3(0);
 
@@ -236,16 +228,7 @@ void main()
   vec3 color_sum = previous * float(u_frames);
   vec3 final_color = (color + color_sum) / (u_frames + 1);
   vec4 pixel = vec4(final_color, 1);
-#endif
 
-#if 0
-  pixel = vec4(
-    rand(),
-    rand(),
-    rand(),
-    1.0
-  );
-#endif
 
   imageStore(image, pixel_coords, pixel);
 }

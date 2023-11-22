@@ -67,8 +67,8 @@ Renderer::Renderer(int width, int height)
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
     { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 3 },
-    { { -(r + w), 0.0f, 7.0f}, r, 3 },
-    { { +(r + w), 0.0f, 7.0f}, r, 3 },
+    { { -(r + w), 0.0f, 7.0f}, r, 4 },
+    { { +(r + w), 0.0f, 7.0f}, r, 2 },
   };
 
   m_spheres->bind();
@@ -81,6 +81,7 @@ Renderer::Renderer(int width, int height)
     { {0.75f, 0.75f, 0.75f, 1.0f}, glm::vec4(12.0f) },
     { {0.75f, 0.00f, 0.00f, 1.0f}, glm::vec4(0.0f) },
     { {0.99f, 0.99, 0.99, 1.0f}, glm::vec4(0.0f) },
+    { {0.00f, 0.75f, 0.00f, 1.0f}, glm::vec4(0.0f) },
   };
 
   m_materials->bind();
@@ -113,8 +114,7 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
     m_reset = false;
-    m_time = 0;
-    m_frames = 0;
+    m_time = m_frames = 0;
   } 
 
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
