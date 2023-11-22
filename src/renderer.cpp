@@ -62,14 +62,14 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {+2.5f, -1.0f, 7.5f}, 1.0f, 0 },
     { { 0.0f, h + l * 0.99f , 7.0f}, l, 1 },
+    { {+2.5f, -1.0f, 7.5f}, 1.0f, 0 },
     { {-2.5f, -1.0f, 6.5f}, 1.0f, 5 },
     { {0.0f, -1.0f, 7.0f}, 1.0f, 6 },
 
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
-    { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 3 },
+    { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 7 },
     { { 0.0f, 0.0f, -(r + w)}, r, 3 },
     { { -(r + w), 0.0f, 7.0f}, r, 4 },
     { { +(r + w), 0.0f, 7.0f}, r, 2 },
@@ -78,21 +78,20 @@ Renderer::Renderer(int width, int height)
   m_spheres->bind();
   m_spheres->buffer_data(std::span(spheres));
 
-#if 1
   // setup material 
   std::vector<Material> materials = {
-    { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
+    { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::DIFFUSE },
     { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(20.0f) },
     { {0.75f, 0.00f, 0.00f, 0.0f}, glm::vec4(0.0f) },
     { {0.99f, 0.99, 0.99, 0.0f}, glm::vec4(0.0f) },
     { {0.00f, 0.75f, 0.00f, 0.0f}, glm::vec4(0.0f) },
-    { {0.75f, 0.75f, 0.75f, 0.99f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
+    { {0.75f, 0.75f, 0.75f, 1.0f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
     { {0.75f, 0.75f, 0.75f, 0.0f }, glm::vec4(0.0f), Material::MaterialType::TRANSMISSIVE },
+    { {0.00f, 0.00f, 0.75f, 0.0f}, glm::vec4(0.0f) },
   };
 
   m_materials->bind();
   m_materials->buffer_data(std::span(materials));
-#endif
 }
 
 void Renderer::render(float dt)
@@ -107,8 +106,8 @@ void Renderer::render(float dt)
   m_render_shader->bind();
   m_render_shader->set_uniform("u_time", m_time);
   m_render_shader->set_uniform("u_frames", m_frames);
-  m_render_shader->set_uniform("u_samples", 1);
-  m_render_shader->set_uniform("u_max_bounce", 5);
+  m_render_shader->set_uniform("u_samples", m_samples);
+  m_render_shader->set_uniform("u_max_bounce", m_bounces);
   m_render_shader->set_uniform("u_background", m_background);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
@@ -238,6 +237,19 @@ void Renderer::event(const SDL_Event &event)
 
     case SDLK_r:
       m_reset = true;
+      break;
+
+    case SDLK_j:
+      m_bounces++;
+      m_reset = true;
+      break;
+
+    case SDLK_k:
+      if (m_bounces > 1)
+      {
+        m_bounces--;
+        m_reset = true;
+      }
       break;
 
     default:

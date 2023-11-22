@@ -82,6 +82,9 @@ private:
   std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
 
+  unsigned int m_bounces = 5;
+  unsigned int m_samples = 1;
+
   Camera m_camera;
 
   bool m_reset = false;

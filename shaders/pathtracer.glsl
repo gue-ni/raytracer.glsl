@@ -1,6 +1,8 @@
 #version 430
 
-#define PI 3.1415
+#define PI        3.14159265359
+#define EPSILON   0.001 
+#define INF       1e5
 
 struct Sphere {
   vec3 center;
@@ -18,7 +20,7 @@ layout(local_size_x = 8, local_size_y = 8) in;
 
 layout(rgba32f, binding = 0) uniform image2D image;
 
-layout(std430, binding = 1) readonly buffer sphere_buffer {
+layout(std140, binding = 1) readonly buffer sphere_buffer {
   Sphere spheres[];
 };
 
@@ -27,8 +29,8 @@ layout(std140, binding = 2) readonly buffer material_buffer {
 };
 
 uniform int u_frames;
-uniform int u_samples;
-uniform int u_max_bounce;
+uniform uint u_samples;
+uniform uint u_max_bounce;
 uniform float u_time;
 uniform bool u_reset_flag;
 uniform vec3 u_background;
@@ -111,53 +113,49 @@ Ray camera_ray(vec2 xy)
   return Ray(u_camera_position, normalize(view_point - u_camera_position));
 }
 
-bool intersect(Ray ray, Sphere sphere, float min_t, float max_t, inout HitInfo info) 
+float sphere_intersect(Ray r, Sphere s)
 {
-    vec3 m = ray.origin - sphere.center;
-    float b = dot(m, ray.direction);
-    float c = dot(m, m) - sphere.radius * sphere.radius;
-    
-    if( 0.0 < c && 0.0 < b ) {
-        return false;
-    }
-    
-    float discr = b * b - c;
-    if (discr < 0.0 ) {
-        return false;
-    }
-    
-    float t = -b - sqrt(discr);
-    if (t < 0.0) {
-        t = -b + sqrt(discr);
-    }
-    
-    if (min_t < t && t < max_t) {
-        info.t = t;
-        info.point = ray.origin + ray.direction * t;
-        info.normal = (info.point - sphere.center) / sphere.radius;
-        return true;
-    } else {
-        return false;
-    }
+    vec3 pos = s.center;
+    float rad = s.radius;
+    vec3 op = pos - r.origin;
+    float eps = 0.001;
+    float b = dot(op, r.direction);
+    float det = b * b - dot(op, op) + rad * rad;
+    if (det < 0.0)
+        return INF;
+
+    det = sqrt(det);
+    float t1 = b - det;
+    if (t1 > eps)
+        return t1;
+
+    float t2 = b + det;
+    if (t2 > eps)
+        return t2;
+
+    return INF;
 }
 
 int find_collision(Ray ray, inout HitInfo closest_hit)
 {
-  float min_t = 0.0001;
-  float max_t = 10000.0;
+  float max_t = INF;
   int closest_sphere = -1;
 
-  for (int i = 0; i < spheres.length(); i++)
+  float t;
+
+  for (int i = 0; i < spheres.length(); i++) 
   {
     HitInfo hit;
-    if (intersect(ray, spheres[i], min_t, max_t, hit))
+
+    if ((t = sphere_intersect(ray, spheres[i])) < INF && t < max_t)
     {
-      if (hit.t < max_t)
-      {
-        closest_hit = hit;
-        max_t = hit.t;
-        closest_sphere = i;
-      }
+      hit.t = t;
+      hit.point = ray.origin + ray.direction * t;
+      hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
+ 
+      max_t = hit.t;
+      closest_sphere = i;
+      closest_hit = hit;
     }
   }
 
@@ -192,12 +190,16 @@ vec3 trace_path(Ray ray)
     vec3 emission = material.emission.rgb;
     float smoothness = material.albedo.w;
 
-    vec3 point = hit.point + hit.normal * 0.001;
+    bool inside = dot(-ray.direction, hit.normal) < 0;
+
+    vec3 point = hit.point + hit.normal * EPSILON * (inside ? -1 : 1);
+    //vec3 point = hit.point;
     vec3 normal = hit.normal;
+
+    ray.origin = point;
 
     if (material.type == 0) { // diffuse
 
-      ray.origin = point;
       ray.direction = cosine_weighted(hit.normal);
       throughput *= albedo; 
 
@@ -206,7 +208,6 @@ vec3 trace_path(Ray ray)
       vec3 diffuse = cosine_weighted(hit.normal);
       vec3 specular = reflect(ray.direction, hit.normal);
 
-      ray.origin = point;
       ray.direction = mix(diffuse, specular, smoothness);
 
       throughput *= albedo; 
@@ -256,7 +257,7 @@ vec3 trace_path(Ray ray)
       // refraction weight boosted by the russian roulette probability
       float TP = Tr / (1 - P);
 
-#if 1
+#if 0
       // Russian roulette decision (between reflected and refracted ray)
 		  if (rand() < P) {
         throughput *= (albedo * RP);
