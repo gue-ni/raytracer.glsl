@@ -6,6 +6,7 @@
 #include <chrono>
 #include <format>
 
+
 using namespace gfx;
 using namespace gfx::gl;
 
@@ -59,12 +60,14 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { {+2.5f, 0.0f, 7.0f}, 1.0f, 0 },
+    { {+2.5f, 0.0f, 7.0f}, 1.0f, 2 },
     { { 0.0f, 0.0f, 7.0f}, 1.0f, 1 },
-    { {-2.5f, 0.0f, 7.0f}, 1.0f, 0 },
+    { {-2.5f, 0.0f, 7.0f}, 1.0f, 2 },
+
     { { 0.0f, -(r + h), 7.0f}, r, 0 },
-    { { -(r + w), 0.0f, 7.0f}, r, 0 },
-    { { +(r + w), 0.0f, 7.0f}, r, 0 },
+    //{ { 0.0f, 0.0f, 7.0f + (r + w)}, r, 0 },
+    //{ { -(r + w), 0.0f, 7.0f}, r, 0 },
+    //{ { +(r + w), 0.0f, 7.0f}, r, 0 },
   };
 
   m_spheres->bind();
@@ -73,9 +76,9 @@ Renderer::Renderer(int width, int height)
 #if 1
   // setup material 
   std::vector<Material> materials = {
-    { {0.75f, 0.75f, 0.75f }, glm::vec3(0.0f) },
-    { {0.75f, 0.75f, 0.75f}, glm::vec3(12.0f) },
-    { {0.75f, 0.75f, 0.75f}, glm::vec3(0.0f) },
+    { {0.75f, 0.75f, 0.75f, 1.0f }, glm::vec4(0.0f) },
+    { {0.75f, 0.75f, 0.75f, 1.0f}, glm::vec4(5.0f) },
+    { {0.75f, 0.00f, 0.00f, 1.0f}, glm::vec4(0.0f) },
   };
 
   m_materials->bind();
@@ -95,8 +98,9 @@ void Renderer::render(float dt)
   m_render_shader->bind();
   m_render_shader->set_uniform("u_time", m_time);
   m_render_shader->set_uniform("u_frames", m_frames);
-  m_render_shader->set_uniform("u_samples", 4);
-  m_render_shader->set_uniform("u_max_bounce", 3);
+  m_render_shader->set_uniform("u_samples", 1);
+  m_render_shader->set_uniform("u_max_bounce", 5);
+  m_render_shader->set_uniform("u_background", m_background);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_fov", m_camera.fov);
@@ -114,7 +118,7 @@ void Renderer::render(float dt)
   glBindImageTexture(0, m_texture->id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
   // dispatch compute shaders
-  glDispatchCompute(m_width, m_height, 1);
+  glDispatchCompute(m_width / 4, m_height / 4, 1);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
   m_texture->bind(0);
@@ -188,7 +192,7 @@ void Renderer::event(const SDL_Event &event)
       m_camera.yaw += delta_yaw;
       m_camera.pitch += delta_pitch;
 
-      printf("%.2f, %.2f\n", m_camera.yaw, m_camera.pitch);
+      // printf("%.2f, %.2f\n", m_camera.yaw, m_camera.pitch);
 
       m_camera.forward = vector_from_spherical(m_camera.pitch, m_camera.yaw);
       m_camera.right = glm::normalize(glm::cross(m_camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));

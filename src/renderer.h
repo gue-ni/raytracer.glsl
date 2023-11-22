@@ -19,9 +19,10 @@ ALIGN(16) struct Sphere {
   int material = 0;
 };
 
+// vec4 only for alignment purposes
 ALIGN(16) struct Material {
-  glm::vec3 albedo;
-  glm::vec3 emission;
+  glm::vec4 albedo;
+  glm::vec4 emission;
 };
 
 inline glm::vec3 vector_from_spherical(float theta, float phi)
@@ -81,6 +82,12 @@ private:
 
   bool m_reset = false;
   bool m_mousedown = false;
+
+#if 0
+  glm::vec3 m_background = glm::vec3(1.0f);
+#else
+  glm::vec3 m_background = glm::vec3(0.52f, 0.80f, 0.92f);
+#endif
 
   float m_timer = 0;
 };
