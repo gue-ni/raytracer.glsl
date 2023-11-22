@@ -4,7 +4,6 @@
 #include <span>
 #include <iostream>
 #include <chrono>
-#include <format>
 
 
 using namespace gfx;
@@ -137,9 +136,6 @@ void Renderer::render(float dt)
   if (m_timer > 1)
   {
     m_timer = 0;
-    // std::cout << std::format("Time: {}, Frames: {}, Fps: {}", m_time, m_frames, static_cast<float>(m_frames) / m_time) << std::endl;
-    //std::cout << m_camera.orbit_position() << std::endl;
-    //std::cout << m_camera.radius << std::endl;
   }
 #endif
 }
