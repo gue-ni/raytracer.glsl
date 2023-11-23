@@ -64,19 +64,16 @@ void Window::poll_events()
   SDL_Event e;
   while (SDL_PollEvent(&e) != 0)
   {
-
-    if (!ImGui_ImplSDL2_ProcessEvent(&e))
-      break;
-
-    event(e);
-    switch (e.type)
-    {
-    case SDL_QUIT:
-    {
+    if (e.type == SDL_QUIT) {
       m_quit = true;
       break;
     }
+
+    if (!ImGui_ImplSDL2_ProcessEvent(&e)) {
+      break;
     }
+
+    event(e);
   }
 }
 

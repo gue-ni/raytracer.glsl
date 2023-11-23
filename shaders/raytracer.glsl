@@ -59,6 +59,8 @@ uniform samplerCube u_envmap;
 
 uniform vec3 u_camera_position;
 uniform float u_camera_fov;
+uniform float u_camera_aperture;
+uniform float u_camera_focal_length;
 
 uniform vec3 u_camera_forward;
 uniform vec3 u_camera_up;
@@ -131,8 +133,25 @@ Ray camera_ray(vec2 xy)
 
   vec3 view_point = target + (right * width * xy.x) + (up * height * xy.y);
 
+  vec3 direction = normalize(view_point - u_camera_position);
+
+#if 1
+  vec3 jitter = random_in_sphere() * u_camera_aperture;
+
+  vec3 origin = u_camera_position + jitter;
+
+  vec3 focal_point = u_camera_position + direction * u_camera_focal_length;
+
+  return Ray(origin, normalize(focal_point - origin));
+  //return Ray(origin, direction);
+
+#else
+
   return Ray(u_camera_position, normalize(view_point - u_camera_position));
+
+#endif
 }
+
 
 float sphere_intersect(Ray r, Sphere s)
 {

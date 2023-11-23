@@ -78,8 +78,11 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    // { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
+#if 0
+    { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
+#else
     { { 3.0f, h + 10.0f , 7.0f}, 3.0, 1 },
+#endif
 
     { {+7.0f, -h + sr, 7.5f}, sr, 0 },
     { {-7.0f, -h + sr, 6.5f}, sr, 6 },
@@ -118,7 +121,7 @@ void Renderer::render(float dt)
   ImGuiWindowFlags window_flags = 0;
 
   ImGui::SetNextWindowPos(ImVec2(10, 10));
-  ImGui::SetNextWindowSize(ImVec2(145, 135));
+  ImGui::SetNextWindowSize(ImVec2(320, 185));
 
   ImGui::Begin("Renderer", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
@@ -129,6 +132,8 @@ void Renderer::render(float dt)
   int bounces = m_bounces; 
   ImGui::SliderInt("Bounces", &bounces, 1, 10);
   m_bounces = bounces;
+  ImGui::SliderFloat("Aperture", &m_camera.aperture, 0.001f, 1.0f);
+  ImGui::SliderFloat("Focal Length", &m_camera.focal_length, 0.001f, 50.0f);
   ImGui::End();
 
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -150,9 +155,12 @@ void Renderer::render(float dt)
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_fov", m_camera.fov);
+  m_render_shader->set_uniform("u_camera_aperture", m_camera.aperture);
+  m_render_shader->set_uniform("u_camera_focal_length", m_camera.focal_length);
   m_render_shader->set_uniform("u_camera_forward", m_camera.forward);
   m_render_shader->set_uniform("u_camera_right", m_camera.right);
   m_render_shader->set_uniform("u_camera_up", m_camera.up);
+
 
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
@@ -213,7 +221,7 @@ void Renderer::save_to_file() const
 
 void Renderer::event(const SDL_Event &event)
 {
-  m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
+  //m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
 
   switch (event.type)
   {
@@ -251,18 +259,6 @@ void Renderer::event(const SDL_Event &event)
 
       m_reset = true;
     }
-    break;
-  }
-
-  case SDL_MOUSEWHEEL:
-  {
-    int y = event.wheel.y; 
-#if 1
-    //m_camera.position.z += y;
-#else
-    m_camera.radius += glm::sign(y) * 0.5f;
-#endif
-    m_reset = true;
     break;
   }
 

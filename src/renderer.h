@@ -46,21 +46,21 @@ inline glm::vec3 vector_from_spherical(float pitch, float yaw)
 
 struct Camera {
   glm::vec3 position;
-  float fov;
-  float aspect_ratio;
-  float focal_length;
-  float aperture;
+
+  float fov = 45.0f;
+  
+  float focal_length  = 2.0f;
+  float aperture      = 0.001f;
   
   float pitch = M_PI / 2;
-  float yaw = M_PI / 2;
-  float radius = 1.0f;
+  float yaw   = M_PI / 2;
 
   glm::vec3 forward = glm::vec3(0.0f, 0.0f, 1.0f);
   glm::vec3 up      = glm::vec3(0.0f, 1.0f, 0.0f);
   glm::vec3 right   = glm::vec3(-1.0f, 0.0f, 0.0f);
 
   Camera(const glm::vec3& position_) 
-    : position(position_), fov(45.0f)
+    : position(position_)
   {}
 };
 
