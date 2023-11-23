@@ -38,6 +38,7 @@ namespace gfx
     Format format() const;
     bool write_png(const std::string &path, bool flip_vertically = false) const;
     bool read_png(const std::string &path, bool flip_vertically = false);
+    Image crop_image(const glm::ivec2& min, const glm::ivec2& max) const;
 
   private:
     unsigned char *m_data = nullptr;

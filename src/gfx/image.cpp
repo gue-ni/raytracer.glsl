@@ -75,4 +75,9 @@ namespace gfx
     m_data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
     return m_data != nullptr;
   }
+
+  Image gfx::Image::crop_image(const glm::ivec2 &min, const glm::ivec2 &max) const
+  {
+    return Image();
+  }
 }
