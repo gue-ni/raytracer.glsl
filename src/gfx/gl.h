@@ -178,7 +178,7 @@ namespace gfx
       void set_uniform(const std::string &name, const glm::mat3 &value) const;
       void set_uniform(const std::string &name, const glm::mat4 &value) const;
       void set_uniform_buffer(const std::string &name, GLuint binding = 0U);
-      static std::string string_from_file(const std::string &path);
+      static std::string from_file(const std::string &path);
     };
 
     struct Texture : public Object

@@ -184,6 +184,12 @@ int find_closest_sphere(Ray ray, inout HitInfo closest_hit)
   return closest_sphere;
 }
 
+float fresnel_schlick(float f0, float cos_theta)
+{
+  float c = 1 - cos_theta;
+  return  f0 + (1 - f0) * (c*c*c*c*c);
+}
+
 vec3 trace_path(Ray ray) 
 {
   vec3 radiance = vec3(0.0);
@@ -239,18 +245,20 @@ vec3 trace_path(Ray ray)
 
     } else if (material.type == 2) { // transparent
 
+      // points inside the sphere if we are inside
       vec3 nl = inside ? -hit.normal : hit.normal;
 
-      float nc = 1;
-      float nt = 1.5;
-      float nnt = !inside ? nc / nt : nt / nc;
+      float nc = 1;   // air
+      float nt = 1.5; // glass
 
-      float cosTheta = dot(ray.direction, nl);
+      float nnt = inside ? nt / nc : nc / nt;
 
-      double cosTheta2Sqr;
+      float cos_theta = dot(ray.direction, nl);
+
+      double cos_theta_2_sqr;
 
 #if 1
-	    if ((cosTheta2Sqr = 1 - nnt * nnt*(1 - cosTheta * cosTheta)) < 0)    // Total internal reflection
+	    if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0)    // Total internal reflection
       {
         throughput *= albedo;
         ray.direction = reflect(ray.direction, hit.normal);
@@ -258,18 +266,23 @@ vec3 trace_path(Ray ray)
       }
 #endif
 
-      vec3 tdir = refract(ray.direction, nl, nnt);
+      vec3 transmission = refract(ray.direction, nl, nnt);
 
-      // Schlick's Fresnel approximation:  Schlick, Christophe, An Inexpensive BDRF Model for Physically based Rendering,
       float a = nt - nc;
       float b = nt + nc;
       float R0 = a * a / (b*b);
-      float cosTheta2 = dot(tdir, hit.normal);
-      float c = 1 - (!inside ? -cosTheta : cosTheta2);
-      float Re = R0 + (1 - R0)*c*c*c*c*c; // reflection weight
-      float Tr = 1 - Re; // refraction weight
 
-      float P = .25 + .5*Re;
+      float cos_theta_2 = dot(transmission, hit.normal);
+
+      float tmp = (inside ? cos_theta_2 : -cos_theta);
+
+      // reflection weight
+      float Re = fresnel_schlick(R0, tmp); 
+  
+      // refraction weight
+      float Tr = 1 - Re; 
+
+      float P = 0.25 + 0.5 * Re;
 
       float RP = Re / P;
 
@@ -280,7 +293,7 @@ vec3 trace_path(Ray ray)
         ray.direction = reflect(ray.direction, hit.normal);
       } else {
         throughput *= (albedo * TP);
-        ray.direction = tdir;
+        ray.direction = transmission;
       }
     }
 

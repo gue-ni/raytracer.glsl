@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <utility>
+#include <vector>
 
 namespace gfx
 {
@@ -78,6 +79,16 @@ namespace gfx
 
   Image gfx::Image::crop_image(const glm::ivec2 &min, const glm::ivec2 &max) const
   {
-    return Image();
+    std::vector<unsigned char> data;
+
+    for (int y = min.y; y < max.y; y++)
+    {
+      for (int x = min.x; x < max.x; x++)
+      {
+        // std::copy(m_data[0], m_data[1], std::back_inserter(data));
+      }
+    }
+
+    return Image(data.data(), max.x - min.x, max.y - min.y, m_channels);
   }
 }

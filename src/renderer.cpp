@@ -11,10 +11,10 @@ using namespace gfx::gl;
 Renderer::Renderer(int width, int height) 
   : Window(width, height)
   , m_screen_shader(std::make_unique<ShaderProgram>(
-      ShaderProgram::string_from_file("shaders/screen.vert"), 
-      ShaderProgram::string_from_file("shaders/screen.frag")))
+      ShaderProgram::from_file("shaders/screen.vert"), 
+      ShaderProgram::from_file("shaders/screen.frag")))
   , m_render_shader(std::make_unique<ShaderProgram>(
-      ShaderProgram::string_from_file("shaders/raytracer.glsl")))
+      ShaderProgram::from_file("shaders/raytracer.glsl")))
   , m_texture(std::make_unique<Texture>())
   , m_screen_quad_vao(std::make_unique<VertexArrayObject>())
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())

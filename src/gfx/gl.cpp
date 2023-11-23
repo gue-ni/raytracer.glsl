@@ -186,7 +186,7 @@ namespace gfx
       glUniformBlockBinding(m_id, index, binding);
     }
 
-    std::string ShaderProgram::string_from_file(const std::string &path)
+    std::string ShaderProgram::from_file(const std::string &path)
     {
       std::ifstream file(path);
       if (!file.is_open())
