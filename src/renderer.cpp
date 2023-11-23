@@ -115,20 +115,24 @@ Renderer::Renderer(int width, int height)
 
 void Renderer::render(float dt)
 {
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplSDL2_NewFrame(m_window);
-  ImGui::NewFrame();
+
 
   ImGuiWindowFlags window_flags = 0;
-  window_flags |= ImGuiWindowFlags_NoTitleBar;
-  window_flags |= ImGuiWindowFlags_NoMove;
-  window_flags |= ImGuiWindowFlags_NoResize;
+  //window_flags |= ImGuiWindowFlags_NoTitleBar;
+  //window_flags |= ImGuiWindowFlags_NoMove;
+  //window_flags |= ImGuiWindowFlags_NoResize;
 
   ImGui::SetNextWindowPos(ImVec2(10, 10));
   ImGui::SetNextWindowSize(ImVec2(145, 135));
 
-  ImGui::Begin("Flightsim", nullptr, window_flags);
-  ImGui::Text("hello world");
+  ImGui::Begin("Renderer", nullptr, window_flags);
+  ImGui::Checkbox("Use Envmap", &this->m_use_envmap);
+  if (ImGui::Button("Reset Buffer")) {
+    m_reset = true;
+  }
+  int bounces = m_bounces; 
+  ImGui::SliderInt("Bounces", &bounces, 1, 10);
+  m_bounces = bounces;
 
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -153,7 +157,7 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_camera_up", m_camera.up);
 
 
-  m_render_shader->set_uniform("u_envmap_flag", true);
+  m_render_shader->set_uniform("u_envmap_flag", m_use_envmap);
   
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
@@ -176,8 +180,6 @@ void Renderer::render(float dt)
   m_screen_quad_vao->bind();
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 #if 1
   m_timer += dt;
@@ -245,7 +247,9 @@ void Renderer::event(const SDL_Event &event)
     float delta_yaw = static_cast<float>(event.motion.xrel) * sensitivity;
     float delta_pitch = static_cast<float>(event.motion.yrel) * sensitivity;
 
-    if (m_mousedown) {
+    bool hover = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+
+    if (m_mousedown && !hover) {
       m_camera.yaw += delta_yaw;
       m_camera.pitch += delta_pitch;
 

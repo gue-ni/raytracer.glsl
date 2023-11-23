@@ -93,6 +93,7 @@ private:
 
   bool m_reset = false;
   bool m_mousedown = false;
+  bool m_use_envmap = true;
 
 #if 0
   glm::vec3 m_background = glm::vec3(1.0f);

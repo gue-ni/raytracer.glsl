@@ -25,6 +25,10 @@ Window::Window(int width, int height, const std::string &name)
 
 Window::~Window()
 {
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL2_Shutdown();
+  ImGui::DestroyContext();
+
   SDL_GL_DeleteContext(m_context);
   SDL_DestroyWindow(m_window);
   SDL_Quit();
@@ -40,7 +44,16 @@ void Window::run()
     poll_events();
     const Uint8* state = SDL_GetKeyboardState(NULL);
     keyboard_state(state);
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame(m_window);
+    ImGui::NewFrame();
+
     render(m_clock.delta);
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     SDL_GL_SwapWindow(m_window);
     m_time += m_clock.delta;
   }
@@ -51,6 +64,10 @@ void Window::poll_events()
   SDL_Event e;
   while (SDL_PollEvent(&e) != 0)
   {
+
+    if (!ImGui_ImplSDL2_ProcessEvent(&e))
+      break;
+
     event(e);
     switch (e.type)
     {
