@@ -7,6 +7,7 @@
 - [x] moveable camera
 - [ ] object loading
 - [ ] physically based rendering
+- [ ] environment sampling
 
 ## Inspiration
 
