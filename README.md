@@ -8,6 +8,8 @@
 - [ ] object loading
 - [ ] physically based rendering
 - [ ] environment sampling
+- [ ] imgui integration
+- [ ] triangle mesh rendering
 
 ## Inspiration
 
