@@ -52,7 +52,7 @@ uniform uint u_samples;
 uniform uint u_max_bounce;
 uniform float u_time;
 uniform bool u_reset_flag;
-uniform bool u_envmap_flag;
+uniform bool u_use_envmap;
 uniform vec3 u_background;
 
 uniform samplerCube u_envmap;
@@ -206,7 +206,7 @@ vec3 trace_path(Ray ray)
 #if 0
       vec3 background = u_background;
 #else
-      vec3 background = u_envmap_flag ? texture(u_envmap, ray.direction).rgb : u_background;
+      vec3 background = u_use_envmap ? texture(u_envmap, ray.direction).rgb : u_background;
 #endif
       radiance += background * throughput;
       break;

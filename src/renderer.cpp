@@ -115,17 +115,13 @@ Renderer::Renderer(int width, int height)
 
 void Renderer::render(float dt)
 {
-
-
   ImGuiWindowFlags window_flags = 0;
-  //window_flags |= ImGuiWindowFlags_NoTitleBar;
-  //window_flags |= ImGuiWindowFlags_NoMove;
-  //window_flags |= ImGuiWindowFlags_NoResize;
 
   ImGui::SetNextWindowPos(ImVec2(10, 10));
   ImGui::SetNextWindowSize(ImVec2(145, 135));
 
   ImGui::Begin("Renderer", nullptr, window_flags);
+  ImGui::Text("FPS: %.2f", 1.0f / dt);
   ImGui::Checkbox("Use Envmap", &this->m_use_envmap);
   if (ImGui::Button("Reset Buffer")) {
     m_reset = true;
@@ -133,6 +129,7 @@ void Renderer::render(float dt)
   int bounces = m_bounces; 
   ImGui::SliderInt("Bounces", &bounces, 1, 10);
   m_bounces = bounces;
+  ImGui::End();
 
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -149,6 +146,7 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_max_bounce", m_bounces);
   m_render_shader->set_uniform("u_background", m_background);
   m_screen_shader->set_uniform("u_envmap", 3);
+  m_render_shader->set_uniform("u_use_envmap", m_use_envmap);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_fov", m_camera.fov);
@@ -156,9 +154,6 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_camera_right", m_camera.right);
   m_render_shader->set_uniform("u_camera_up", m_camera.up);
 
-
-  m_render_shader->set_uniform("u_envmap_flag", m_use_envmap);
-  
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
     m_reset = false;
@@ -180,14 +175,11 @@ void Renderer::render(float dt)
   m_screen_quad_vao->bind();
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-
-#if 1
   m_timer += dt;
   if (m_timer > 1)
   {
     m_timer = 0;
   }
-#endif
 }
 
 void Renderer::save_to_file() const
