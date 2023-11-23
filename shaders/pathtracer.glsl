@@ -20,7 +20,11 @@ struct Mesh {
   uint start;
   uint size;
   int type;
-}
+};
+
+struct Triangle {
+  vec3 v0, v1, v2;
+};
 
 layout(local_size_x = 8, local_size_y = 8) in;
 
@@ -36,6 +40,10 @@ layout(std140, binding = 2) readonly buffer material_buffer {
 
 layout(std140, binding = 3) readonly buffer mesh_buffer {
   Mesh meshes[];
+};
+
+layout(std140, binding = 4) readonly buffer triangle_buffer {
+  Triangle triangles[];
 };
 
 uniform int u_frames;
