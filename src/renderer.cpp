@@ -115,6 +115,21 @@ Renderer::Renderer(int width, int height)
 
 void Renderer::render(float dt)
 {
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplSDL2_NewFrame(m_window);
+  ImGui::NewFrame();
+
+  ImGuiWindowFlags window_flags = 0;
+  window_flags |= ImGuiWindowFlags_NoTitleBar;
+  window_flags |= ImGuiWindowFlags_NoMove;
+  window_flags |= ImGuiWindowFlags_NoResize;
+
+  ImGui::SetNextWindowPos(ImVec2(10, 10));
+  ImGui::SetNextWindowSize(ImVec2(145, 135));
+
+  ImGui::Begin("Flightsim", nullptr, window_flags);
+  ImGui::Text("hello world");
+
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
@@ -161,6 +176,9 @@ void Renderer::render(float dt)
   m_screen_quad_vao->bind();
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 #if 1
   m_timer += dt;
   if (m_timer > 1)
@@ -173,7 +191,9 @@ void Renderer::render(float dt)
 void Renderer::save_to_file() const
 {
   GLubyte* pixels = new GLubyte[m_width * m_height * 4]; 
-  glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+  m_texture->bind();
+  glGetTexImage(m_texture->target, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
   auto now = std::chrono::system_clock::now();
   std::time_t timestamp = std::chrono::system_clock::to_time_t(now);

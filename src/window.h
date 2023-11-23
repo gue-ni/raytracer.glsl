@@ -1,5 +1,9 @@
 #pragma once
 
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_opengl3.h>
+
 #define SDL_MAIN_HANDLED
 #include <GL/glew.h>
 #include <SDL.h>

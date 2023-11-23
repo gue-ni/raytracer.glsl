@@ -15,6 +15,11 @@ Window::Window(int width, int height, const std::string &name)
   glewExperimental = GL_TRUE;
   glewInit();
 
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGui_ImplSDL2_InitForOpenGL(m_window, m_context);
+  ImGui_ImplOpenGL3_Init();
+
   glViewport(0, 0, width, height);
 }
 

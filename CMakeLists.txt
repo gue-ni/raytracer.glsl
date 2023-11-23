@@ -17,6 +17,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG master
+)
+FetchContent_MakeAvailable(imgui)
+
+file(GLOB EXTERNAL_SOURCE
+    ${imgui_SOURCE_DIR}/*.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
 if(WIN32)
     FetchContent_Declare(
         GLEW
@@ -45,6 +58,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 find_package(OpenGL REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/build/_deps/stb-src)
+include_directories(${imgui_SOURCE_DIR})
 
 add_executable(renderer
     src/main.cpp 
@@ -55,6 +69,8 @@ add_executable(renderer
     src/gfx/util.h
     src/gfx/gl.cpp src/gfx/gl.h
     src/gfx/image.cpp src/gfx/image.h
+
+    ${EXTERNAL_SOURCE}
 )
 
 target_link_libraries(renderer glm ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
