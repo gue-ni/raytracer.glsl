@@ -49,15 +49,15 @@ struct Camera {
 
   float fov = 45.0f;
   
-  float focal_length  = 2.0f;
+  float focal_length  = 10.0f;
   float aperture      = 0.001f;
   
   float pitch = M_PI / 2;
   float yaw   = M_PI / 2;
 
-  glm::vec3 forward = glm::vec3(0.0f, 0.0f, 1.0f);
-  glm::vec3 up      = glm::vec3(0.0f, 1.0f, 0.0f);
-  glm::vec3 right   = glm::vec3(-1.0f, 0.0f, 0.0f);
+  glm::vec3 forward = {0.0f, 0.0f, 1.0f};
+  glm::vec3 up      = {0.0f, 1.0f, 0.0f};
+  glm::vec3 right   = {-1.0f, 0.0f, 0.0f};
 
   Camera(const glm::vec3& position_) 
     : position(position_)
@@ -70,7 +70,6 @@ public:
   void render(float dt) override;
   void event(const SDL_Event &event) override;
   void keyboard_state(const Uint8* state) override;
-  void save_to_file() const;
 
 private:
   std::unique_ptr<ShaderProgram> m_screen_shader = nullptr; 
@@ -86,7 +85,7 @@ private:
   std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
 
-  unsigned int m_bounces = 5;
+  int m_bounces = 5;
   unsigned int m_samples = 1;
 
   Camera m_camera;
@@ -94,6 +93,9 @@ private:
   bool m_reset = false;
   bool m_mousedown = false;
   bool m_use_envmap = true;
+
+  void reset_buffer();
+  void save_to_file() const;
 
 #if 0
   glm::vec3 m_background = glm::vec3(1.0f);

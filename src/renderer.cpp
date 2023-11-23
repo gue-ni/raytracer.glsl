@@ -9,7 +9,7 @@ using namespace gfx;
 using namespace gfx::gl;
 
 Renderer::Renderer(int width, int height) 
-  : Window(width, height)
+  : Window(width, height, "Pathtracer")
   , m_screen_shader(std::make_unique<ShaderProgram>(
       ShaderProgram::from_file("shaders/screen.vert"), 
       ShaderProgram::from_file("shaders/screen.frag")))
@@ -121,17 +121,13 @@ void Renderer::render(float dt)
   ImGuiWindowFlags window_flags = 0;
 
   ImGui::SetNextWindowPos(ImVec2(10, 10));
-  ImGui::SetNextWindowSize(ImVec2(320, 185));
 
-  ImGui::Begin("Renderer", nullptr, window_flags);
+  ImGui::Begin("Options", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
   ImGui::Checkbox("Use Envmap", &this->m_use_envmap);
-  if (ImGui::Button("Reset Buffer")) {
-    m_reset = true;
-  }
-  int bounces = m_bounces; 
-  ImGui::SliderInt("Bounces", &bounces, 1, 10);
-  m_bounces = bounces;
+  if (ImGui::Button("Reset Buffer")) reset_buffer();
+  if (ImGui::Button("Save Image")) save_to_file();
+  ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
   ImGui::SliderFloat("Aperture", &m_camera.aperture, 0.001f, 1.0f);
   ImGui::SliderFloat("Focal Length", &m_camera.focal_length, 0.001f, 50.0f);
   ImGui::End();
@@ -148,7 +144,7 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_time", m_time);
   m_render_shader->set_uniform("u_frames", m_frames);
   m_render_shader->set_uniform("u_samples", m_samples);
-  m_render_shader->set_uniform("u_max_bounce", m_bounces);
+  m_render_shader->set_uniform("u_max_bounce", static_cast<unsigned int>(m_bounces));
   m_render_shader->set_uniform("u_background", m_background);
   m_screen_shader->set_uniform("u_envmap", 3);
   m_render_shader->set_uniform("u_use_envmap", m_use_envmap);
@@ -160,7 +156,6 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_camera_forward", m_camera.forward);
   m_render_shader->set_uniform("u_camera_right", m_camera.right);
   m_render_shader->set_uniform("u_camera_up", m_camera.up);
-
 
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {
@@ -219,6 +214,11 @@ void Renderer::save_to_file() const
   }
 }
 
+void Renderer::reset_buffer()
+{
+  m_reset = true;
+}
+
 void Renderer::event(const SDL_Event &event)
 {
   //m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
@@ -257,7 +257,8 @@ void Renderer::event(const SDL_Event &event)
       m_camera.right = glm::normalize(glm::cross(m_camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
       m_camera.up = glm::normalize(glm::cross(m_camera.right, m_camera.forward));
 
-      m_reset = true;
+      reset_buffer();
+
     }
     break;
   }
@@ -277,19 +278,19 @@ void Renderer::event(const SDL_Event &event)
       break;
 
     case SDLK_r:
-      m_reset = true;
+      reset_buffer();
       break;
 
     case SDLK_j:
       m_bounces++;
-      m_reset = true;
+      reset_buffer();
       break;
 
     case SDLK_k:
       if (m_bounces > 1)
       {
         m_bounces--;
-        m_reset = true;
+        reset_buffer();
       }
       break;
 
@@ -307,26 +308,26 @@ void Renderer::keyboard_state(const Uint8* state)
 
   if (state[SDL_SCANCODE_W]) {
     m_camera.position += (m_camera.forward * speed);
-    m_reset = true;
+    reset_buffer();
   }
   if (state[SDL_SCANCODE_S]) {
     m_camera.position -= (m_camera.forward * speed);
-    m_reset = true;
+    reset_buffer();
   }
   if (state[SDL_SCANCODE_A]) {
     m_camera.position -= (m_camera.right * speed);
-    m_reset = true;
+    reset_buffer();
   }
   if (state[SDL_SCANCODE_D]) {
     m_camera.position += (m_camera.right * speed);
-    m_reset = true;
+    reset_buffer();
   }
   if (state[SDL_SCANCODE_E]) {
     m_camera.position += (m_camera.up * speed);
-    m_reset = true;
+    reset_buffer();
   }
   if (state[SDL_SCANCODE_Q]) {
     m_camera.position -= (m_camera.up * speed);
-    m_reset = true;
+    reset_buffer();
   }
 }
