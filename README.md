@@ -6,12 +6,12 @@
 ## Features
 
 -   [x] moveable camera
+-   [x] depth of field
+-   [x] environment sampling
+-   [x] imgui integration
 -   [ ] object loading
 -   [ ] physically based rendering
--   [x] environment sampling
--   [ ] imgui integration
 -   [ ] triangle mesh rendering
--   [ ] depth of field
 
 ## Inspiration
 

@@ -43,17 +43,18 @@ layout(std140, binding = 3) readonly buffer mesh_buffer {
   Mesh meshes[];
 };
 
-layout(std140, binding = 4) readonly buffer triangle_buffer {
-  Triangle triangles[];
+layout(std140, binding = 4) readonly buffer vertex_buffer {
+  vec4 vertices[];
 };
 
 uniform int u_frames;
 uniform uint u_samples;
 uniform uint u_max_bounce;
 uniform float u_time;
+uniform vec3 u_background;
 uniform bool u_reset_flag;
 uniform bool u_use_envmap;
-uniform vec3 u_background;
+uniform bool u_use_dof;
 
 uniform samplerCube u_envmap;
 
@@ -135,21 +136,19 @@ Ray camera_ray(vec2 xy)
 
   vec3 direction = normalize(view_point - u_camera_position);
 
-#if 1
-  vec3 jitter = random_in_sphere() * u_camera_aperture;
 
-  vec3 origin = u_camera_position + jitter;
+  if (u_use_dof) {
+    vec3 jitter = random_in_sphere() * u_camera_aperture;
 
-  vec3 focal_point = u_camera_position + direction * u_camera_focal_length;
+    vec3 origin = u_camera_position + jitter;
 
-  return Ray(origin, normalize(focal_point - origin));
-  //return Ray(origin, direction);
+    vec3 focal_point = u_camera_position + direction * u_camera_focal_length;
 
-#else
+    return Ray(origin, normalize(focal_point - origin));
 
-  return Ray(u_camera_position, normalize(view_point - u_camera_position));
-
-#endif
+  } else {
+    return Ray(u_camera_position, normalize(view_point - u_camera_position));
+  }
 }
 
 
@@ -174,6 +173,11 @@ float sphere_intersect(Ray r, Sphere s)
         return t2;
 
     return INF;
+}
+
+float triangle_intersect(Ray r, Triangle t)
+{
+  return INF;
 }
 
 int find_closest_sphere(Ray ray, inout HitInfo closest_hit)

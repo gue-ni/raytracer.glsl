@@ -125,11 +125,13 @@ void Renderer::render(float dt)
   ImGui::Begin("Options", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
   ImGui::Checkbox("Use Envmap", &this->m_use_envmap);
-  if (ImGui::Button("Reset Buffer")) reset_buffer();
-  if (ImGui::Button("Save Image")) save_to_file();
+  ImGui::Checkbox("Use DOF", &this->m_use_dof);
   ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
   ImGui::SliderFloat("Aperture", &m_camera.aperture, 0.001f, 1.0f);
   ImGui::SliderFloat("Focal Length", &m_camera.focal_length, 0.001f, 50.0f);
+  ImGui::SliderFloat("FOV", &m_camera.fov, 0.001f, 90.0f);
+  if (ImGui::Button("Reset Buffer")) reset_buffer();
+  if (ImGui::Button("Save Image")) save_to_file();
   ImGui::End();
 
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -148,9 +150,10 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_background", m_background);
   m_screen_shader->set_uniform("u_envmap", 3);
   m_render_shader->set_uniform("u_use_envmap", m_use_envmap);
+  m_render_shader->set_uniform("u_use_dof", m_use_dof);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
-  m_render_shader->set_uniform("u_camera_fov", m_camera.fov);
+  m_render_shader->set_uniform("u_camera_fov", glm::radians(m_camera.fov));
   m_render_shader->set_uniform("u_camera_aperture", m_camera.aperture);
   m_render_shader->set_uniform("u_camera_focal_length", m_camera.focal_length);
   m_render_shader->set_uniform("u_camera_forward", m_camera.forward);

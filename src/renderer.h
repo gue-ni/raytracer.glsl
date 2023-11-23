@@ -93,6 +93,7 @@ private:
   bool m_reset = false;
   bool m_mousedown = false;
   bool m_use_envmap = true;
+  bool m_use_dof = true;
 
   void reset_buffer();
   void save_to_file() const;
