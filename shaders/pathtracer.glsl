@@ -34,7 +34,7 @@ layout(std140, binding = 2) readonly buffer material_buffer {
   Material materials[];
 };
 
-layout(std140, binding = 1) readonly buffer mesh_buffer {
+layout(std140, binding = 3) readonly buffer mesh_buffer {
   Mesh meshes[];
 };
 
