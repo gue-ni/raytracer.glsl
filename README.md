@@ -12,4 +12,5 @@
 ## Inspiration
 
 - [Shadertoy smallpt](https://www.shadertoy.com/view/4sfGDB)
+- https://www.mattkeeter.com/projects/rayray/
 
