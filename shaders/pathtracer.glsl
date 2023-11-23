@@ -1,8 +1,9 @@
 #version 430
 
 #define PI        3.14159265359
-#define EPSILON   0.001
+#define EPSILON   0.005
 #define INF       1e5
+#define NO_HIT    -1
 
 struct Sphere {
   vec3 center;
@@ -156,7 +157,7 @@ float sphere_intersect(Ray r, Sphere s)
 int find_collision(Ray ray, inout HitInfo closest_hit)
 {
   float max_t = INF;
-  int closest_sphere = -1;
+  int closest_sphere = NO_HIT;
 
   float t;
 
@@ -181,11 +182,6 @@ int find_collision(Ray ray, inout HitInfo closest_hit)
   return closest_sphere;
 }
 
-float fresnel()
-{
-  return 0;
-}
-
 vec3 trace_path(Ray ray) 
 {
   vec3 radiance = vec3(0.0);
@@ -197,7 +193,7 @@ vec3 trace_path(Ray ray)
 
     int i = find_collision(ray, hit);
 
-    if (i == -1) {
+    if (i == NO_HIT) {
       radiance += u_background * throughput;
       break;
     }
@@ -211,7 +207,11 @@ vec3 trace_path(Ray ray)
 
     bool inside = dot(-ray.direction, hit.normal) < 0;
 
+#if 1
     vec3 point = hit.point;
+#else
+    vec3 point = hit.point + hit.normal * EPSILON * (inside ? -1 : 1);
+#endif
     vec3 normal = hit.normal;
 
     ray.origin = point;
