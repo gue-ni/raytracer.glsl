@@ -16,6 +16,12 @@ struct Material {
   int type;
 };
 
+struct Mesh {
+  uint start;
+  uint size;
+  int type;
+}
+
 layout(local_size_x = 8, local_size_y = 8) in;
 
 layout(rgba32f, binding = 0) uniform image2D image;
@@ -26,6 +32,10 @@ layout(std140, binding = 1) readonly buffer sphere_buffer {
 
 layout(std140, binding = 2) readonly buffer material_buffer {
   Material materials[];
+};
+
+layout(std140, binding = 1) readonly buffer mesh_buffer {
+  Mesh meshes[];
 };
 
 uniform int u_frames;
