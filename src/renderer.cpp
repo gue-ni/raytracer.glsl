@@ -136,6 +136,9 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_camera_forward", m_camera.forward);
   m_render_shader->set_uniform("u_camera_right", m_camera.right);
   m_render_shader->set_uniform("u_camera_up", m_camera.up);
+
+
+  m_render_shader->set_uniform("u_envmap_flag", true);
   
   m_render_shader->set_uniform("u_reset_flag", m_reset);
   if (m_reset) {

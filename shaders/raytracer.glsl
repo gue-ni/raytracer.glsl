@@ -52,6 +52,7 @@ uniform uint u_samples;
 uniform uint u_max_bounce;
 uniform float u_time;
 uniform bool u_reset_flag;
+uniform bool u_envmap_flag;
 uniform vec3 u_background;
 
 uniform samplerCube u_envmap;
@@ -205,7 +206,7 @@ vec3 trace_path(Ray ray)
 #if 0
       vec3 background = u_background;
 #else
-      vec3 background = texture(u_envmap, ray.direction).rgb;
+      vec3 background = u_envmap_flag ? texture(u_envmap, ray.direction).rgb : u_background;
 #endif
       radiance += background * throughput;
       break;
@@ -257,14 +258,12 @@ vec3 trace_path(Ray ray)
 
       double cos_theta_2_sqr;
 
-#if 1
-	    if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0)    // Total internal reflection
-      {
+      // total internal reflection
+	    if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0) {
         throughput *= albedo;
         ray.direction = reflect(ray.direction, hit.normal);
         break;
       }
-#endif
 
       vec3 transmission = refract(ray.direction, nl, nnt);
 
