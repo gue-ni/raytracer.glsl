@@ -39,6 +39,20 @@ Renderer::Renderer(int width, int height)
 
   m_screen_quad_vao->unbind();
 
+
+  const std::string cubemap_path = "assets/cubemap/";
+
+  const std::array<std::string, 6>& faces = {
+      cubemap_path + "right.png",  
+      cubemap_path + "left.png",  
+      cubemap_path + "top.png",
+      cubemap_path + "bottom.png", 
+      cubemap_path + "front.png", 
+      cubemap_path + "back.png ",
+  };
+
+  m_envmap = std::make_unique<CubemapTexture>(faces);
+
   // setup texture
   m_texture->bind();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -47,7 +61,7 @@ Renderer::Renderer(int width, int height)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 
-  float r = 10000;
+  float r = 25000;
   float w = 16.0f;
   float h = 9.0f;
   float l = 100.0f;
@@ -55,17 +69,20 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   std::vector<Sphere> spheres = {
-    { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
+    // { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
+    { { 3.0f, h + 10.0f , 7.0f}, 3.0, 1 },
+
     { {+7.0f, -h + sr, 7.5f}, sr, 0 },
     { {-7.0f, -h + sr, 6.5f}, sr, 6 },
     { {0.0f, -h + sr, 7.0f}, sr, 5 },
-
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
+#if 0
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
     { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 7 },
     { { 0.0f, 0.0f, -(r + w)}, r, 3 },
     { { -(r + w), 0.0f, 7.0f}, r, 4 },
     { { +(r + w), 0.0f, 7.0f}, r, 2 },
+#endif
   };
 
   m_spheres->bind();
@@ -95,6 +112,7 @@ void Renderer::render(float dt)
 
   m_spheres->bind_buffer_base(1);
   m_materials->bind_buffer_base(2);
+  m_envmap->bind(3);
 
   m_render_shader->bind();
   m_render_shader->set_uniform("u_time", m_time);
@@ -102,6 +120,7 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_samples", m_samples);
   m_render_shader->set_uniform("u_max_bounce", m_bounces);
   m_render_shader->set_uniform("u_background", m_background);
+  m_screen_shader->set_uniform("u_envmap", 3);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_fov", m_camera.fov);

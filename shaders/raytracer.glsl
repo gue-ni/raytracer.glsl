@@ -14,7 +14,7 @@ struct Sphere {
 struct Material {
   vec4 albedo;
   vec3 emission;
-  int type;
+  uint type;
 };
 
 struct Mesh {
@@ -53,6 +53,8 @@ uniform uint u_max_bounce;
 uniform float u_time;
 uniform bool u_reset_flag;
 uniform vec3 u_background;
+
+uniform samplerCube u_envmap;
 
 uniform vec3 u_camera_position;
 uniform float u_camera_fov;
@@ -194,7 +196,12 @@ vec3 trace_path(Ray ray)
     int i = find_collision(ray, hit);
 
     if (i == NO_HIT) {
-      radiance += u_background * throughput;
+#if 0
+      vec3 background = u_background;
+#else
+      vec3 background = texture(u_envmap, ray.direction).rgb;
+#endif
+      radiance += background * throughput;
       break;
     }
 

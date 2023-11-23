@@ -24,7 +24,7 @@ ALIGN_START(16) struct Sphere {
 // vec4 only for alignment purposes
 ALIGN_START(16) struct Material {
 
-  enum MaterialType: int {
+  enum MaterialType: unsigned int {
     DIFFUSE       = 0,
     SPECULAR      = 1,
     TRANSMISSIVE  = 2,
@@ -80,6 +80,8 @@ private:
   std::unique_ptr<VertexBuffer> m_screen_quad_vbo = nullptr;
   
   std::unique_ptr<Texture> m_texture = nullptr;
+
+  std::unique_ptr<CubemapTexture> m_envmap = nullptr;
 
   std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;

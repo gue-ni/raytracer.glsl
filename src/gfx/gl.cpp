@@ -246,7 +246,11 @@ namespace gfx
       for (int i = 0; i < 6; i++)
       {
         Image image;
-        image.read_png(paths[i], flip_vertically);
+        if (!image.read_png(paths[i], flip_vertically))
+        {
+          std::cout << "failed to load image " << paths[i] << std::endl;;
+        }
+        assert(image.data() == nullptr);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image.format(), image.width(), image.height(), 0,
                      image.format(), GL_UNSIGNED_BYTE, image.data());
       }
