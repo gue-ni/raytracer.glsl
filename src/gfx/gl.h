@@ -115,7 +115,7 @@ namespace gfx
       UniformBuffer() : Buffer(GL_UNIFORM_BUFFER) {}
     };
 
-    struct ShaderStorageBuffer : public Buffer 
+    struct ShaderStorageBuffer : public Buffer
     {
       ShaderStorageBuffer() : Buffer(GL_SHADER_STORAGE_BUFFER) {}
     };
@@ -147,7 +147,8 @@ namespace gfx
 
     struct ShaderProgram : public Object
     {
-      enum ShaderType {
+      enum ShaderType
+      {
         Vertex = GL_VERTEX_SHADER,
         Fragment = GL_VERTEX_SHADER,
         Compute = GL_COMPUTE_SHADER,
@@ -155,15 +156,16 @@ namespace gfx
       };
 
       // TODO: search for includes
-      struct File {
-        File(const std::string& path);
+      struct File
+      {
+        File(const std::string &path);
         std::string content;
         void preprocess();
       };
 
       // ShaderProgram() : m_id(glCreateProgram()) {}
-      ShaderProgram(const std::map<ShaderType, File>& sources);
-      ShaderProgram(const std::string& compute_shader_source);
+      ShaderProgram(const std::map<ShaderType, File> &sources);
+      ShaderProgram(const std::string &compute_shader_source);
       ShaderProgram(const std::string &vertex_shader_source, const std::string &fragment_shader_source);
       ~ShaderProgram();
       void bind() const;
@@ -176,7 +178,7 @@ namespace gfx
       void set_uniform(const std::string &name, const glm::mat3 &value) const;
       void set_uniform(const std::string &name, const glm::mat4 &value) const;
       void set_uniform_buffer(const std::string &name, GLuint binding = 0U);
-      static std::string string_from_file(const std::string& path);
+      static std::string string_from_file(const std::string &path);
     };
 
     struct Texture : public Object

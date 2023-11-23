@@ -20,7 +20,7 @@ namespace gfx
 
     Image() : m_data(nullptr), m_width(0), m_height(0), m_channels(0) {}
     Image(unsigned char *data, int width, int height, int channels)
-      : m_data(data), m_width(width), m_height(height), m_channels(channels) {}
+        : m_data(data), m_width(width), m_height(height), m_channels(channels) {}
 
     ~Image();
 
@@ -29,15 +29,15 @@ namespace gfx
     Image(Image &&other) noexcept;
     Image &operator=(Image &&other) noexcept;
 
-    static std::optional<Image> open(const std::string& path, bool flip_vertically = false);
+    static std::optional<Image> open(const std::string &path, bool flip_vertically = false);
 
     unsigned char *data() const;
     int width() const;
     int height() const;
     int channels() const;
     Format format() const;
-    bool write_png(const std::string& path, bool flip_vertically = false) const;
-    bool read_png(const std::string& path, bool flip_vertically = false);
+    bool write_png(const std::string &path, bool flip_vertically = false) const;
+    bool read_png(const std::string &path, bool flip_vertically = false);
 
   private:
     unsigned char *m_data = nullptr;

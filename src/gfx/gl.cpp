@@ -5,7 +5,6 @@
 #include <sstream>
 #include <regex>
 
-
 std::string read_file_to_string(const std::string &path)
 {
   std::ifstream file(path);
@@ -34,9 +33,10 @@ namespace gfx
       }
     }
 
-    ShaderProgram::File::File(const std::string& path) : content(read_file_to_string(path))
+    ShaderProgram::File::File(const std::string &path) : content(read_file_to_string(path))
     {
-      if (content.empty()) {
+      if (content.empty())
+      {
         std::cerr << "could not read file " << path << std::endl;
       }
       preprocess();
@@ -186,7 +186,7 @@ namespace gfx
       glUniformBlockBinding(m_id, index, binding);
     }
 
-    std::string ShaderProgram::string_from_file(const std::string& path)
+    std::string ShaderProgram::string_from_file(const std::string &path)
     {
       std::ifstream file(path);
       if (!file.is_open())
@@ -246,20 +246,17 @@ namespace gfx
       for (int i = 0; i < 6; i++)
       {
         Image image;
-        if (!image.read_png(paths[i], flip_vertically))
+        if (image.read_png(paths[i], flip_vertically))
         {
-          std::cout << "failed to load image " << paths[i] << std::endl;;
+          glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image.format(), image.width(), image.height(), 0,
+                       image.format(), GL_UNSIGNED_BYTE, image.data());
         }
-        assert(image.data() == nullptr);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image.format(), image.width(), image.height(), 0,
-                     image.format(), GL_UNSIGNED_BYTE, image.data());
+        else
+        {
+          std::cerr << "failed to load image " << paths[i] << std::endl;
+          break;
+        }
       }
-
-      set_parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      set_parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      set_parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      set_parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      set_parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
 
     TextureArray::TextureArray(const Params &params)
@@ -272,8 +269,7 @@ namespace gfx
       set_parameter(GL_TEXTURE_MIN_FILTER, params.min_filter);
       set_parameter(GL_TEXTURE_MAG_FILTER, params.mag_filter);
 
-      glTexImage3D(target, 0, m_format, m_texture_size.x, m_texture_size.y, m_array_size, 0, m_format, GL_UNSIGNED_BYTE,
-                   NULL);
+      glTexImage3D(target, 0, m_format, m_texture_size.x, m_texture_size.y, m_array_size, 0, m_format, GL_UNSIGNED_BYTE, NULL);
     }
 
     void TextureArray::bind() const { glBindTexture(target, m_id); }

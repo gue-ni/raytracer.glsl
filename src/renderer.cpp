@@ -10,8 +10,11 @@ using namespace gfx::gl;
 
 Renderer::Renderer(int width, int height) 
   : Window(width, height)
-  , m_screen_shader(std::make_unique<ShaderProgram>(ShaderProgram::string_from_file("shaders/screen.vert"), ShaderProgram::string_from_file("shaders/screen.frag")))
-  , m_render_shader(std::make_unique<ShaderProgram>(ShaderProgram::string_from_file("shaders/raytracer.glsl")))
+  , m_screen_shader(std::make_unique<ShaderProgram>(
+      ShaderProgram::string_from_file("shaders/screen.vert"), 
+      ShaderProgram::string_from_file("shaders/screen.frag")))
+  , m_render_shader(std::make_unique<ShaderProgram>(
+      ShaderProgram::string_from_file("shaders/raytracer.glsl")))
   , m_texture(std::make_unique<Texture>())
   , m_screen_quad_vao(std::make_unique<VertexArrayObject>())
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
@@ -43,22 +46,28 @@ Renderer::Renderer(int width, int height)
   const std::string cubemap_path = "assets/cubemap/";
 
   const std::array<std::string, 6>& faces = {
-      cubemap_path + "right.png",  
-      cubemap_path + "left.png",  
-      cubemap_path + "top.png",
-      cubemap_path + "bottom.png", 
-      cubemap_path + "front.png", 
-      cubemap_path + "back.png ",
+    cubemap_path + "right.png",  
+    cubemap_path + "left.png",  
+    cubemap_path + "top.png",
+    cubemap_path + "bottom.png", 
+    cubemap_path + "front.png", 
+    cubemap_path + "back.png ",
   };
 
   m_envmap = std::make_unique<CubemapTexture>(faces);
+  m_envmap->bind();
+  m_envmap->set_parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  m_envmap->set_parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  m_envmap->set_parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  m_envmap->set_parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  m_envmap->set_parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
   // setup texture
   m_texture->bind();
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  m_texture->set_parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  m_texture->set_parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  m_texture->set_parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  m_texture->set_parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 
   float r = 25000;

@@ -156,7 +156,7 @@ float sphere_intersect(Ray r, Sphere s)
     return INF;
 }
 
-int find_collision(Ray ray, inout HitInfo closest_hit)
+int find_closest_sphere(Ray ray, inout HitInfo closest_hit)
 {
   float max_t = INF;
   int closest_sphere = NO_HIT;
@@ -193,7 +193,7 @@ vec3 trace_path(Ray ray)
   {
     HitInfo hit;
 
-    int i = find_collision(ray, hit);
+    int i = find_closest_sphere(ray, hit);
 
     if (i == NO_HIT) {
 #if 0
@@ -269,15 +269,12 @@ vec3 trace_path(Ray ray)
       float Re = R0 + (1 - R0)*c*c*c*c*c; // reflection weight
       float Tr = 1 - Re; // refraction weight
 
-      // Russian roulette probability (for reflection)
       float P = .25 + .5*Re;
-      // reflection weight boosted by the russian roulette probability
+
       float RP = Re / P;
-      // refraction weight boosted by the russian roulette probability
+
       float TP = Tr / (1 - P);
 
-#if 1
-      // Russian roulette decision (between reflected and refracted ray)
 		  if (rand() < P) {
         throughput *= (albedo * RP);
         ray.direction = reflect(ray.direction, hit.normal);
@@ -285,16 +282,7 @@ vec3 trace_path(Ray ray)
         throughput *= (albedo * TP);
         ray.direction = tdir;
       }
-#else
-      throughput *= (albedo);
-      ray.direction = tdir;
-#endif
     }
-
-    //float cos_theta = dot(hit.normal, -ray.direction);
-    //vec3 brdf = albedo / PI;
-    //float pdf = cos_theta / PI;
-    //throughput *= (brdf * cos_theta / pdf); 
 
     radiance += emission * throughput;
   }
