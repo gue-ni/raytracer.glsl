@@ -43,8 +43,8 @@ layout(std140, binding = 3) readonly buffer mesh_buffer {
   Mesh meshes[];
 };
 
-layout(std140, binding = 4) readonly buffer vertex_buffer {
-  vec4 vertices[];
+layout(std430, binding = 4) readonly buffer vertex_buffer {
+  vec3 vertices[];
 };
 
 uniform int u_frames;
@@ -175,37 +175,57 @@ float sphere_intersect(Ray r, Sphere s)
     return INF;
 }
 
-float triangle_intersect(Ray r, Triangle t)
-{
+float triangle_intersect(Ray r, Triangle t) {
   return INF;
 }
 
-int find_closest_sphere(Ray ray, inout HitInfo closest_hit)
+int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
   float max_t = INF;
-  int closest_sphere = NO_HIT;
+  int closest = NO_HIT;
+
+  for (int i = 0; i < meshes.length(); i++) {
+    Mesh mesh = meshes[i];
+    for (uint v = mesh.start; v < mesh.size; v++) {
+      
+      Triangle triangle(vertices[v * 3 + 0], vertices[v * 3 + 1], vertices[v * 3 + 2]);
+      float t = triangle_intersect(ray, triangle);
+
+      if (EPSILON < t && t < max_t) {
+        hit.t = t;
+        hit.point = ray.origin + ray.direction * t;
+        max_t = hit.t;
+        closest = i;
+      }
+    }
+  }
+
+  return closest;
+}
+
+int find_closest_sphere(Ray ray, inout HitInfo hit)
+{
+  float max_t = INF;
+  int closest = NO_HIT;
 
   float t;
 
   for (int i = 0; i < spheres.length(); i++) 
   {
-    HitInfo hit;
-
     float t = sphere_intersect(ray, spheres[i]);
 
-    if (EPSILON < t && t < max_t)
+    if (EPSILON < t && t < max_t) 
     {
       hit.t = t;
       hit.point = ray.origin + ray.direction * t;
       hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
  
       max_t = hit.t;
-      closest_sphere = i;
-      closest_hit = hit;
+      closest = i;
     }
   }
 
-  return closest_sphere;
+  return closest;
 }
 
 float fresnel_schlick(float f0, float cos_theta)
@@ -262,7 +282,6 @@ vec3 trace_path(Ray ray)
 
       vec3 diffuse = cosine_weighted(hit.normal);
       vec3 specular = reflect(ray.direction, hit.normal);
-
       ray.direction = mix(diffuse, specular, smoothness);
 
       throughput *= albedo; 
@@ -279,7 +298,7 @@ vec3 trace_path(Ray ray)
 
       float cos_theta = dot(ray.direction, nl);
 
-      double cos_theta_2_sqr;
+      float cos_theta_2_sqr;
 
       // total internal reflection
 	    if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0) {
@@ -305,9 +324,7 @@ vec3 trace_path(Ray ray)
       float Tr = 1 - Re; 
 
       float P = 0.25 + 0.5 * Re;
-
       float RP = Re / P;
-
       float TP = Tr / (1 - P);
 
 		  if (rand() < P) {
