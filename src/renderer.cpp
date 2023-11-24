@@ -20,6 +20,8 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
   , m_spheres(std::make_unique<ShaderStorageBuffer>())
   , m_materials(std::make_unique<ShaderStorageBuffer>())
+  , m_vertices(std::make_unique<ShaderStorageBuffer>())
+  , m_meshes(std::make_unique<ShaderStorageBuffer>())
   , m_camera(glm::vec3(0.0f, 0.0f, -12.0f))
 {
   // setup screen quad
@@ -124,8 +126,8 @@ void Renderer::render(float dt)
 
   ImGui::Begin("Options", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
-  ImGui::Checkbox("Use Envmap", &this->m_use_envmap);
-  ImGui::Checkbox("Use DOF", &this->m_use_dof);
+  ImGui::Checkbox("Use Envmap", &m_use_envmap);
+  ImGui::Checkbox("Use DOF", &m_use_dof);
   ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
   ImGui::SliderFloat("Aperture", &m_camera.aperture, 0.001f, 1.0f);
   ImGui::SliderFloat("Focal Length", &m_camera.focal_length, 0.001f, 50.0f);
@@ -140,6 +142,9 @@ void Renderer::render(float dt)
 
   m_spheres->bind_buffer_base(1);
   m_materials->bind_buffer_base(2);
+  m_meshes->bind_buffer_base(3);
+  m_vertices->bind_buffer_base(4);
+  
   m_envmap->bind(3);
 
   m_render_shader->bind();
