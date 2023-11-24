@@ -113,6 +113,7 @@ private:
   void save_to_file() const;
 
   static std::vector<glm::vec4> load_obj(const std::string& path);
+  static glm::mat4 transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate = glm::quat(glm::vec3(0.0f)));
 
 #if 0
   glm::vec3 m_background = glm::vec3(1.0f);

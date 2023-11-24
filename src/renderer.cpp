@@ -8,6 +8,8 @@
 #include <iostream>
 #include <chrono>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace gfx;
 using namespace gfx::gl;
 
@@ -120,7 +122,14 @@ Renderer::Renderer(int width, int height)
   m_materials->bind();
   m_materials->buffer_data(std::span(materials));
 
-  auto obj = load_obj("assets/icosphere.obj");
+  std::vector<glm::vec4> obj = load_obj("assets/icosphere.obj");
+
+  glm::mat4 m = transform(glm::vec3(0.0f, -h + sr, 0.0f), glm::vec3(2.0f));
+
+  for (glm::vec4& v : obj)
+  {
+    v = m * v;
+  }
 
   const std::vector<glm::vec4> vertices = {
     glm::vec4(-2, 0, 0, 0),
@@ -136,7 +145,7 @@ Renderer::Renderer(int width, int height)
   m_vertices->buffer_data(std::span(obj));
 
   const std::vector<Mesh> meshes = {
-    Mesh(0, obj.size() / 3, 5),
+    Mesh(0, obj.size() / 3, 6),
   };
 
   m_meshes->bind();
@@ -247,6 +256,15 @@ void Renderer::save_to_file() const
   }
 }
 
+
+glm::mat4 Renderer::transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate)
+{
+  glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
+  glm::mat4 t = glm::translate(glm::mat4(1.0f), translate);
+  glm::mat4 r = glm::mat4(rotate);
+  return t * r * s;
+}
+
 std::vector<glm::vec4> Renderer::load_obj(const std::string &path)
 {
   std::string warning, error;
@@ -286,6 +304,7 @@ std::vector<glm::vec4> Renderer::load_obj(const std::string &path)
         vertex.x = attributes.vertices[3 * idx.vertex_index + 0];
         vertex.y = attributes.vertices[3 * idx.vertex_index + 1];
         vertex.z = attributes.vertices[3 * idx.vertex_index + 2];
+        vertex.w = 1.0f;
 
         vertices.push_back(vertex);
       }
@@ -304,7 +323,7 @@ void Renderer::reset_buffer()
 
 void Renderer::event(const SDL_Event &event)
 {
-  //m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
+  m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
 
   switch (event.type)
   {
