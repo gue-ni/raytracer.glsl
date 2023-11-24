@@ -24,7 +24,9 @@ struct Mesh {
 };
 
 struct Triangle {
-  vec3 v0, v1, v2;
+  vec3 v0;
+  vec3 v1;
+  vec3 v2;
 };
 
 layout(local_size_x = 8, local_size_y = 8) in;
@@ -180,6 +182,43 @@ float triangle_intersect(Ray r, Triangle t) {
   return INF;
 }
 
+#if 0
+void triangle_intersect(vec3 pos, vec3 dir, vec3 v0, vec3 v1, vec3 v2, inout float min_t, out vec3 outNormal)
+{
+    // Can be shared between all triangles
+    vec3 center_u = dir;
+    vec3 center_v = cross(dir, pos);
+    
+    // Constant
+    vec3 v0_u = (v1 - v0);
+    vec3 v0_v = cross(v1, v0);
+    
+    vec3 v1_u = (v2 - v1);
+    vec3 v1_v = cross(v2, v1);
+    
+    vec3 v2_u = (v0 - v2);
+    vec3 v2_v = cross(v0, v2);
+    
+    vec3 normal = normalize(cross(v1 - v0, v2 - v0));
+    float q = dot(dir, normal);
+    
+    // 6 dot intersection test
+    if(dot(v0_u, center_v) + dot(v0_v, center_u) > 0.0 &&
+       dot(v1_u, center_v) + dot(v1_v, center_u) > 0.0 &&
+       dot(v2_u, center_v) + dot(v2_v, center_u) > 0.0)
+    {
+        
+        float t = -dot(pos - v0, normal) / q;
+        if(t < min_t)
+        {
+            outNormal = normal;
+            min_t = t;
+        }
+    }
+}
+#endif
+
+#if 1
 int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
   float max_t = INF;
@@ -189,13 +228,17 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
     Mesh mesh = meshes[i];
     for (uint v = mesh.start; v < mesh.size; v++) {
       
-      Triangle triangle(vertices[v * 3 + 0], vertices[v * 3 + 1], vertices[v * 3 + 2]);
+      Triangle triangle;
+      triangle.v0 = vertices[v * 3 + 0];
+      triangle.v1 = vertices[v * 3 + 1];
+      triangle.v2 = vertices[v * 3 + 2];
+
       float t = triangle_intersect(ray, triangle);
 
       if (EPSILON < t && t < max_t) {
         hit.t = t;
         hit.point = ray.origin + ray.direction * t;
-        // hit.normal = 
+        hit.normal = normalize(cross(triangle.v1 - triangle.v0, triangle.v2 - triangle.v0));
         hit.material = mesh.material;
         max_t = hit.t;
         closest = i;
@@ -205,6 +248,7 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
 
   return closest;
 }
+#endif
 
 int find_closest_sphere(Ray ray, inout HitInfo hit)
 {

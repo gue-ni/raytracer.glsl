@@ -13,6 +13,15 @@
 -   [ ] physically based rendering
 -   [ ] triangle mesh rendering
 
+## Build
+
+### Windows
+
+```bash
+cmake -G Ninja ..
+cmake --build . 
+```
+
 ## Inspiration
 
 -   [Shadertoy smallpt](https://www.shadertoy.com/view/4sfGDB)

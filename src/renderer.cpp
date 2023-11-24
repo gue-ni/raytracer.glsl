@@ -25,7 +25,7 @@ Renderer::Renderer(int width, int height)
   , m_camera(glm::vec3(0.0f, 0.0f, -12.0f))
 {
   // setup screen quad
-  const std::vector<glm::vec2> vertices = {
+  const std::vector<glm::vec2> quad = {
       {-1, +1}, {0, 1},  // top left
       {-1, -1}, {0, 0},  // bottom left
       {+1, +1}, {1, 1},  // top right
@@ -34,7 +34,7 @@ Renderer::Renderer(int width, int height)
 
   m_screen_quad_vao->bind();
   m_screen_quad_vbo->bind();
-  m_screen_quad_vbo->buffer_data(std::span(vertices));
+  m_screen_quad_vbo->buffer_data(std::span(quad));
 
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec2), (void *)0);
   glEnableVertexAttribArray(0);
@@ -79,7 +79,7 @@ Renderer::Renderer(int width, int height)
   float sr = 3.0f;
 
   // setup spheres
-  std::vector<Sphere> spheres = {
+  const std::vector<Sphere> spheres = {
 #if 0
     { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
 #else
@@ -103,7 +103,7 @@ Renderer::Renderer(int width, int height)
   m_spheres->buffer_data(std::span(spheres));
 
   // setup material 
-  std::vector<Material> materials = {
+  const std::vector<Material> materials = {
     { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::DIFFUSE },
     { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(20.0f) },
     { {0.75f, 0.00f, 0.00f, 0.0f}, glm::vec4(0.0f) },
@@ -116,6 +116,24 @@ Renderer::Renderer(int width, int height)
 
   m_materials->bind();
   m_materials->buffer_data(std::span(materials));
+
+#if 1
+  const std::vector<glm::vec4> vertices = {
+    glm::vec4(-2, 0, 0, 0),
+    glm::vec4(0, 2, 0, 0),
+    glm::vec4(+2, 0, 0, 0),
+  };
+
+  m_vertices->bind();
+  m_vertices->buffer_data(std::span(vertices));
+
+  const std::vector<Mesh> meshes = {
+    Mesh(0, 1, 0),
+  };
+
+  m_meshes->bind();
+  m_meshes->buffer_data(std::span(meshes));
+#endif
 }
 
 void Renderer::render(float dt)

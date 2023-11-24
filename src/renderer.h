@@ -5,6 +5,8 @@
 
 using namespace gfx::gl;
 
+using uint = unsigned int;
+
 #if defined(__GNUC__) || defined(__clang__)
 #  define ALIGN_START(x)
 #  define ALIGN_END(x) __attribute__ ((aligned(x)))
@@ -24,7 +26,7 @@ ALIGN_START(16) struct Sphere {
 // vec4 only for alignment purposes
 ALIGN_START(16) struct Material {
 
-  enum MaterialType: unsigned int {
+  enum MaterialType: uint {
     DIFFUSE       = 0,
     SPECULAR      = 1,
     TRANSMISSIVE  = 2,
@@ -34,6 +36,16 @@ ALIGN_START(16) struct Material {
   glm::vec3 emission;
   MaterialType type = DIFFUSE;
 } ALIGN_END(16);
+
+
+ALIGN_START(16) struct Mesh {
+  uint start;
+  uint size;
+  int material;
+
+  Mesh(uint start_, uint size_, int mat = 0) 
+    : start(start_), size(size_), material(mat) {}
+};
 
 inline glm::vec3 vector_from_spherical(float pitch, float yaw)
 {
