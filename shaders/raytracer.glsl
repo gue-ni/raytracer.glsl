@@ -179,15 +179,15 @@ float sphere_intersect(Ray r, Sphere s)
 }
 
 float triangle_intersect(Ray r, Triangle t) {
-  return INF;
-}
 
-#if 0
-void triangle_intersect(vec3 pos, vec3 dir, vec3 v0, vec3 v1, vec3 v2, inout float min_t, out vec3 outNormal)
-{
-    // Can be shared between all triangles
-    vec3 center_u = dir;
-    vec3 center_v = cross(dir, pos);
+    vec3 v0 = t.v0;
+    vec3 v1 = t.v1;
+    vec3 v2 = t.v2;
+
+    float min_t = INF;
+
+    vec3 center_u = r.direction;
+    vec3 center_v = cross(r.direction, r.origin);
     
     // Constant
     vec3 v0_u = (v1 - v0);
@@ -200,7 +200,7 @@ void triangle_intersect(vec3 pos, vec3 dir, vec3 v0, vec3 v1, vec3 v2, inout flo
     vec3 v2_v = cross(v0, v2);
     
     vec3 normal = normalize(cross(v1 - v0, v2 - v0));
-    float q = dot(dir, normal);
+    float q = dot(r.direction, normal);
     
     // 6 dot intersection test
     if(dot(v0_u, center_v) + dot(v0_v, center_u) > 0.0 &&
@@ -208,17 +208,16 @@ void triangle_intersect(vec3 pos, vec3 dir, vec3 v0, vec3 v1, vec3 v2, inout flo
        dot(v2_u, center_v) + dot(v2_v, center_u) > 0.0)
     {
         
-        float t = -dot(pos - v0, normal) / q;
+        float t = -dot(r.origin - v0, normal) / q;
         if(t < min_t)
         {
-            outNormal = normal;
-            min_t = t;
+            return t;
         }
     }
-}
-#endif
 
-#if 1
+    return INF;
+}
+
 int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
   float max_t = INF;
@@ -248,7 +247,6 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
 
   return closest;
 }
-#endif
 
 int find_closest_sphere(Ray ray, inout HitInfo hit)
 {
@@ -289,11 +287,17 @@ vec3 trace_path(Ray ray)
 
   for (int bounce = 0; bounce < u_max_bounce; bounce++)
   {
+    HitInfo hit1, hit2;
+    hit1.t = INF;
+    hit2.t = INF;
     HitInfo hit;
 
-    int i = find_closest_sphere(ray, hit);
+    int i = find_closest_sphere(ray, hit2);
+    int j = find_closest_mesh(ray, hit2);
 
-    if (i == NO_HIT) {
+    
+
+    if (i == NO_HIT && j == NO_HIT) {
 #if 0
       vec3 background = u_background;
 #else
@@ -301,6 +305,13 @@ vec3 trace_path(Ray ray)
 #endif
       radiance += background * throughput;
       break;
+    }
+
+    if (hit1.t < hit2.t)
+    {
+      hit = hit1;
+    } else {
+      hit = hit2;
     }
 
     Material material = materials[hit.material];
