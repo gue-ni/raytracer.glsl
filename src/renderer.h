@@ -84,6 +84,8 @@ private:
 
   std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
+  std::unique_ptr<ShaderStorageBuffer> m_vertices = nullptr;
+  std::unique_ptr<ShaderStorageBuffer> m_meshes = nullptr;
 
   int m_bounces = 5;
   unsigned int m_samples = 1;
