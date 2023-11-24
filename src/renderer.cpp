@@ -124,7 +124,7 @@ Renderer::Renderer(int width, int height)
 
   std::vector<glm::vec4> obj = load_obj("assets/icosphere.obj");
 
-  glm::mat4 m = transform(glm::vec3(0.0f, -h + sr, 0.0f), glm::vec3(2.0f));
+  glm::mat4 m = transform(glm::vec3(0.0f, -h + sr, 0.0f), glm::vec3(3.0f));
 
   for (glm::vec4& v : obj)
   {
@@ -323,8 +323,6 @@ void Renderer::reset_buffer()
 
 void Renderer::event(const SDL_Event &event)
 {
-  m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
-
   switch (event.type)
   {
   case SDL_MOUSEBUTTONDOWN:

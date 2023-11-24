@@ -350,7 +350,7 @@ vec3 trace_path(Ray ray)
       vec3 nl = inside ? -hit.normal : hit.normal;
 
       float nc = 1;   // air
-      float nt = 1.5; // glass
+      float nt = 1.4; // glass
 
       float nnt = inside ? nt / nc : nc / nt;
 
