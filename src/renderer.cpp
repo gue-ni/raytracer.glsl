@@ -1,6 +1,9 @@
 #include "renderer.h"
 #include "gfx/gfx.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <span>
 #include <iostream>
 #include <chrono>
@@ -117,23 +120,27 @@ Renderer::Renderer(int width, int height)
   m_materials->bind();
   m_materials->buffer_data(std::span(materials));
 
-#if 1
+  auto obj = load_obj("assets/icosphere.obj");
+
   const std::vector<glm::vec4> vertices = {
     glm::vec4(-2, 0, 0, 0),
-    glm::vec4(0, 2, 0, 0),
+    glm::vec4(-2, 2, 0, 0),
+    glm::vec4(+2, 0, 0, 0),
+
+    glm::vec4(-2, 2, 0, 0),
+    glm::vec4(+2, 2, 0, 0),
     glm::vec4(+2, 0, 0, 0),
   };
 
   m_vertices->bind();
-  m_vertices->buffer_data(std::span(vertices));
+  m_vertices->buffer_data(std::span(obj));
 
   const std::vector<Mesh> meshes = {
-    Mesh(0, 1, 0),
+    Mesh(0, obj.size() / 3, 5),
   };
 
   m_meshes->bind();
   m_meshes->buffer_data(std::span(meshes));
-#endif
 }
 
 void Renderer::render(float dt)
@@ -238,6 +245,56 @@ void Renderer::save_to_file() const
   } else {
     std::cerr << "Could not write render to " << filename << std::endl;
   }
+}
+
+std::vector<glm::vec4> Renderer::load_obj(const std::string &path)
+{
+  std::string warning, error;
+  tinyobj::attrib_t attributes;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+
+  const char* filename = path.c_str();
+
+  if (!tinyobj::LoadObj(&attributes, &shapes, &materials, &warning, &error, filename)) {
+    std::cerr << "tinyobj: " << warning << error << std::endl;
+    return {};
+  } 
+
+  printf("# of vertices  = %d\n", (int)(attributes.vertices.size()) / 3);
+  printf("# of normals   = %d\n", (int)(attributes.normals.size()) / 3);
+  printf("# of texcoords = %d\n", (int)(attributes.texcoords.size()) / 2);
+  printf("# of materials = %d\n", (int)materials.size());
+  printf("# of shapes    = %d\n", (int)shapes.size());
+
+  std::vector<glm::vec4> vertices;
+
+  for (size_t s = 0; s < shapes.size(); s++) {
+
+    // Loop over faces(polygon)
+    size_t index_offset = 0;
+
+    for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+
+      // Loop over vertices in the face.
+      for (size_t v = 0; v < 3; v++) {
+
+        // access to vertex
+        tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+
+        glm::vec4 vertex;
+        vertex.x = attributes.vertices[3 * idx.vertex_index + 0];
+        vertex.y = attributes.vertices[3 * idx.vertex_index + 1];
+        vertex.z = attributes.vertices[3 * idx.vertex_index + 2];
+
+        vertices.push_back(vertex);
+      }
+      index_offset += 3;
+    }
+  }
+
+  printf("# of triangles = %d\n",(int) vertices.size() / 3);
+  return vertices;
 }
 
 void Renderer::reset_buffer()

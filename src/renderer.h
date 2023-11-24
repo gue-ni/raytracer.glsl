@@ -39,8 +39,8 @@ ALIGN_START(16) struct Material {
 
 
 ALIGN_START(16) struct Mesh {
-  uint start;
-  uint size;
+  uint start; // start offset
+  uint size; // triangle count
   int material;
 
   Mesh(uint start_, uint size_, int mat = 0) 
@@ -111,6 +111,8 @@ private:
 
   void reset_buffer();
   void save_to_file() const;
+
+  static std::vector<glm::vec4> load_obj(const std::string& path);
 
 #if 0
   glm::vec3 m_background = glm::vec3(1.0f);

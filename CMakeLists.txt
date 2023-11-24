@@ -24,6 +24,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
+FetchContent_Declare(
+    tiny-obj GIT_REPOSITORY
+    https://github.com/tinyobjloader/tinyobjloader
+    GIT_TAG release 
+
+)
+FetchContent_MakeAvailable(tiny-obj)
+
 file(GLOB EXTERNAL_SOURCE
     ${imgui_SOURCE_DIR}/*.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
@@ -58,6 +66,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 find_package(OpenGL REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/build/_deps/stb-src)
+include_directories(${CMAKE_SOURCE_DIR}/build/_deps/tiny-obj-src)
 include_directories(${imgui_SOURCE_DIR})
 
 add_executable(renderer
