@@ -20,7 +20,7 @@ struct Material {
 struct Mesh {
   uint start;
   uint size;
-  int type;
+  int material;
 };
 
 struct Triangle {
@@ -79,6 +79,7 @@ struct HitInfo {
   float t;
   vec3 point;
   vec3 normal;
+  int material;
 };
 
 //RNG from code by Moroz Mykhailo (https://www.shadertoy.com/view/wltcRS)
@@ -194,6 +195,8 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
       if (EPSILON < t && t < max_t) {
         hit.t = t;
         hit.point = ray.origin + ray.direction * t;
+        // hit.normal = 
+        hit.material = mesh.material;
         max_t = hit.t;
         closest = i;
       }
@@ -219,6 +222,7 @@ int find_closest_sphere(Ray ray, inout HitInfo hit)
       hit.t = t;
       hit.point = ray.origin + ray.direction * t;
       hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
+      hit.material = spheres[i].material;
  
       max_t = hit.t;
       closest = i;
@@ -255,8 +259,7 @@ vec3 trace_path(Ray ray)
       break;
     }
 
-    Sphere sphere = spheres[i];
-    Material material = materials[sphere.material];
+    Material material = materials[hit.material];
 
     vec3 albedo = material.albedo.rgb;
     vec3 emission = material.emission.rgb;
