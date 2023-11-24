@@ -301,7 +301,7 @@ vec3 trace_path(Ray ray)
       float cos_theta_2_sqr;
 
       // total internal reflection
-	    if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0) {
+      if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0) {
         throughput *= albedo;
         ray.direction = reflect(ray.direction, hit.normal);
         break;
@@ -327,7 +327,7 @@ vec3 trace_path(Ray ray)
       float RP = Re / P;
       float TP = Tr / (1 - P);
 
-		  if (rand() < P) {
+      if (rand() < P) {
         throughput *= (albedo * RP);
         ray.direction = reflect(ray.direction, hit.normal);
       } else {
