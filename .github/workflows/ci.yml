@@ -44,6 +44,11 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt install libsdl2-dev libglew-dev libgle3-dev 
 
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@master
+      with:
+        version: 1.10.0
+
     - name: Configure CMake
       run: >
         cmake -B '${{ github.workspace }}/build'
