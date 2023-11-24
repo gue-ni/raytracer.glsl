@@ -20,11 +20,13 @@ struct Material {
 struct Mesh {
   uint start;
   uint size;
-  int type;
+  int material;
 };
 
 struct Triangle {
-  vec3 v0, v1, v2;
+  vec3 v0;
+  vec3 v1;
+  vec3 v2;
 };
 
 layout(local_size_x = 8, local_size_y = 8) in;
@@ -43,8 +45,8 @@ layout(std140, binding = 3) readonly buffer mesh_buffer {
   Mesh meshes[];
 };
 
-layout(std140, binding = 4) readonly buffer vertex_buffer {
-  vec4 vertices[];
+layout(std430, binding = 4) readonly buffer vertex_buffer {
+  vec3 vertices[];
 };
 
 uniform int u_frames;
@@ -79,6 +81,7 @@ struct HitInfo {
   float t;
   vec3 point;
   vec3 normal;
+  int material;
 };
 
 //RNG from code by Moroz Mykhailo (https://www.shadertoy.com/view/wltcRS)
@@ -175,37 +178,100 @@ float sphere_intersect(Ray r, Sphere s)
     return INF;
 }
 
-float triangle_intersect(Ray r, Triangle t)
-{
-  return INF;
+float triangle_intersect(Ray r, Triangle t) {
+
+    vec3 v0 = t.v0;
+    vec3 v1 = t.v1;
+    vec3 v2 = t.v2;
+
+    float min_t = INF;
+
+    vec3 center_u = r.direction;
+    vec3 center_v = cross(r.direction, r.origin);
+    
+    // Constant
+    vec3 v0_u = (v1 - v0);
+    vec3 v0_v = cross(v1, v0);
+    
+    vec3 v1_u = (v2 - v1);
+    vec3 v1_v = cross(v2, v1);
+    
+    vec3 v2_u = (v0 - v2);
+    vec3 v2_v = cross(v0, v2);
+    
+    vec3 normal = normalize(cross(v1 - v0, v2 - v0));
+    float q = dot(r.direction, normal);
+    
+    // 6 dot intersection test
+    if(dot(v0_u, center_v) + dot(v0_v, center_u) > 0.0 &&
+       dot(v1_u, center_v) + dot(v1_v, center_u) > 0.0 &&
+       dot(v2_u, center_v) + dot(v2_v, center_u) > 0.0)
+    {
+        
+        float t = -dot(r.origin - v0, normal) / q;
+        if(t < min_t)
+        {
+            return t;
+        }
+    }
+
+    return INF;
 }
 
-int find_closest_sphere(Ray ray, inout HitInfo closest_hit)
+int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
   float max_t = INF;
-  int closest_sphere = NO_HIT;
+  int closest = NO_HIT;
+
+  for (int i = 0; i < meshes.length(); i++) {
+    Mesh mesh = meshes[i];
+    for (uint v = mesh.start; v < mesh.size; v++) {
+      
+      Triangle triangle;
+      triangle.v0 = vertices[v * 3 + 0];
+      triangle.v1 = vertices[v * 3 + 1];
+      triangle.v2 = vertices[v * 3 + 2];
+
+      float t = triangle_intersect(ray, triangle);
+
+      if (EPSILON < t && t < max_t) {
+        hit.t = t;
+        hit.point = ray.origin + ray.direction * t;
+        hit.normal = normalize(cross(triangle.v1 - triangle.v0, triangle.v2 - triangle.v0));
+        hit.material = mesh.material;
+        max_t = hit.t;
+        closest = i;
+      }
+    }
+  }
+
+  return closest;
+}
+
+int find_closest_sphere(Ray ray, inout HitInfo hit)
+{
+  float max_t = INF;
+  int closest = NO_HIT;
 
   float t;
 
   for (int i = 0; i < spheres.length(); i++) 
   {
-    HitInfo hit;
-
     float t = sphere_intersect(ray, spheres[i]);
 
-    if (EPSILON < t && t < max_t)
+    if (EPSILON < t && t < max_t) 
     {
       hit.t = t;
       hit.point = ray.origin + ray.direction * t;
       hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
+      hit.material = spheres[i].material;
  
       max_t = hit.t;
-      closest_sphere = i;
-      closest_hit = hit;
+      closest = i;
     }
   }
 
-  return closest_sphere;
+  return closest;
 }
 
 float fresnel_schlick(float f0, float cos_theta)
@@ -221,11 +287,17 @@ vec3 trace_path(Ray ray)
 
   for (int bounce = 0; bounce < u_max_bounce; bounce++)
   {
+    HitInfo hit1, hit2;
+    hit1.t = INF;
+    hit2.t = INF;
     HitInfo hit;
 
-    int i = find_closest_sphere(ray, hit);
+    int i = find_closest_sphere(ray, hit2);
+    int j = find_closest_mesh(ray, hit2);
 
-    if (i == NO_HIT) {
+    
+
+    if (i == NO_HIT && j == NO_HIT) {
 #if 0
       vec3 background = u_background;
 #else
@@ -235,8 +307,14 @@ vec3 trace_path(Ray ray)
       break;
     }
 
-    Sphere sphere = spheres[i];
-    Material material = materials[sphere.material];
+    if (hit1.t < hit2.t)
+    {
+      hit = hit1;
+    } else {
+      hit = hit2;
+    }
+
+    Material material = materials[hit.material];
 
     vec3 albedo = material.albedo.rgb;
     vec3 emission = material.emission.rgb;
@@ -262,7 +340,6 @@ vec3 trace_path(Ray ray)
 
       vec3 diffuse = cosine_weighted(hit.normal);
       vec3 specular = reflect(ray.direction, hit.normal);
-
       ray.direction = mix(diffuse, specular, smoothness);
 
       throughput *= albedo; 
@@ -273,16 +350,16 @@ vec3 trace_path(Ray ray)
       vec3 nl = inside ? -hit.normal : hit.normal;
 
       float nc = 1;   // air
-      float nt = 1.5; // glass
+      float nt = 1.4; // glass
 
       float nnt = inside ? nt / nc : nc / nt;
 
       float cos_theta = dot(ray.direction, nl);
 
-      double cos_theta_2_sqr;
+      float cos_theta_2_sqr;
 
       // total internal reflection
-	    if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0) {
+      if ((cos_theta_2_sqr = 1 - nnt * nnt * (1 - cos_theta * cos_theta)) < 0) {
         throughput *= albedo;
         ray.direction = reflect(ray.direction, hit.normal);
         break;
@@ -305,12 +382,10 @@ vec3 trace_path(Ray ray)
       float Tr = 1 - Re; 
 
       float P = 0.25 + 0.5 * Re;
-
       float RP = Re / P;
-
       float TP = Tr / (1 - P);
 
-		  if (rand() < P) {
+      if (rand() < P) {
         throughput *= (albedo * RP);
         ray.direction = reflect(ray.direction, hit.normal);
       } else {

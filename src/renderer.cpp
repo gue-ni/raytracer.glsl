@@ -1,9 +1,14 @@
 #include "renderer.h"
 #include "gfx/gfx.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <span>
 #include <iostream>
 #include <chrono>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace gfx;
 using namespace gfx::gl;
@@ -20,10 +25,12 @@ Renderer::Renderer(int width, int height)
   , m_screen_quad_vbo(std::make_unique<VertexBuffer>())
   , m_spheres(std::make_unique<ShaderStorageBuffer>())
   , m_materials(std::make_unique<ShaderStorageBuffer>())
+  , m_vertices(std::make_unique<ShaderStorageBuffer>())
+  , m_meshes(std::make_unique<ShaderStorageBuffer>())
   , m_camera(glm::vec3(0.0f, 0.0f, -12.0f))
 {
   // setup screen quad
-  const std::vector<glm::vec2> vertices = {
+  const std::vector<glm::vec2> quad = {
       {-1, +1}, {0, 1},  // top left
       {-1, -1}, {0, 0},  // bottom left
       {+1, +1}, {1, 1},  // top right
@@ -32,7 +39,7 @@ Renderer::Renderer(int width, int height)
 
   m_screen_quad_vao->bind();
   m_screen_quad_vbo->bind();
-  m_screen_quad_vbo->buffer_data(std::span(vertices));
+  m_screen_quad_vbo->buffer_data(std::span(quad));
 
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec2), (void *)0);
   glEnableVertexAttribArray(0);
@@ -77,7 +84,7 @@ Renderer::Renderer(int width, int height)
   float sr = 3.0f;
 
   // setup spheres
-  std::vector<Sphere> spheres = {
+  const std::vector<Sphere> spheres = {
 #if 0
     { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
 #else
@@ -101,7 +108,7 @@ Renderer::Renderer(int width, int height)
   m_spheres->buffer_data(std::span(spheres));
 
   // setup material 
-  std::vector<Material> materials = {
+  const std::vector<Material> materials = {
     { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::DIFFUSE },
     { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(20.0f) },
     { {0.75f, 0.00f, 0.00f, 0.0f}, glm::vec4(0.0f) },
@@ -114,6 +121,35 @@ Renderer::Renderer(int width, int height)
 
   m_materials->bind();
   m_materials->buffer_data(std::span(materials));
+
+  std::vector<glm::vec4> obj = load_obj("assets/icosphere.obj");
+
+  glm::mat4 m = transform(glm::vec3(0.0f, -h + sr, 0.0f), glm::vec3(3.0f));
+
+  for (glm::vec4& v : obj)
+  {
+    v = m * v;
+  }
+
+  const std::vector<glm::vec4> vertices = {
+    glm::vec4(-2, 0, 0, 0),
+    glm::vec4(-2, 2, 0, 0),
+    glm::vec4(+2, 0, 0, 0),
+
+    glm::vec4(-2, 2, 0, 0),
+    glm::vec4(+2, 2, 0, 0),
+    glm::vec4(+2, 0, 0, 0),
+  };
+
+  m_vertices->bind();
+  m_vertices->buffer_data(std::span(obj));
+
+  const std::vector<Mesh> meshes = {
+    Mesh(0, obj.size() / 3, 6),
+  };
+
+  m_meshes->bind();
+  m_meshes->buffer_data(std::span(meshes));
 }
 
 void Renderer::render(float dt)
@@ -124,8 +160,8 @@ void Renderer::render(float dt)
 
   ImGui::Begin("Options", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
-  ImGui::Checkbox("Use Envmap", &this->m_use_envmap);
-  ImGui::Checkbox("Use DOF", &this->m_use_dof);
+  ImGui::Checkbox("Use Envmap", &m_use_envmap);
+  ImGui::Checkbox("Use DOF", &m_use_dof);
   ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
   ImGui::SliderFloat("Aperture", &m_camera.aperture, 0.001f, 1.0f);
   ImGui::SliderFloat("Focal Length", &m_camera.focal_length, 0.001f, 50.0f);
@@ -140,6 +176,9 @@ void Renderer::render(float dt)
 
   m_spheres->bind_buffer_base(1);
   m_materials->bind_buffer_base(2);
+  m_meshes->bind_buffer_base(3);
+  m_vertices->bind_buffer_base(4);
+  
   m_envmap->bind(3);
 
   m_render_shader->bind();
@@ -217,6 +256,66 @@ void Renderer::save_to_file() const
   }
 }
 
+
+glm::mat4 Renderer::transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate)
+{
+  glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
+  glm::mat4 t = glm::translate(glm::mat4(1.0f), translate);
+  glm::mat4 r = glm::mat4(rotate);
+  return t * r * s;
+}
+
+std::vector<glm::vec4> Renderer::load_obj(const std::string &path)
+{
+  std::string warning, error;
+  tinyobj::attrib_t attributes;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+
+  const char* filename = path.c_str();
+
+  if (!tinyobj::LoadObj(&attributes, &shapes, &materials, &warning, &error, filename)) {
+    std::cerr << "tinyobj: " << warning << error << std::endl;
+    return {};
+  } 
+
+  printf("# of vertices  = %d\n", (int)(attributes.vertices.size()) / 3);
+  printf("# of normals   = %d\n", (int)(attributes.normals.size()) / 3);
+  printf("# of texcoords = %d\n", (int)(attributes.texcoords.size()) / 2);
+  printf("# of materials = %d\n", (int)materials.size());
+  printf("# of shapes    = %d\n", (int)shapes.size());
+
+  std::vector<glm::vec4> vertices;
+
+  for (size_t s = 0; s < shapes.size(); s++) {
+
+    // Loop over faces(polygon)
+    size_t index_offset = 0;
+
+    for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+
+      // Loop over vertices in the face.
+      for (size_t v = 0; v < 3; v++) {
+
+        // access to vertex
+        tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+
+        glm::vec4 vertex;
+        vertex.x = attributes.vertices[3 * idx.vertex_index + 0];
+        vertex.y = attributes.vertices[3 * idx.vertex_index + 1];
+        vertex.z = attributes.vertices[3 * idx.vertex_index + 2];
+        vertex.w = 1.0f;
+
+        vertices.push_back(vertex);
+      }
+      index_offset += 3;
+    }
+  }
+
+  printf("# of triangles = %d\n",(int) vertices.size() / 3);
+  return vertices;
+}
+
 void Renderer::reset_buffer()
 {
   m_reset = true;
@@ -224,8 +323,6 @@ void Renderer::reset_buffer()
 
 void Renderer::event(const SDL_Event &event)
 {
-  //m_quit = (event.key.keysym.sym == SDLK_ESCAPE);
-
   switch (event.type)
   {
   case SDL_MOUSEBUTTONDOWN:

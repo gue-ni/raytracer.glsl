@@ -5,6 +5,8 @@
 
 using namespace gfx::gl;
 
+using uint = unsigned int;
+
 #if defined(__GNUC__) || defined(__clang__)
 #  define ALIGN_START(x)
 #  define ALIGN_END(x) __attribute__ ((aligned(x)))
@@ -24,7 +26,7 @@ ALIGN_START(16) struct Sphere {
 // vec4 only for alignment purposes
 ALIGN_START(16) struct Material {
 
-  enum MaterialType: unsigned int {
+  enum MaterialType: uint {
     DIFFUSE       = 0,
     SPECULAR      = 1,
     TRANSMISSIVE  = 2,
@@ -34,6 +36,16 @@ ALIGN_START(16) struct Material {
   glm::vec3 emission;
   MaterialType type = DIFFUSE;
 } ALIGN_END(16);
+
+
+ALIGN_START(16) struct Mesh {
+  uint start; // start offset
+  uint size; // triangle count
+  int material;
+
+  Mesh(uint start_, uint size_, int mat = 0) 
+    : start(start_), size(size_), material(mat) {}
+};
 
 inline glm::vec3 vector_from_spherical(float pitch, float yaw)
 {
@@ -84,6 +96,8 @@ private:
 
   std::unique_ptr<ShaderStorageBuffer> m_spheres = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
+  std::unique_ptr<ShaderStorageBuffer> m_vertices = nullptr;
+  std::unique_ptr<ShaderStorageBuffer> m_meshes = nullptr;
 
   int m_bounces = 5;
   unsigned int m_samples = 1;
@@ -97,6 +111,9 @@ private:
 
   void reset_buffer();
   void save_to_file() const;
+
+  static std::vector<glm::vec4> load_obj(const std::string& path);
+  static glm::mat4 transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate = glm::quat(glm::vec3(0.0f)));
 
 #if 0
   glm::vec3 m_background = glm::vec3(1.0f);
