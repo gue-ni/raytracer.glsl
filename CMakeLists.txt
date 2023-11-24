@@ -85,7 +85,7 @@ add_executable(renderer
 target_link_libraries(renderer glm ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
 add_custom_target(shaders
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_DIR}/shaders
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/shaders
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders
     COMMENT "copying ${CMAKE_SOURCE_DIR}/shaders to ${CMAKE_BINARY_DIR}/shaders"
 )
