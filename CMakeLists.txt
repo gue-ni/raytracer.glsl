@@ -93,7 +93,7 @@ add_custom_target(shaders
 add_custom_target(assets
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
-    COMMENT "copying ${CMAKE_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/Debug/assets"
+    COMMENT "copying ${CMAKE_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/assets"
 )
 
 add_dependencies(renderer shaders assets)

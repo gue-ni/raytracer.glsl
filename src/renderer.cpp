@@ -85,7 +85,7 @@ Renderer::Renderer(int width, int height)
 
   // setup spheres
   const std::vector<Sphere> spheres = {
-#if 0
+#if 1
     { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
 #else
     { { 3.0f, h + 10.0f , 7.0f}, 3.0, 1 },
@@ -95,7 +95,7 @@ Renderer::Renderer(int width, int height)
     { {-7.0f, -h + sr, 6.5f}, sr, 6 },
     { {0.0f, -h + sr, 7.0f}, sr, 5 },
     { { 0.0f, -(r + h), 7.0f}, r, 3 },
-#if 0
+#if 1
     { { 0.0f, +(r + h), 7.0f}, r, 3 },
     { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 7 },
     { { 0.0f, 0.0f, -(r + w)}, r, 3 },
@@ -160,6 +160,7 @@ void Renderer::render(float dt)
 
   ImGui::Begin("Options", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
+  ImGui::Text("Time: %.2f", m_time);
   ImGui::Checkbox("Use Envmap", &m_use_envmap);
   ImGui::Checkbox("Use DOF", &m_use_dof);
   ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
