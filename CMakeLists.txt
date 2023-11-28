@@ -25,10 +25,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(imgui)
 
 FetchContent_Declare(
-    tiny-obj GIT_REPOSITORY
-    https://github.com/tinyobjloader/tinyobjloader
-    GIT_TAG release 
-
+  tiny-obj
+  URL https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/release/tiny_obj_loader.h 
 )
 FetchContent_MakeAvailable(tiny-obj)
 
