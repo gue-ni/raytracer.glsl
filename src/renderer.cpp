@@ -27,7 +27,7 @@ Renderer::Renderer(int width, int height)
   , m_materials(std::make_unique<ShaderStorageBuffer>())
   , m_vertices(std::make_unique<ShaderStorageBuffer>())
   , m_meshes(std::make_unique<ShaderStorageBuffer>())
-  , m_camera(glm::vec3(0.0f, 0.0f, -12.0f))
+  , m_camera(glm::vec3(0.0f, 0.0f, -15.0f))
 {
   // setup screen quad
   const std::vector<glm::vec2> quad = {
