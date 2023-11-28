@@ -24,14 +24,16 @@ ALIGN_START(16) struct Sphere {
   int material = 0;
 } ALIGN_END(16);
 
+enum MaterialType: uint {
+  DIFFUSE       = 0,
+  SPECULAR      = 1,
+  TRANSMISSIVE  = 2,
+};
+
 // vec4 only for alignment purposes
 ALIGN_START(16) struct Material {
 
-  enum MaterialType: uint {
-    DIFFUSE       = 0,
-    SPECULAR      = 1,
-    TRANSMISSIVE  = 2,
-  };
+
 
   glm::vec4 albedo;
   glm::vec3 emission;
@@ -72,8 +74,8 @@ struct Camera {
   glm::vec3 up      = {0.0f, 1.0f, 0.0f};
   glm::vec3 right   = {-1.0f, 0.0f, 0.0f};
 
-  Camera(const glm::vec3& position_) 
-    : position(position_)
+  Camera(const glm::vec3& position_, float fov_) 
+    : position(position_), fov(fov_)
   {}
 };
 
