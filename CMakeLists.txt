@@ -25,10 +25,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(imgui)
 
 FetchContent_Declare(
-    tiny-obj GIT_REPOSITORY
-    https://github.com/tinyobjloader/tinyobjloader
-    GIT_TAG release 
-
+  tiny-obj
+  URL https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/release/tiny_obj_loader.h 
+  DOWNLOAD_NO_EXTRACT TRUE
 )
 FetchContent_MakeAvailable(tiny-obj)
 
@@ -93,7 +92,7 @@ add_custom_target(shaders
 add_custom_target(assets
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
-    COMMENT "copying ${CMAKE_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/Debug/assets"
+    COMMENT "copying ${CMAKE_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/assets"
 )
 
 add_dependencies(renderer shaders assets)
