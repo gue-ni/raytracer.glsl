@@ -2,6 +2,7 @@
 #include "gfx/gfx.h"
 
 #include <memory>
+#include <vector>
 
 using namespace gfx::gl;
 
@@ -83,6 +84,16 @@ public:
   void event(const SDL_Event &event) override;
   void keyboard_state(const Uint8* state) override;
 
+  void set_spheres(const std::vector<Sphere>& spheres);
+  void set_materials(const std::vector<Material>& material);
+  void set_envmap(std::unique_ptr<CubemapTexture> envmap);
+  void set_vertices(const std::vector<glm::vec4>& vertices);
+  void set_meshes(const std::vector<Mesh>& meshes);
+
+  static std::vector<glm::vec4> load_obj(const std::string& path);
+  static glm::mat4 transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate = glm::quat(glm::vec3(0.0f)));
+
+
 private:
   std::unique_ptr<ShaderProgram> m_screen_shader = nullptr; 
   std::unique_ptr<ShaderProgram> m_render_shader = nullptr;
@@ -112,8 +123,6 @@ private:
   void reset_buffer();
   void save_to_file() const;
 
-  static std::vector<glm::vec4> load_obj(const std::string& path);
-  static glm::mat4 transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate = glm::quat(glm::vec3(0.0f)));
 
 #if 0
   glm::vec3 m_background = glm::vec3(1.0f);

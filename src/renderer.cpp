@@ -49,107 +49,13 @@ Renderer::Renderer(int width, int height)
 
   m_screen_quad_vao->unbind();
 
-
-  const std::string cubemap_path = "assets/cubemap/";
-
-  const std::array<std::string, 6>& faces = {
-    cubemap_path + "right.png",  
-    cubemap_path + "left.png",  
-    cubemap_path + "top.png",
-    cubemap_path + "bottom.png", 
-    cubemap_path + "front.png", 
-    cubemap_path + "back.png ",
-  };
-
-  m_envmap = std::make_unique<CubemapTexture>(faces);
-  m_envmap->bind();
-  m_envmap->set_parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  m_envmap->set_parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  m_envmap->set_parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  m_envmap->set_parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  m_envmap->set_parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-  // setup texture
+  // setup render texture
   m_texture->bind();
   m_texture->set_parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   m_texture->set_parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   m_texture->set_parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   m_texture->set_parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
-
-  float r = 25000;
-  float w = 16.0f;
-  float h = 9.0f;
-  float l = 100.0f;
-  float sr = 3.0f;
-
-  // setup spheres
-  const std::vector<Sphere> spheres = {
-#if 0
-    { { 0.0f, h + l * 0.999f , 7.0f}, l, 1 },
-#else
-    { { 3.0f, h + 10.0f , 7.0f}, 3.0, 1 },
-#endif
-
-    { {+7.0f, -h + sr, 7.5f}, sr, 0 },
-    { {-7.0f, -h + sr, 6.5f}, sr, 6 },
-    { {0.0f, -h + sr, 7.0f}, sr, 5 },
-    { { 0.0f, -(r + h), 7.0f}, r, 3 },
-#if 0
-    { { 0.0f, +(r + h), 7.0f}, r, 3 },
-    { { 0.0f, 0.0f, 7.0f + (r + w)}, r, 7 },
-    { { 0.0f, 0.0f, -(r + w)}, r, 3 },
-    { { -(r + w), 0.0f, 7.0f}, r, 4 },
-    { { +(r + w), 0.0f, 7.0f}, r, 2 },
-#endif
-  };
-
-  m_spheres->bind();
-  m_spheres->buffer_data(std::span(spheres));
-
-  // setup material 
-  const std::vector<Material> materials = {
-    { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::DIFFUSE },
-    { {0.75f, 0.75f, 0.75f, 0.0f}, glm::vec4(20.0f) },
-    { {0.75f, 0.00f, 0.00f, 0.0f}, glm::vec4(0.0f) },
-    { {0.99f, 0.99, 0.99, 0.0f}, glm::vec4(0.0f) },
-    { {0.00f, 0.75f, 0.00f, 0.0f}, glm::vec4(0.0f) },
-    { {0.75f, 0.75f, 0.75f, 1.0f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
-    { {0.75f, 0.75f, 0.75f, 0.0f }, glm::vec4(0.0f), Material::MaterialType::TRANSMISSIVE },
-    { {0.00f, 0.00f, 0.75f, 0.0f}, glm::vec4(0.0f) },
-  };
-
-  m_materials->bind();
-  m_materials->buffer_data(std::span(materials));
-
-  std::vector<glm::vec4> obj = load_obj("assets/icosphere.obj");
-
-  glm::mat4 m = transform(glm::vec3(0.0f, -h + sr, 0.0f), glm::vec3(3.0f));
-
-  for (glm::vec4& v : obj)
-  {
-    v = m * v;
-  }
-
-  const std::vector<glm::vec4> vertices = {
-    glm::vec4(-2, 0, 0, 0),
-    glm::vec4(-2, 2, 0, 0),
-    glm::vec4(+2, 0, 0, 0),
-
-    glm::vec4(-2, 2, 0, 0),
-    glm::vec4(+2, 2, 0, 0),
-    glm::vec4(+2, 0, 0, 0),
-  };
-
-  m_vertices->bind();
-  m_vertices->buffer_data(std::span(obj));
-
-  const std::vector<Mesh> meshes = {
-    Mesh(0, obj.size() / 3, 6),
-  };
-
-  m_meshes->bind();
-  m_meshes->buffer_data(std::span(meshes));
 }
 
 void Renderer::render(float dt)
@@ -160,6 +66,7 @@ void Renderer::render(float dt)
 
   ImGui::Begin("Options", nullptr, window_flags);
   ImGui::Text("FPS: %.2f", 1.0f / dt);
+  ImGui::Text("Time: %.2f", m_time);
   ImGui::Checkbox("Use Envmap", &m_use_envmap);
   ImGui::Checkbox("Use DOF", &m_use_dof);
   ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
@@ -179,7 +86,6 @@ void Renderer::render(float dt)
   m_meshes->bind_buffer_base(3);
   m_vertices->bind_buffer_base(4);
   
-  m_envmap->bind(3);
 
   m_render_shader->bind();
   m_render_shader->set_uniform("u_time", m_time);
@@ -187,8 +93,15 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_samples", m_samples);
   m_render_shader->set_uniform("u_max_bounce", static_cast<unsigned int>(m_bounces));
   m_render_shader->set_uniform("u_background", m_background);
-  m_screen_shader->set_uniform("u_envmap", 3);
-  m_render_shader->set_uniform("u_use_envmap", m_use_envmap);
+
+  if (m_envmap) {
+    m_envmap->bind(3);
+    m_screen_shader->set_uniform("u_envmap", 3);
+    m_render_shader->set_uniform("u_use_envmap", m_use_envmap);
+  } else {
+    m_render_shader->set_uniform("u_use_envmap", false);
+  }
+
   m_render_shader->set_uniform("u_use_dof", m_use_dof);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
@@ -227,6 +140,41 @@ void Renderer::render(float dt)
   }
 }
 
+void Renderer::set_spheres(const std::vector<Sphere>& spheres)
+{
+  m_spheres->bind();
+  m_spheres->buffer_data(std::span(spheres));
+}
+
+void Renderer::set_materials(const std::vector<Material>& materials)
+{
+  m_materials->bind();
+  m_materials->buffer_data(std::span(materials));
+}
+
+void Renderer::set_envmap(std::unique_ptr<CubemapTexture> envmap)
+{
+  m_envmap = std::move(envmap);
+  m_envmap->bind();
+  m_envmap->set_parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  m_envmap->set_parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  m_envmap->set_parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  m_envmap->set_parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  m_envmap->set_parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+}
+
+void Renderer::set_vertices(const std::vector<glm::vec4>& vertices)
+{
+  m_vertices->bind();
+  m_vertices->buffer_data(std::span(vertices));
+}
+
+void Renderer::set_meshes(const std::vector<Mesh>& meshes)
+{
+  m_meshes->bind();
+  m_meshes->buffer_data(std::span(meshes));
+}
+
 void Renderer::save_to_file() const
 {
   GLubyte* pixels = new GLubyte[m_width * m_height * 4]; 
@@ -255,7 +203,6 @@ void Renderer::save_to_file() const
     std::cerr << "Could not write render to " << filename << std::endl;
   }
 }
-
 
 glm::mat4 Renderer::transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate)
 {
