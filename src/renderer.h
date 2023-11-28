@@ -18,10 +18,13 @@ using uint = unsigned int;
 #  error "Unknown compiler; can't define ALIGN"
 #endif
 
-ALIGN_START(16) struct Sphere {
+ALIGN_START(16) 
+struct Sphere {
   glm::vec3 center; 
   float radius;
   int material = 0;
+  Sphere(const glm::vec3& center_, float radius_, int mat = 0)
+    : center(center_), radius(radius_), material(mat) {}
 } ALIGN_END(16);
 
 enum MaterialType: uint {
@@ -31,13 +34,15 @@ enum MaterialType: uint {
 };
 
 // vec4 only for alignment purposes
-ALIGN_START(16) struct Material {
-
-
-
+ALIGN_START(16) 
+struct Material {
   glm::vec4 albedo;
   glm::vec3 emission;
-  MaterialType type = DIFFUSE;
+  MaterialType type;
+
+  Material(const glm::vec3& albedo_, const glm::vec3& emission_ = glm::vec3(0.0f), 
+    float smoothness = 0.0f, const MaterialType& type_ = DIFFUSE) 
+    : albedo(albedo_, smoothness), emission(emission_), type(type_) {}
 } ALIGN_END(16);
 
 
