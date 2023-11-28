@@ -27,6 +27,7 @@ FetchContent_MakeAvailable(imgui)
 FetchContent_Declare(
   tiny-obj
   URL https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/release/tiny_obj_loader.h 
+  DOWNLOAD_NO_EXTRACT TRUE
 )
 FetchContent_MakeAvailable(tiny-obj)
 
