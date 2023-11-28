@@ -69,7 +69,7 @@ void Renderer::render(float dt)
   ImGui::Text("Time: %.2f", m_time);
   ImGui::Checkbox("Use Envmap", &m_use_envmap);
   ImGui::Checkbox("Use DOF", &m_use_dof);
-  ImGui::SliderInt("Bounces", &m_bounces, 1, 10);
+  ImGui::SliderInt("Bounces", &m_bounces, 1, 20);
   ImGui::SliderFloat("Aperture", &m_camera.aperture, 0.001f, 1.0f);
   ImGui::SliderFloat("Focal Length", &m_camera.focal_length, 0.001f, 50.0f);
   ImGui::SliderFloat("FOV", &m_camera.fov, 0.001f, 90.0f);
@@ -93,6 +93,7 @@ void Renderer::render(float dt)
   m_render_shader->set_uniform("u_samples", m_samples);
   m_render_shader->set_uniform("u_max_bounce", static_cast<unsigned int>(m_bounces));
   m_render_shader->set_uniform("u_background", m_background);
+  m_render_shader->set_uniform("u_random", rand());
 
   if (m_envmap) {
     m_envmap->bind(3);

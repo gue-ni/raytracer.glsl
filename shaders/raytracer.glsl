@@ -57,6 +57,7 @@ uniform vec3 u_background;
 uniform bool u_reset_flag;
 uniform bool u_use_envmap;
 uniform bool u_use_dof;
+uniform int u_random;
 
 uniform samplerCube u_envmap;
 
@@ -90,7 +91,7 @@ uvec4 seed;
 
 void init_rand(vec2 p, int frame)
 {
-  seed = uvec4(p, uint(frame), uint(p.x) + uint(p.y));
+  seed = uvec4(p, uint(frame), uint(p.x) + uint(p.y) + uint(frame));
 }
 
 void pcg4d(inout uvec4 v)
@@ -407,7 +408,7 @@ void main()
   frag_coord = vec2(pixel_coords);
   vec2 resolution = vec2(imageSize(image));
 
-  init_rand(frag_coord, u_frames);
+  init_rand(frag_coord, u_random);
 
   aspect_ratio = resolution.y / resolution.x;
 
