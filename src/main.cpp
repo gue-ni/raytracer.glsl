@@ -95,7 +95,17 @@ void setup_scene(Renderer& renderer)
 
 int main()
 {
-  glm::ivec2 res = glm::ivec2(1920, 1080) / 2;
+#define RES 2
+#if    (RES == 0)
+  glm::ivec2 full_hd = glm::ivec2(1920, 1080);
+#elif (RES == 1)
+  glm::ivec2 standard_hd = glm::ivec2(1280, 720);
+#elif (RES == 2)
+  glm::ivec2 res = glm::ivec2(768, 480);
+#else
+#error unknown resolution
+#endif
+
   Renderer renderer(res.x, res.y);
   setup_scene(renderer);
   renderer.run();
