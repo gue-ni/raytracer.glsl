@@ -1,6 +1,7 @@
-#include "bvh.h"
-//https://computergraphics.stackexchange.com/questions/7828/difference-between-bvh-and-octree-k-d-trees
-BVH::BVH(const std::vector<glm::vec4> vertices)
+#include "kdtree.h"
+
+// https://computergraphics.stackexchange.com/questions/7828/difference-between-bvh-and-octree-k-d-trees
+KdTree::KdTree(const std::vector<glm::vec4> vertices)
 {
   assert(vertices.size() % 3 == 0);
 
@@ -21,7 +22,7 @@ BVH::BVH(const std::vector<glm::vec4> vertices)
   Node root;
   root.bounds = AABB::bounds(bbs);
   root.children.insert(root.children.end(), bbs.begin(), bbs.end());
-  
+
   m_nodes.push_back(root);
 
   uint max_subdivisions = 5;
@@ -29,8 +30,6 @@ BVH::BVH(const std::vector<glm::vec4> vertices)
 
   while (true)
   {
-    
-
   }
 }
 
@@ -65,11 +64,12 @@ AABB AABB::bounds(const std::vector<AABB> &boxes)
   return aabb;
 }
 
-
-bool AABB::overlaps(const AABB &other) const {
+bool AABB::overlaps(const AABB &other) const
+{
   return false;
 }
 
-bool AABB::contains(const AABB &other) const {
+bool AABB::contains(const AABB &other) const
+{
   return false;
 }

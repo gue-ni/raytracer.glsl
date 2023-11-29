@@ -29,15 +29,14 @@ struct Triangle
   static AABB bounds(const std::vector<Triangle> &ts);
 };
 
-// Bounding Volume Hirarchy
+// https://en.wikipedia.org/wiki/K-d_tree
 // https://en.wikipedia.org/wiki/Binary_space_partitioning
-class BVH
+class KdTree
 {
 public:
-  // Construct bounding volume hirarchy from a set of triangles
   // every 3 vertices form a single triangle
   // a triangle is considered a primitive
-  BVH(const std::vector<glm::vec4> vertices);
+  KdTree(const std::vector<glm::vec4> vertices);
 
 private:
   std::vector<Node> m_nodes;
