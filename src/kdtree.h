@@ -15,13 +15,6 @@ struct AABB
   static AABB bounds(const std::vector<AABB> &boxes);
 };
 
-struct Node
-{
-  AABB bounds;
-  std::vector<Node> children;
-  std::vector<uint> primitives;
-};
-
 struct Triangle
 {
   glm::vec4 v0, v1, v2;
@@ -29,8 +22,18 @@ struct Triangle
   static AABB bounds(const std::vector<Triangle> &ts);
 };
 
+struct KdNode
+{
+  KdNode *left;
+  KdNode *right;
+  std::vector<uint> primitives;
+};
+
 // https://en.wikipedia.org/wiki/K-d_tree
 // https://en.wikipedia.org/wiki/Binary_space_partitioning
+// https://github.com/fogleman/pt/blob/master/pt/tree.go
+// https://github.com/ekzhang/rpt/blob/master/src/kdtree.rs
+// https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Kd-Tree_Accelerator
 class KdTree
 {
 public:
@@ -39,6 +42,5 @@ public:
   KdTree(const std::vector<glm::vec4> vertices);
 
 private:
-  std::vector<Node> m_nodes;
-  uint max_primitive_per_volume = 8;
+  std::vector<KdNode> m_nodes;
 };

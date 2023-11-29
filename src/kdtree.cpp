@@ -1,35 +1,13 @@
 #include "kdtree.h"
 
-// https://computergraphics.stackexchange.com/questions/7828/difference-between-bvh-and-octree-k-d-trees
 KdTree::KdTree(const std::vector<glm::vec4> vertices)
 {
   assert(vertices.size() % 3 == 0);
 
   std::vector<Triangle> triangles;
-
   for (int i = 0; i < vertices.size() / 3; i++)
   {
     triangles.push_back({vertices[i * 3 + 0], vertices[i * 3 + 1], vertices[i * 3 + 2]});
-  }
-
-  std::vector<AABB> bbs; // boudning boxes
-
-  for (const Triangle &triangle : triangles)
-  {
-    bbs.push_back(triangle.bounds());
-  }
-
-  Node root;
-  root.bounds = AABB::bounds(bbs);
-  root.children.insert(root.children.end(), bbs.begin(), bbs.end());
-
-  m_nodes.push_back(root);
-
-  uint max_subdivisions = 5;
-  uint subdivisions = 0;
-
-  while (true)
-  {
   }
 }
 
