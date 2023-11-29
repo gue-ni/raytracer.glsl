@@ -1,7 +1,6 @@
 # OpenGL Pathtracer with Compute Shaders
 
-
-![](renders/render_768x480_1701267554_32257.png)
+![Demo render](renders/demo.png)
 
 ## Features
 
@@ -25,7 +24,8 @@ cmake -G Ninja build/
 cmake --build build/
 ```
 
-## Inspiration
+## Inspiration & Sources
 
 -   [Shadertoy smallpt](https://www.shadertoy.com/view/4sfGDB)
 -   [rayray](https://www.mattkeeter.com/projects/rayray/)
+-   [rpt](https://github.com/ekzhang/rpt)
