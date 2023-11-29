@@ -122,8 +122,7 @@ vec3 cosine_weighted(vec3 normal) {
     return normalize(normal + random_in_sphere()); 
 }
 
-Ray camera_ray(vec2 xy)
-{
+Ray camera_ray(vec2 xy) {
   vec3 forward = u_camera_forward;
   vec3 right = u_camera_right;
   vec3 up = u_camera_up;
@@ -155,9 +154,7 @@ Ray camera_ray(vec2 xy)
   }
 }
 
-
-float sphere_intersect(Ray r, Sphere s)
-{
+float sphere_intersect(Ray r, Sphere s) {
     vec3 pos = s.center;
     float rad = s.radius;
     vec3 op = pos - r.origin;
@@ -293,7 +290,7 @@ vec3 trace_path(Ray ray)
     hit2.t = INF;
     HitInfo hit;
 
-    int i = find_closest_sphere(ray, hit2);
+    int i = find_closest_sphere(ray, hit1);
     int j = find_closest_mesh(ray, hit2);
 
     
@@ -308,8 +305,7 @@ vec3 trace_path(Ray ray)
       break;
     }
 
-    if (hit1.t < hit2.t)
-    {
+    if (hit1.t < hit2.t) {
       hit = hit1;
     } else {
       hit = hit2;

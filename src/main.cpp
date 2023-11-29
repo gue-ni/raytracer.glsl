@@ -6,7 +6,7 @@
 
 void setup_scene(Renderer& renderer)
 {
-  float r = 25000;
+  float r = 10000;
   float l = 100.0f;
   float sr = 4.0f;
 
@@ -14,23 +14,19 @@ void setup_scene(Renderer& renderer)
 
   // setup spheres
   const std::vector<Sphere> spheres = {
-
-    { { 0.0f, -(room_size.y + r), 0.0f}, r, 3 }, // ground
-
+    Sphere( { 0.0f, -(room_size.y + r), 0.0f}, r, 0 ), // ground
 #if CORNELL_BOX
-    { { 0.0f, room_size.y + l * 0.999f , 0.0f}, l, 1 },
-    { { 0.0f, +(r + room_size.y), 0.0f}, r, 3 },
-    { { 0.0f, 0.0f, +(r + room_size.z)}, r, 3 },
-    { { -(r + room_size.x), 0.0f, 0.0f}, r, 4 },
-    { { +(r + room_size.x), 0.0f, 0.0f}, r, 2 },
-    { { +7.0f, -room_size.y + sr + 2, 3.0f}, sr + 2, 6 },
+    Sphere( { 0.0f, room_size.y + l * 0.998f , 0.0f}, l, 1 ),
+    Sphere( { 0.0f, +(r + room_size.y), 0.0f}, r, 0 ),
+    Sphere( { 0.0f, 0.0f, +(r + room_size.z)}, r, 0 ),
+    Sphere( { -(r + room_size.x), 0.0f, 0.0f}, r, 3 ),
+    Sphere( { +(r + room_size.x), 0.0f, 0.0f}, r, 2 ),
+    Sphere( { +7.0f, -room_size.y + sr + 2, 3.0f}, sr + 2, 5 ),
 #else 
-    { { 3.0f, room_size.y + 10.0f , 0.0f}, 3.0, 1 },
-
-    { {-18.0f, -room_size.y + sr, 0.0f}, sr, 0 },
-    { { -6.0f, -room_size.y + sr, 0.0f}, sr, 6 },
-    { {+18.0f, -room_size.y + sr, 0.0f}, sr, 5 },
-
+    Sphere( { 3.0f, room_size.y + 10.0f , 0.0f}, 3.0, 1 ),
+    Sphere( {-18.0f, -room_size.y + sr, 0.0f}, sr, 7 ),
+    Sphere( { -6.0f, -room_size.y + sr, 0.0f}, sr, 5 ),
+    Sphere( {+18.0f, -room_size.y + sr, 0.0f}, sr, 4 ),
 #endif
   };
 
@@ -38,15 +34,14 @@ void setup_scene(Renderer& renderer)
 
   // setup material 
   const std::vector<Material> materials = {
-    { {0.75f, 0.75f, 0.75f, 0.75f }, glm::vec4(0.0f), Material::MaterialType::DIFFUSE },
-    { {gfx::rgb(0xffffff), 0.0f}, gfx::rgb(0xffffff) * 25.0f },
-    { {gfx::rgb(0xd30000), 0.0f}, glm::vec4(0.0f) }, // red wall
-    { {0.99f, 0.99, 0.99, 0.0f}, glm::vec4(0.0f) },
-    { {gfx::rgb(0x3BB143), 0.0f}, glm::vec4(0.0f) }, // green wall
-    { {0.75f, 0.75f, 0.75f, 1.0f }, glm::vec4(0.0f), Material::MaterialType::SPECULAR },
-    { {0.75f, 0.75f, 0.75f, 0.0f }, glm::vec4(0.0f), Material::MaterialType::TRANSMISSIVE },
-    { {0.00f, 0.00f, 0.75f, 0.0f}, glm::vec4(0.0f) },
-    { {gfx::rgb(0xFF5733), 0.0f}, glm::vec3(0.0f), Material::MaterialType::TRANSMISSIVE}, // ruby
+    Material(gfx::rgb(0xAAAAAA)),
+    Material(gfx::rgb(0xFFFFFF), gfx::rgb(0xFFFEFA) * 30.0f),
+    Material(gfx::rgb(0xBC0000)), // red wall
+    Material(gfx::rgb(0x00BC00)), // green wall
+    Material(gfx::rgb(0xAAAAAA), gfx::rgb(0x0), 1.0f, MaterialType::SPECULAR ),
+    Material(gfx::rgb(0xFFFFFF), gfx::rgb(0x0), 0.0f, MaterialType::TRANSMISSIVE ),
+    Material(gfx::rgb(0xFF5733), gfx::rgb(0x0), 0.0f, MaterialType::TRANSMISSIVE), // ruby
+    Material(gfx::rgb(0xAAAAAA), gfx::rgb(0x0), 0.5f, MaterialType::SPECULAR ),
   };
 
   renderer.set_materials(materials);
@@ -91,7 +86,7 @@ void setup_scene(Renderer& renderer)
   renderer.set_vertices(obj);
 
   const std::vector<Mesh> meshes = {
-    Mesh(0, obj.size() / 3, 8),
+    Mesh(0, obj.size() / 3, 6),
   };
 
   renderer.set_meshes(meshes);
@@ -100,7 +95,18 @@ void setup_scene(Renderer& renderer)
 
 int main()
 {
-  Renderer renderer(800, 800);
+#define RES 2
+#if    (RES == 0)
+  glm::ivec2 full_hd = glm::ivec2(1920, 1080);
+#elif (RES == 1)
+  glm::ivec2 standard_hd = glm::ivec2(1280, 720);
+#elif (RES == 2)
+  glm::ivec2 res = glm::ivec2(768, 480);
+#else
+#error unknown resolution
+#endif
+
+  Renderer renderer(res.x, res.y);
   setup_scene(renderer);
   renderer.run();
   return 0;

@@ -1,6 +1,7 @@
 # OpenGL Pathtracer with Compute Shaders
 
-![](renders/render_800x600_1700833054_18418.png)
+
+![](renders/render_768x480_1701267554_32257.png)
 
 ## Features
 
@@ -8,8 +9,9 @@
 -   [x] depth of field
 -   [x] environment sampling
 -   [x] imgui integration
--   [x] object loading
 -   [x] triangle mesh rendering
+-   [ ] object loading
+-   [ ] json scene loading
 -   [ ] accelaration structures 
 -   [ ] physically based rendering
 
@@ -18,8 +20,9 @@
 ### Windows
 
 ```bash
-cmake -G Ninja ..
-cmake --build . 
+mkdir build
+cmake -G Ninja build/
+cmake --build build/
 ```
 
 ## Inspiration

@@ -18,24 +18,31 @@ using uint = unsigned int;
 #  error "Unknown compiler; can't define ALIGN"
 #endif
 
-ALIGN_START(16) struct Sphere {
+ALIGN_START(16) 
+struct Sphere {
   glm::vec3 center; 
   float radius;
   int material = 0;
+  Sphere(const glm::vec3& center_, float radius_, int mat = 0)
+    : center(center_), radius(radius_), material(mat) {}
 } ALIGN_END(16);
 
+enum MaterialType: uint {
+  DIFFUSE       = 0,
+  SPECULAR      = 1,
+  TRANSMISSIVE  = 2,
+};
+
 // vec4 only for alignment purposes
-ALIGN_START(16) struct Material {
-
-  enum MaterialType: uint {
-    DIFFUSE       = 0,
-    SPECULAR      = 1,
-    TRANSMISSIVE  = 2,
-  };
-
+ALIGN_START(16) 
+struct Material {
   glm::vec4 albedo;
   glm::vec3 emission;
-  MaterialType type = DIFFUSE;
+  MaterialType type;
+
+  Material(const glm::vec3& albedo_, const glm::vec3& emission_ = glm::vec3(0.0f), 
+    float smoothness = 0.0f, const MaterialType& type_ = DIFFUSE) 
+    : albedo(albedo_, smoothness), emission(emission_), type(type_) {}
 } ALIGN_END(16);
 
 
@@ -72,8 +79,8 @@ struct Camera {
   glm::vec3 up      = {0.0f, 1.0f, 0.0f};
   glm::vec3 right   = {-1.0f, 0.0f, 0.0f};
 
-  Camera(const glm::vec3& position_) 
-    : position(position_)
+  Camera(const glm::vec3& position_, float fov_) 
+    : position(position_), fov(fov_)
   {}
 };
 

@@ -64,8 +64,8 @@ include_directories(${GLEW_INCLUDE_DIRS})
 
 find_package(OpenGL REQUIRED)
 
-include_directories(${CMAKE_SOURCE_DIR}/build/_deps/stb-src)
-include_directories(${CMAKE_SOURCE_DIR}/build/_deps/tiny-obj-src)
+include_directories(${stb_SOURCE_DIR})
+include_directories(${tiny-obj_SOURCE_DIR})
 include_directories(${imgui_SOURCE_DIR})
 
 add_executable(renderer
