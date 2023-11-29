@@ -1,7 +1,7 @@
 # OpenGL Pathtracer with Compute Shaders
 
 
-![](renders\render_768x480_1701267554_32257.png)
+![](renders/render_768x480_1701267554_32257.png)
 
 ## Features
 
