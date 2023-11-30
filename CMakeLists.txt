@@ -31,6 +31,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tiny-obj)
 
+FetchContent_Declare(
+  json
+  URL https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
+  DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_MakeAvailable(json)
+
 file(GLOB EXTERNAL_SOURCE
     ${imgui_SOURCE_DIR}/*.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
@@ -67,6 +74,7 @@ find_package(OpenGL REQUIRED)
 include_directories(${stb_SOURCE_DIR})
 include_directories(${tiny-obj_SOURCE_DIR})
 include_directories(${imgui_SOURCE_DIR})
+include_directories(${json_SOURCE_DIR})
 
 add_executable(renderer
     src/main.cpp 

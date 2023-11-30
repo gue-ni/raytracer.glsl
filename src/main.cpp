@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include <json.hpp>
+
 #ifndef CORNELL_BOX
 #define CORNELL_BOX 0
 #endif
