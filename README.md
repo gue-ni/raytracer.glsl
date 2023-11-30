@@ -1,4 +1,4 @@
-# OpenGL Pathtracer with Compute Shaders
+# Pathtracing in a OpenGL Compute Shader
 
 ![Demo render](renders/demo.png)
 
