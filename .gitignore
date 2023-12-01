@@ -3,5 +3,6 @@
 bin/
 out/
 build/
-clipmap_2/
+cubemap_2/
+tmp/
 .vscode/
