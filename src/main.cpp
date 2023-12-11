@@ -65,7 +65,7 @@ void setup_scene(Renderer& renderer)
 
 #if (CORNELL_BOX)
 
-  std::vector<glm::vec4> obj = Renderer::load_obj("assets/cube.obj");
+  std::vector<glm::vec4> obj = Renderer::load_obj("assets/models/cube.obj");
 
   //std::vector<glm::vec4> all;
 
@@ -80,7 +80,7 @@ void setup_scene(Renderer& renderer)
 
   renderer.set_meshes(meshes);
 #else
-  std::vector<glm::vec4> obj = Renderer::load_obj("assets/icosphere.obj");
+  std::vector<glm::vec4> obj = Renderer::load_obj("assets/models/icosphere.obj");
 
   glm::mat4 matrix = Renderer::transform(glm::vec3(6.0f, -room_size.y + sr, 0.0f), glm::vec3(sr));
   for (glm::vec4& vertex : obj) vertex = matrix * vertex;
