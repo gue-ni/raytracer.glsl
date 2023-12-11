@@ -4,6 +4,7 @@
 #define EPSILON   0.005
 #define INF       1e5
 #define NO_HIT    -1
+#define INVALID   4294967295
 
 struct Sphere {
   vec3 center;
@@ -229,6 +230,37 @@ float triangle_intersect(Ray r, Triangle t) {
     return INF;
 }
 
+bool aabb_intersect(Ray ray, vec3 min, vec3 max) {
+  return false;
+}
+
+int traverse_tree(Ray ray, inout HitInfo hit) {
+  
+  Node node = nodes[0];
+
+
+  while (true) {
+
+    if (!aabb_intersect(ray, node.min, node.max)) {
+      break;
+    } else {
+      if (node.count > 0) {
+        // TODO test triangle
+      }
+    }
+
+
+
+  }
+
+  return NO_HIT;
+}
+
+int find_closest_triangle(Ray ray, uint offset, uint count, float min_t, float max_t, inout HitInfo hit) { 
+  int closest = NO_HIT;
+  return closest;
+}
+
 int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
 #if 1
@@ -237,7 +269,10 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
 
   for (int i = 0; i < meshes.length(); i++) {
     Mesh mesh = meshes[i];
-    for (uint v = mesh.start; v < mesh.size; v++) {
+    uint offset = mesh.start;
+    uint count = mesh.size;
+
+    for (uint v = offset; v < offset + count; v++) {
       
       Triangle triangle;
       triangle.v0 = vertices[v * 3 + 0];
@@ -259,7 +294,7 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
 
   return closest;
 #else 
-  // use kd tree
+  // traverse kd tree
 #endif
 }
 
