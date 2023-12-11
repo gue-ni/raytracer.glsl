@@ -15,6 +15,11 @@ struct AABB
   glm::vec4 max;
 };
 
+struct Triangle 
+{
+  glm::vec4 v[3];
+};
+
 struct KdNode : public AABB
 {
   uint left = INVALID;
