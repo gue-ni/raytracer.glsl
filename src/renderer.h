@@ -29,16 +29,18 @@ struct Triangle
   }
 };
 
-inline std::vector<Triangle> to_triangles(const std::vector<glm::vec4> primitives)
+static_assert(sizeof(Triangle) == 3 * sizeof(glm::vec4));
+
+inline std::vector<Triangle> to_triangles(const std::vector<glm::vec4> vertices)
 {
   std::vector<Triangle> triangles;
 
-  for (uint i = 0; i < primitives.size() / 3; i++)
+  for (uint i = 0; i < vertices.size() / 3; i++)
   {
     Triangle t;
-    t.v[0] = primitives[i * 3 + 0];
-    t.v[1] = primitives[i * 3 + 1];
-    t.v[2] = primitives[i * 3 + 2];
+    t.v[0] = vertices[i * 3 + 0];
+    t.v[1] = vertices[i * 3 + 1];
+    t.v[2] = vertices[i * 3 + 2];
     triangles.push_back(t);
   }
 

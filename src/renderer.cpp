@@ -187,11 +187,13 @@ void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices)
   auto primitives = tree.primitives();
   auto nodes = tree.nodes();
 
+#if 0
   m_vertices->bind();
   m_vertices->buffer_data(std::span(primitives));
 
   m_kdtree->bind();
   m_kdtree->buffer_data(std::span(nodes));
+#endif
 }
 
 void Renderer::save_to_file() const
