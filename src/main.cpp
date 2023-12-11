@@ -26,9 +26,9 @@ void setup_scene(Renderer& renderer)
     Sphere( { +7.0f, -room_size.y + sr + 2, 3.0f}, sr + 2, 5 ),
 #else 
     Sphere( { 3.0f, room_size.y + 10.0f , 0.0f}, 3.0, 1 ),
-    Sphere( {-18.0f, -room_size.y + sr, 0.0f}, sr, 7 ),
+    Sphere( {-18.0f, -room_size.y + sr, 0.0f}, sr, 4 ),
     Sphere( { -6.0f, -room_size.y + sr, 0.0f}, sr, 5 ),
-    Sphere( {+18.0f, -room_size.y + sr, 0.0f}, sr, 4 ),
+    Sphere( {+18.0f, -room_size.y + sr, 0.0f}, sr, 7 ),
 #endif
   };
 
@@ -97,18 +97,7 @@ void setup_scene(Renderer& renderer)
 
 int main()
 {
-#define RES 2
-#if    (RES == 0)
-  glm::ivec2 full_hd = glm::ivec2(1920, 1080);
-#elif (RES == 1)
-  glm::ivec2 standard_hd = glm::ivec2(1280, 720);
-#elif (RES == 2)
-  glm::ivec2 res = glm::ivec2(768, 480);
-#else
-#error unknown resolution
-#endif
-
-  Renderer renderer(res.x, res.y);
+  Renderer renderer(1080, 720);
   setup_scene(renderer);
   renderer.run();
   return 0;
