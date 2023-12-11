@@ -183,9 +183,10 @@ void Renderer::set_meshes(const std::vector<Mesh>& meshes)
 
 void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices) 
 {
-  KdTree tree(vertices);
+  auto triangles = to_triangles(vertices);
+  KdTree tree(triangles);
 
-  std::vector<glm::vec4> tree_vertices = tree.vertices();
+  auto tree_vertices = tree.vertices();
   std::vector<KdNode> tree_nodes = tree.nodes();
 
   m_vertices->bind();

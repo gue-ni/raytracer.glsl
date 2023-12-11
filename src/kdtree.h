@@ -64,25 +64,20 @@ inline std::vector<Triangle> to_triangles(const std::vector<glm::vec4> vertices)
   return triangles;
 }
 
-// https://en.wikipedia.org/wiki/K-d_tree
-// https://en.wikipedia.org/wiki/Binary_space_partitioning
-// https://github.com/fogleman/pt/blob/master/pt/tree.go
-// https://github.com/ekzhang/rpt/blob/master/src/kdtree.rs
-// https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Kd-Tree_Accelerator
 class KdTree
 {
 public:
   // every 3 vertices form a single triangle
   // a triangle is considered a primitive
-  KdTree(const std::vector<glm::vec4> vertices);
+  KdTree(const std::vector<Triangle> vertices);
 
-  uint construct(const std::vector<glm::vec4> vertices, const AABB& bounds, int depth = 0);
-  static AABB bounds(const std::vector<glm::vec4> vertices);
+  uint construct(const std::vector<Triangle> vertices, const AABB& bounds, int depth = 0);
+  static AABB bounds(const std::vector<Triangle> vertices);
 
   std::vector<KdNode> nodes() { return m_nodes; }
-  std::vector<glm::vec4> vertices() { return m_vertices; }
+  std::vector<Triangle> vertices() { return m_vertices; }
 
 private:
   std::vector<KdNode> m_nodes;
-  std::vector<glm::vec4> m_vertices;
+  std::vector<Triangle> m_vertices;
 };

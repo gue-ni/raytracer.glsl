@@ -28,7 +28,7 @@ struct Sphere {
     : center(center_), radius(radius_), material(mat) {}
 
   AABB bounds() const {
-    return { center - radius, center + radius };
+    return { glm::vec4(center - radius, 1.0f), glm::vec4(center + radius, 1.0f) };
   }
   
 } ALIGN_END(16);

@@ -1,6 +1,6 @@
 #include "kdtree.h"
 
-KdTree::KdTree(const std::vector<glm::vec4> vertices)
+KdTree::KdTree(const std::vector<Triangle> vertices)
 {
   // three vertices per triangle
   assert(vertices.size() % 3 == 0);
@@ -11,9 +11,9 @@ KdTree::KdTree(const std::vector<glm::vec4> vertices)
 }
 
 
-uint KdTree::construct(const std::vector<glm::vec4> vertices, const AABB& bounds, int depth)
+uint KdTree::construct(const std::vector<Triangle> vertices, const AABB& bounds, int depth)
 {
-  if (triangle_count(vertices) < 8 || depth > 5) {
+  if (vertices.size() < 8 || depth > 5) {
     // leaf node
 
     uint offset = m_vertices.size();
@@ -53,21 +53,28 @@ uint KdTree::construct(const std::vector<glm::vec4> vertices, const AABB& bounds
     left_aabb.max[axis] = boundary;
     right_aabb.min[axis] = boundary;
 
-    std::vector<glm::vec4> left, right;
+    std::vector<Triangle> left, right;
 
+#if 0
     for (uint i = 0; i < vertices.size() / 3; i++) {
       glm::vec4 v0 = vertices[i * 3  + 0];
       glm::vec4 v1 = vertices[i * 3  + 1];
       glm::vec4 v2 = vertices[i * 3  + 2];
 
       AABB aabb = from_vertices(v0, v1, v2);
+#else
+    for (Triangle triangle : vertices) {
+#endif
+
+      AABB aabb = triangle.bounds();
 
       if (intersect(&left_aabb, &aabb)) {
-        left.insert(left.end(), {v0, v1, v2});
+        left.push_back(triangle);
       }
 
       if (intersect(&right_aabb, &aabb)) {
-        right.insert(right.end(), {v0, v1, v2});
+        right.push_back(triangle);
+        //right.insert(right.end(), {v0, v1, v2});
       }
     }
 
@@ -80,14 +87,16 @@ uint KdTree::construct(const std::vector<glm::vec4> vertices, const AABB& bounds
 }
 
 
-AABB KdTree::bounds(const std::vector<glm::vec4> vertices) 
+AABB KdTree::bounds(const std::vector<Triangle> vertices) 
 {
   AABB aabb;
   aabb.min = glm::vec4(+1e5f);
   aabb.max = glm::vec4(-1e5f);
+  
   for (auto& vertex : vertices) {
-    aabb.min = glm::min(aabb.min, vertex);
-    aabb.max = glm::max(aabb.max, vertex);
+    AABB bb = vertex.bounds();
+    aabb.min = glm::min(aabb.min, bb.min);
+    aabb.max = glm::max(aabb.max, bb.max);
   }
   return aabb;
 }
