@@ -19,7 +19,31 @@ using uint = unsigned int;
 #  error "Unknown compiler; can't define ALIGN"
 #endif
 
+struct Triangle
+{
+  glm::vec4 v[3];
 
+  AABB bounds() const
+  {
+    return {glm::min(v[0], glm::min(v[1], v[2])), glm::max(v[0], glm::max(v[1], v[2]))};
+  }
+};
+
+inline std::vector<Triangle> to_triangles(const std::vector<glm::vec4> primitives)
+{
+  std::vector<Triangle> triangles;
+
+  for (uint i = 0; i < primitives.size() / 3; i++)
+  {
+    Triangle t;
+    t.v[0] = primitives[i * 3 + 0];
+    t.v[1] = primitives[i * 3 + 1];
+    t.v[2] = primitives[i * 3 + 2];
+    triangles.push_back(t);
+  }
+
+  return triangles;
+}
 
 ALIGN_START(16) 
 struct Sphere {

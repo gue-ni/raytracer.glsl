@@ -15,15 +15,12 @@ struct AABB
   glm::vec4 max;
 };
 
-struct Triangle
+inline bool intersect(const AABB *a, const AABB *b)
 {
-  glm::vec4 v[3];
-
-  AABB bounds() const
-  {
-    return {glm::min(v[0], glm::min(v[1], v[2])), glm::max(v[0], glm::max(v[1], v[2]))};
-  }
-};
+  return (a->min.x <= b->max.x && a->max.x >= b->min.x) &&
+         (a->min.y <= b->max.y && a->max.y >= b->min.y) &&
+         (a->min.z <= b->max.z && a->max.z >= b->min.z);
+}
 
 struct KdNode : public AABB
 {
@@ -32,36 +29,6 @@ struct KdNode : public AABB
   uint offset = INVALID;
   uint count = 0;
 };
-
-inline AABB from_primitives(const glm::vec4 &v0, const glm::vec4 &v1, const glm::vec4 &v2)
-{
-  return {
-      glm::min(v0, glm::min(v1, v2)),
-      glm::max(v0, glm::max(v1, v2))};
-}
-
-inline bool intersect(const AABB *a, const AABB *b)
-{
-  return (a->min.x <= b->max.x && a->max.x >= b->min.x) &&
-         (a->min.y <= b->max.y && a->max.y >= b->min.y) &&
-         (a->min.z <= b->max.z && a->max.z >= b->min.z);
-}
-
-inline std::vector<Triangle> to_triangles(const std::vector<glm::vec4> primitives)
-{
-  std::vector<Triangle> triangles;
-
-  for (uint i = 0; i < primitives.size() / 3; i++)
-  {
-    Triangle t;
-    t.v[0] = primitives[i * 3 + 0];
-    t.v[1] = primitives[i * 3 + 1];
-    t.v[2] = primitives[i * 3 + 2];
-    triangles.push_back(t);
-  }
-
-  return triangles;
-}
 
 template <class Bounded>
 class KdTree
