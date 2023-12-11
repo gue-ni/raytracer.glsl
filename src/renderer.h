@@ -19,6 +19,8 @@ using uint = unsigned int;
 #  error "Unknown compiler; can't define ALIGN"
 #endif
 
+
+
 ALIGN_START(16) 
 struct Sphere {
   glm::vec3 center; 

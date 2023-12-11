@@ -169,7 +169,6 @@ void Renderer::set_envmap(std::unique_ptr<CubemapTexture> envmap)
 void Renderer::set_vertices(const std::vector<glm::vec4>& vertices)
 {
   auto triangles = to_triangles(vertices);
-
   m_vertices->bind();
   m_vertices->buffer_data(std::span(triangles));
 }
@@ -180,20 +179,19 @@ void Renderer::set_meshes(const std::vector<Mesh>& meshes)
   m_meshes->buffer_data(std::span(meshes));
 }
 
-
 void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices) 
 {
   auto triangles = to_triangles(vertices);
   KdTree tree(triangles);
 
-  auto tree_vertices = tree.vertices();
-  std::vector<KdNode> tree_nodes = tree.nodes();
+  auto primitives = tree.primitives();
+  auto nodes = tree.nodes();
 
   m_vertices->bind();
-  m_vertices->buffer_data(std::span(tree_vertices));
+  m_vertices->buffer_data(std::span(primitives));
 
   m_kdtree->bind();
-  m_kdtree->buffer_data(std::span(tree_nodes));
+  m_kdtree->buffer_data(std::span(nodes));
 }
 
 void Renderer::save_to_file() const
