@@ -183,11 +183,14 @@ void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices)
 {
   KdTree tree(vertices);
 
+  std::vector<glm::vec4> tree_vertices = tree.vertices();
+  std::vector<KdNode> tree_nodes = tree.nodes();
+
   m_vertices->bind();
-  m_vertices->buffer_data(std::span(tree.vertices()));
+  m_vertices->buffer_data(std::span(tree_vertices));
 
   m_kdtree->bind();
-  m_kdtree->buffer_data(std::span(tree.nodes()));
+  m_kdtree->buffer_data(std::span(tree_nodes));
 }
 
 void Renderer::save_to_file() const
