@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include "gfx/gfx.h"
+#include "kdtree.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -27,6 +28,7 @@ Renderer::Renderer(int width, int height)
   , m_materials(std::make_unique<ShaderStorageBuffer>())
   , m_vertices(std::make_unique<ShaderStorageBuffer>())
   , m_meshes(std::make_unique<ShaderStorageBuffer>())
+  , m_kdtree(std::make_unique<ShaderStorageBuffer>())
   , m_camera(glm::vec3(0.0f, 0.0f, -35.0f), 33.0f)
 {
   // setup screen quad
@@ -174,6 +176,21 @@ void Renderer::set_meshes(const std::vector<Mesh>& meshes)
 {
   m_meshes->bind();
   m_meshes->buffer_data(std::span(meshes));
+}
+
+
+void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices) 
+{
+  KdTree tree(vertices);
+
+  std::vector<glm::vec4> tree_vertices = tree.vertices();
+  std::vector<KdNode> tree_nodes = tree.nodes();
+
+  m_vertices->bind();
+  m_vertices->buffer_data(std::span(tree_vertices));
+
+  m_kdtree->bind();
+  m_kdtree->buffer_data(std::span(tree_nodes));
 }
 
 void Renderer::save_to_file() const
