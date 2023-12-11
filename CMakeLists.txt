@@ -80,6 +80,7 @@ add_executable(renderer
     src/main.cpp 
     src/window.cpp src/window.h
     src/renderer.cpp src/renderer.h
+    src/kdtree.cpp src/kdtree.h
 
     src/gfx/gfx.h
     src/gfx/util.h

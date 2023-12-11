@@ -1,5 +1,6 @@
 #include "window.h"
 #include "gfx/gfx.h"
+#include "kdtree.h"
 
 #include <memory>
 #include <vector>
@@ -25,6 +26,11 @@ struct Sphere {
   int material = 0;
   Sphere(const glm::vec3& center_, float radius_, int mat = 0)
     : center(center_), radius(radius_), material(mat) {}
+
+  AABB bounds() const {
+    return { center - radius, center + radius };
+  }
+  
 } ALIGN_END(16);
 
 enum MaterialType: uint {
@@ -96,6 +102,7 @@ public:
   void set_envmap(std::unique_ptr<CubemapTexture> envmap);
   void set_vertices(const std::vector<glm::vec4>& vertices);
   void set_meshes(const std::vector<Mesh>& meshes);
+  void set_kdtree(const std::vector<glm::vec4>& vertices);
 
   static std::vector<glm::vec4> load_obj(const std::string& path);
   static glm::mat4 transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate = glm::quat(glm::vec3(0.0f)));
@@ -116,6 +123,7 @@ private:
   std::unique_ptr<ShaderStorageBuffer> m_materials = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_vertices = nullptr;
   std::unique_ptr<ShaderStorageBuffer> m_meshes = nullptr;
+  std::unique_ptr<ShaderStorageBuffer> m_kdtree = nullptr;
 
   int m_bounces = 5;
   unsigned int m_samples = 1;
