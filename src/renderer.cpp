@@ -168,8 +168,10 @@ void Renderer::set_envmap(std::unique_ptr<CubemapTexture> envmap)
 
 void Renderer::set_vertices(const std::vector<glm::vec4>& vertices)
 {
+  auto triangles = to_triangles(vertices);
+
   m_vertices->bind();
-  m_vertices->buffer_data(std::span(vertices));
+  m_vertices->buffer_data(std::span(triangles));
 }
 
 void Renderer::set_meshes(const std::vector<Mesh>& meshes)

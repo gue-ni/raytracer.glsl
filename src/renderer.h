@@ -1,5 +1,6 @@
 #include "window.h"
 #include "gfx/gfx.h"
+#include "kdtree.h"
 
 #include <memory>
 #include <vector>
@@ -25,6 +26,11 @@ struct Sphere {
   int material = 0;
   Sphere(const glm::vec3& center_, float radius_, int mat = 0)
     : center(center_), radius(radius_), material(mat) {}
+
+  AABB bounds() const {
+    return { center - radius, center + radius };
+  }
+  
 } ALIGN_END(16);
 
 enum MaterialType: uint {

@@ -18,6 +18,10 @@ struct AABB
 struct Triangle 
 {
   glm::vec4 v[3];
+
+  AABB bounds() const { 
+    return { glm::min(v[0], glm::min(v[1], v[2])), glm::max(v[0], glm::max(v[1], v[2])) };
+  }
 };
 
 struct KdNode : public AABB
@@ -44,6 +48,20 @@ inline bool intersect(const AABB* a, const AABB* b) {
   return (a->min.x <= b->max.x && a->max.x >= b->min.x) && 
          (a->min.y <= b->max.y && a->max.y >= b->min.y) &&
          (a->min.z <= b->max.z && a->max.z >= b->min.z);
+}
+
+inline std::vector<Triangle> to_triangles(const std::vector<glm::vec4> vertices) {
+  std::vector<Triangle> triangles;
+
+  for (uint i = 0; i < vertices.size() / 3; i++) {
+    Triangle tri;
+    tri.v[0] = vertices[i * 3  + 0];
+    tri.v[1] = vertices[i * 3  + 1];
+    tri.v[2] = vertices[i * 3  + 2];
+    triangles.push_back(tri);
+  }
+
+  return triangles;
 }
 
 // https://en.wikipedia.org/wiki/K-d_tree
