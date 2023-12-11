@@ -176,6 +176,18 @@ void Renderer::set_meshes(const std::vector<Mesh>& meshes)
   m_meshes->buffer_data(std::span(meshes));
 }
 
+
+void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices) 
+{
+  KdTree kd_tree(vertices);
+
+  m_vertices->bind();
+  m_vertices->buffer_data(std::span(kd_tree.vertices()));
+
+  m_kdtree->bind();
+  m_kdtree->buffer_data(std::span(kd_tree.nodes()));
+}
+
 void Renderer::save_to_file() const
 {
   GLubyte* pixels = new GLubyte[m_width * m_height * 4]; 

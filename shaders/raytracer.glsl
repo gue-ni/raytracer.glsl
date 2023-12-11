@@ -29,6 +29,15 @@ struct Triangle {
   vec3 v2;
 };
 
+struct Node {
+  vec3 min;
+  vec3 max;
+  uint left;
+  uint right;
+  uint offset;
+  uint count;
+};
+
 layout(local_size_x = 8, local_size_y = 8) in;
 
 layout(rgba32f, binding = 0) uniform image2D image;
@@ -47,6 +56,10 @@ layout(std140, binding = 3) readonly buffer mesh_buffer {
 
 layout(std430, binding = 4) readonly buffer vertex_buffer {
   vec3 vertices[];
+};
+
+layout(std430, binding = 5) readonly buffer kd_tree {
+  Node nodes[];
 };
 
 uniform int u_frames;
@@ -218,6 +231,7 @@ float triangle_intersect(Ray r, Triangle t) {
 
 int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
+#if 1
   float max_t = INF;
   int closest = NO_HIT;
 
@@ -244,6 +258,9 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
   }
 
   return closest;
+#else 
+  // use kd tree
+#endif
 }
 
 int find_closest_sphere(Ray ray, inout HitInfo hit)
