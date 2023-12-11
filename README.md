@@ -29,3 +29,4 @@ cmake --build build/
 -   [Shadertoy smallpt](https://www.shadertoy.com/view/4sfGDB)
 -   [rayray](https://www.mattkeeter.com/projects/rayray/)
 -   [rpt](https://github.com/ekzhang/rpt)
+-   [Realtime Ray Tracing with Python 11: Acceleration Structures](https://www.youtube.com/watch?v=laWQZsNqqoE)
