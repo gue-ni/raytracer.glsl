@@ -53,7 +53,7 @@ public:
   // a triangle is considered a primitive
   KdTree(const std::vector<glm::vec4> vertices);
 
-  static uint construct(const std::vector<glm::vec4> vertices, const AABB& bounds, int depth = 0);
+  uint construct(const std::vector<glm::vec4> vertices, const AABB& bounds, int depth = 0);
   static AABB bounds(const std::vector<glm::vec4> vertices);
 
   std::vector<KdNode> nodes() { return m_nodes; }
