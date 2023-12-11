@@ -27,7 +27,7 @@ uint KdTree::construct(const std::vector<glm::vec4> vertices, const AABB& bounds
     node.left = INVALID;
     node.right = INVALID;
     node.offset = offset;
-    node.count = vertices.count();
+    node.count = vertices.size();
     m_nodes.push_back(node);
     return node_id;
   } else {
