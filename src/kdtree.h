@@ -7,7 +7,7 @@
 
 using uint = unsigned int;
 
-constexpr uint INVALID = std::numeric_limits<uint>::max()
+constexpr uint INVALID = std::numeric_limits<uint>::max();
 
 struct AABB
 {
@@ -31,8 +31,8 @@ inline AABB from_vertices(const glm::vec4& v0, const glm::vec4& v1, const glm::v
 }
 
 inline int triangle_count(const std::vector<glm::vec4> vertices) {
-  assert(vertices.count() % 3 == 0);
-  return vertices.count() / 3;
+  assert(vertices.size() % 3 == 0);
+  return vertices.size() / 3;
 }
 
 inline bool intersect(const AABB* a, const AABB* b) {
