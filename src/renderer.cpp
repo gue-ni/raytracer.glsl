@@ -1,6 +1,6 @@
 #include "renderer.h"
 #include "gfx/gfx.h"
-#include "kd_tree.h"
+#include "kdtree.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
