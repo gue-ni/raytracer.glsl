@@ -26,7 +26,7 @@ inline bool intersect(const AABB *a, const AABB *b)
          (a->min.z <= b->max.z && a->max.z >= b->min.z);
 }
 
-std::ostream &operator<<(std::ostream &os, const AABB &obj)
+inline std::ostream &operator<<(std::ostream &os, const AABB &obj)
 {
   os << "AABB { min = " << obj.min << ", max = " << obj.max << " }";
   return os;
