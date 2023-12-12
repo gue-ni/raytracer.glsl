@@ -1,9 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/io.hpp>
 
 #include <vector>
 #include <limits>
+#include <ostream>
+#include <iostream>
+#include <cstdio>
 
 using uint = unsigned int;
 
@@ -22,6 +26,13 @@ inline bool intersect(const AABB *a, const AABB *b)
          (a->min.z <= b->max.z && a->max.z >= b->min.z);
 }
 
+std::ostream &operator<<(std::ostream &os, const AABB &obj)
+{
+  os << "AABB { min = " << obj.min << ", max = " << obj.max << " }";
+  return os;
+}
+
+
 struct KdNode : public AABB
 {
   uint left = INVALID;
@@ -30,7 +41,7 @@ struct KdNode : public AABB
   uint count = 0;
 };
 
-template <class Bounded>
+template <class Bounded, int MAX_DEPTH = 5, int NODE_SIZE = 8>
 class KdTree
 {
 public:
@@ -42,7 +53,7 @@ public:
 
   uint construct(const std::vector<Bounded> primitives, const AABB &bounds, int depth = 0)
   {
-    if (primitives.size() < 8 || depth > 5)
+    if (primitives.size() <= NODE_SIZE || depth >= MAX_DEPTH)
     {
       uint offset = m_primitives.size();
       uint node_id = m_nodes.size();
@@ -57,6 +68,7 @@ public:
       node.offset = offset;
       node.count = primitives.size();
       m_nodes.push_back(node);
+      printf("Node = %u, offset = %u, count = %u\n", node_id, node.offset, node.count);
       return node_id;
     }
     else
@@ -102,6 +114,7 @@ public:
       node.right = construct(right, right_aabb, depth + 1);
 
       m_nodes[node_id] = node;
+      printf("Node = %u, left = %u, right = %u\n", node_id, node.left, node.right);
       return node_id;
     }
   }
