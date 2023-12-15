@@ -36,21 +36,19 @@ inline bool intersect(const AABB *a, const AABB *b)
 
 // https://tavianator.com/2011/ray_box.html
 // https://tavianator.com/2022/ray_box_boundary.html
-inline bool intersect(const Ray *r, const AABB *b)
+inline bool intersect(const Ray *ray, const AABB *box)
 {
-  float tx1 = (b->min.x - r->origin.x) / r->direction.x;
-  float tx2 = (b->max.x - r->origin.x) / r->direction.x;
+    float tmin = 0.0, tmax = 1e6;
 
-  float tmin = glm::min(tx1, tx2);
-  float tmax = glm::max(tx1, tx2);
+    for (int d = 0; d < 3; ++d) {
+        float t1 = (box->min[d] - ray->origin[d]) / ray->direction[d];
+        float t2 = (box->max[d] - ray->origin[d]) / ray->direction[d];
 
-  float ty1 = (b->min.y - r->origin.y) / r->direction.y;
-  float ty2 = (b->max.y - r->origin.y) / r->direction.y;
+        tmin = glm::max(tmin, glm::min(t1, t2));
+        tmax = glm::min(tmax, glm::max(t1, t2));
+    }
 
-  tmin = glm::max(tmin, glm::min(ty1, ty2));
-  tmax = glm::min(tmax, glm::max(ty1, ty2));
-
-  return tmax >= tmin;
+    return tmin < tmax;
 }
 
 inline std::ostream &operator<<(std::ostream &os, const AABB &obj)
