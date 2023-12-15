@@ -35,6 +35,7 @@ inline bool intersect(const AABB *a, const AABB *b)
 }
 
 // https://tavianator.com/2011/ray_box.html
+// https://tavianator.com/2022/ray_box_boundary.html
 inline bool intersect(const Ray *r, const AABB *b)
 {
   float tx1 = (b->min.x - r->origin.x) / r->direction.x;
