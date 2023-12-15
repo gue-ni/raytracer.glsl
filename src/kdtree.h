@@ -7,6 +7,7 @@
 #include <limits>
 #include <ostream>
 #include <iostream>
+#include <algorithm>
 #include <cstdio>
 #include <stack>
 
@@ -38,17 +39,17 @@ inline bool intersect(const AABB *a, const AABB *b)
 // https://tavianator.com/2022/ray_box_boundary.html
 inline bool intersect(const Ray *ray, const AABB *box)
 {
-    float tmin = 0.0, tmax = 1e6;
+  float tmin = 0.0, tmax = 1e6;
 
-    for (int d = 0; d < 3; ++d) {
-        float t1 = (box->min[d] - ray->origin[d]) / ray->direction[d];
-        float t2 = (box->max[d] - ray->origin[d]) / ray->direction[d];
+  for (int d = 0; d < 3; ++d) {
+    float t1 = (box->min[d] - ray->origin[d]) / ray->direction[d];
+    float t2 = (box->max[d] - ray->origin[d]) / ray->direction[d];
 
-        tmin = glm::max(tmin, glm::min(t1, t2));
-        tmax = glm::min(tmax, glm::max(t1, t2));
-    }
+    tmin = glm::max(tmin, glm::min(t1, t2));
+    tmax = glm::min(tmax, glm::max(t1, t2));
+  }
 
-    return tmin < tmax;
+  return tmin < tmax;
 }
 
 inline std::ostream &operator<<(std::ostream &os, const AABB &obj)
@@ -62,21 +63,20 @@ struct KdNode : public AABB
 {
   uint left = INVALID;
   uint right = INVALID;
-  uint offset = INVALID;
+  uint offset = 0;
   uint count = 0;
 };
 
-template <class Bounded, int MAX_DEPTH = 5, int NODE_SIZE = 8>
+template <class Bounded, uint NODE_SIZE = 8, uint MAX_DEPTH = 5>
 class KdTree
 {
 public:
   KdTree(const std::vector<Bounded> primitives)
   {
-    uint id = construct(primitives, bounds(primitives), 0);
-    assert(id == 0);
+    (void)construct(primitives, bounds(primitives), 0);
   }
 
-  uint construct(const std::vector<Bounded> primitives, const AABB &bounds, int depth = 0)
+  uint construct(std::vector<Bounded> primitives, const AABB &bounds, uint depth = 0)
   {
     if (primitives.size() <= NODE_SIZE || depth >= MAX_DEPTH)
     {
@@ -107,14 +107,23 @@ public:
       uint node_id = m_nodes.size();
       m_nodes.push_back({});
 
-      // simplest heuristic
       int axis = depth % 3;
       AABB left_aabb, right_aabb;
 
       left_aabb.min = bounds.min;
       right_aabb.max = bounds.max;
 
+#if 0
+      // simplest heuristic
       float boundary = bounds.min[axis] + (bounds.max[axis] - bounds.min[axis]) / 2.0f;
+#else
+      auto compare = [&axis](const Bounded &a, const Bounded &b) { 
+        return a.bounds().min[axis] < b.bounds().min[axis]; 
+      };
+
+      std::sort(primitives.begin(), primitives.end(), compare);
+      float boundary = primitives[primitives.size() / 2].bounds().min[axis];
+#endif
       left_aabb.max[axis] = boundary;
       right_aabb.min[axis] = boundary;
 
