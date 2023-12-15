@@ -8,6 +8,7 @@
 #include <ostream>
 #include <iostream>
 #include <cstdio>
+#include <stack>
 
 using uint = unsigned int;
 
@@ -161,6 +162,39 @@ public:
 
   std::vector<KdNode> nodes() { return m_nodes; }
   std::vector<Bounded> primitives() { return m_primitives; }
+
+  // non-recursive kd-tree traversal
+  std::vector<Bounded> traverse(const Ray& ray) const {
+
+    uint id = 0; 
+
+    std::stack<uint> stack;
+    stack.push(id);
+
+    std::vector<Bounded> result;
+
+    while (!stack.empty()) 
+    {
+      id = stack.pop();
+
+      KdNode node = m_nodes[id];
+
+      if (!intersect(&ray, &node))
+        continue;
+
+      if (node.left != INVALID)  
+        stack.push(node.left);
+      
+      if (node.right != INVALID) 
+        stack.push(node.right);
+
+      if (0 < node.count) {
+        result.insert(result.end(), m_primitives.begin() + node.offset, m_primitives.begin() + node.offset + node.count);
+      }
+    }
+
+    return result;
+  }
 
 private:
   std::vector<KdNode> m_nodes;
