@@ -98,10 +98,47 @@ void setup_scene(Renderer& renderer)
 #endif
 }
 
+
+void setup_scene_02(Renderer& renderer)
+{
+  const std::vector<Material> materials = {
+    /* 0 */ Material(gfx::rgb(0xAAAAAA)),
+    /* 1 */ Material(gfx::rgb(0xFFFFFF), gfx::rgb(0xFFFEFA) * 30.0f),
+  };
+
+  renderer.set_materials(materials);
+
+  const std::vector<Sphere> spheres = {
+    Sphere( { 0.0f, 0.0f, 0.0f}, 5.0f, 0),
+  };
+
+  KdTree<Sphere, 8> tree(spheres);
+
+  auto nodes = tree.nodes();
+  auto primitives = tree.primitives();
+
+  renderer.set_kd_nodes(nodes);
+
+  renderer.set_spheres(primitives);
+
+
+  const std::array<std::string, 6>& faces = {
+    "assets/cubemap/right.png",  
+    "assets/cubemap/left.png",  
+    "assets/cubemap/top.png",
+    "assets/cubemap/bottom.png", 
+    "assets/cubemap/front.png", 
+    "assets/cubemap/back.png ",
+  };
+
+  auto envmap = std::make_unique<CubemapTexture>(faces);
+  renderer.set_envmap(std::move(envmap));
+}
+
 int main()
 {
   Renderer renderer(1080, 720);
-  setup_scene(renderer);
+  setup_scene_02(renderer);
   renderer.run();
   return 0;
 }

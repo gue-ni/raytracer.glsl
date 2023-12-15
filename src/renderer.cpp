@@ -196,6 +196,12 @@ void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices)
 #endif
 }
 
+void Renderer::set_kd_nodes(const std::vector<KdNode>& nodes)
+{
+  m_kdtree->bind();
+  m_kdtree->buffer_data(std::span(nodes));
+}
+
 void Renderer::save_to_file() const
 {
   GLubyte* pixels = new GLubyte[m_width * m_height * 4]; 
