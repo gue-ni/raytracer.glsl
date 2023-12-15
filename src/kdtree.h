@@ -13,6 +13,13 @@ using uint = unsigned int;
 
 constexpr uint INVALID = std::numeric_limits<uint>::max();
 
+
+struct Ray 
+{
+  glm::vec3 origin;
+  glm::vec3 direction;
+};
+
 struct AABB
 {
   glm::vec4 min;
@@ -24,6 +31,24 @@ inline bool intersect(const AABB *a, const AABB *b)
   return (a->min.x <= b->max.x && a->max.x >= b->min.x) &&
          (a->min.y <= b->max.y && a->max.y >= b->min.y) &&
          (a->min.z <= b->max.z && a->max.z >= b->min.z);
+}
+
+// https://tavianator.com/2011/ray_box.html
+inline bool intersect(const Ray *r, const AABB *b)
+{
+  float tx1 = (b->min.x - r->origin.x) / r->direction.x;
+  float tx2 = (b->max.x - r->origin.x) / r->direction.x;
+
+  float tmin = glm::min(tx1, tx2);
+  float tmax = glm::max(tx1, tx2);
+
+  float ty1 = (b->min.y - r->origin.y) / r->direction.y;
+  float ty2 = (b->max.y - r->origin.y) / r->direction.y;
+
+  tmin = glm::max(tmin, glm::min(ty1, ty2));
+  tmax = glm::min(tmax, glm::max(ty1, ty2));
+
+  return tmax >= tmin;
 }
 
 inline std::ostream &operator<<(std::ostream &os, const AABB &obj)
