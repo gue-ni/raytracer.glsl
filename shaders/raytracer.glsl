@@ -4,7 +4,7 @@
 #define EPSILON   0.005
 #define INF       1e5
 #define NO_HIT    -1
-#define INVALID   4294967295
+#define INVALID   4294967295 // uint max
 
 struct Sphere {
   vec3 center;
@@ -98,6 +98,39 @@ struct HitInfo {
   vec3 normal;
   int material;
 };
+
+#define STACK_SIZE 5
+
+struct Stack {
+  int top;
+  uint items[STACK_SIZE];
+};
+
+void init(inout Stack s) {
+  s.top = -1;
+}
+
+bool is_empty(in Stack s) {
+  return s.top == -1;
+}
+
+bool is_full(in Stack s) {
+  return s.top == (STACK_SIZE - 1);
+}
+
+void push(inout Stack s, uint v) {
+  if (!is_full(s)) {
+    s.items[++s.top] = v;
+  }
+}
+
+uint pop(inout Stack s) {
+  if (!is_empty(s)) {
+    return s.items[s.top--];
+  } else {
+    return INVALID;
+  }
+}
 
 //RNG from code by Moroz Mykhailo (https://www.shadertoy.com/view/wltcRS)
 //internal RNG state 
