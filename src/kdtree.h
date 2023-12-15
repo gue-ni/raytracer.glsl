@@ -123,7 +123,6 @@ public:
       right_aabb = bounds;
 
 #if 0
-      // simplest heuristic
       float boundary = bounds.min[axis] + (bounds.max[axis] - bounds.min[axis]) / 2.0f;
 #else
       auto compare = [&axis](const Bounded &a, const Bounded &b) { 
@@ -142,26 +141,30 @@ public:
       {
         AABB aabb = primitive.bounds();
 
-        if (intersect(&left_aabb, &aabb) && intersect(&right_aabb, &aabb)) 
-        {
+        if (intersect(&left_aabb, &aabb) && intersect(&right_aabb, &aabb)) {
           printf("insert both\n");
           left.push_back(primitive);
           right.push_back(primitive);
-
-        } else if (intersect(&left_aabb, &aabb))
-        {
+        } else if (intersect(&left_aabb, &aabb)) {
           printf("insert left\n");
           left.push_back(primitive);
-
-        } else if (intersect(&right_aabb, &aabb))
-        {
+        } else if (intersect(&right_aabb, &aabb)) {
           printf("insert right\n");
           right.push_back(primitive);
         }
       }
 
-      node.left = construct(left, left_aabb, depth + 1);
-      node.right = construct(right, right_aabb, depth + 1);
+      if (left.size() > 0) {
+        node.left = construct(left, left_aabb, depth + 1);
+      } else {
+        node.left = INVALID;
+      }
+
+      if (right.size() > 0) {
+        node.right = construct(right, right_aabb, depth + 1);
+      } else {
+        node.right = INVALID;
+      }
 
       m_nodes[node_id] = node;
       std::cout << "ID = " << node_id << ", " << node << std::endl;

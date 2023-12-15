@@ -107,11 +107,13 @@ void setup_scene_02(Renderer& renderer)
 
   renderer.set_materials(materials);
 
+  float r = 2;
+
 #if 1
   const std::vector<Sphere> spheres = {
-    Sphere( { 0.0f, 0.0f, 0.0f}, 5.0f, 0),
-    Sphere( { 12.0f, 0.0f, 0.0f}, 5.0f, 0),
-    Sphere( { 20.0f, 0.0f, 0.0f}, 5.0f, 0),
+    Sphere( {  0.0f, 0.0f, 0.0f}, r, 0),
+    Sphere( { 10.0f, 0.0f, 0.0f}, r, 0),
+    Sphere( { 20.0f, 0.0f, 0.0f}, r, 0),
 
   };
 #else
@@ -120,7 +122,7 @@ void setup_scene_02(Renderer& renderer)
   const std::vector<Sphere> spheres;
 #endif
 
-  KdTree<Sphere, 1, 2> tree(spheres);
+  KdTree<Sphere, 1, 3> tree(spheres);
 
   auto nodes = tree.nodes();
   auto primitives = tree.primitives();
