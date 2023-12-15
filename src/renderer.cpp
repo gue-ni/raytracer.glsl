@@ -87,6 +87,7 @@ void Renderer::render(float dt)
   m_materials->bind_buffer_base(2);
   m_meshes->bind_buffer_base(3);
   m_vertices->bind_buffer_base(4);
+  m_kdtree->bind_buffer_base(5);
   
 
   m_render_shader->bind();

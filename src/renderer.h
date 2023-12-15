@@ -56,10 +56,16 @@ struct Sphere {
     : center(center_), radius(radius_), material(mat) {}
 
   AABB bounds() const {
-    return { glm::vec4(center - radius, 1.0f), glm::vec4(center + radius, 1.0f) };
+    return { glm::vec4(center - radius, 0.0f), glm::vec4(center + radius, 0.0f) };
   }
   
 } ALIGN_END(16);
+
+inline std::ostream &operator<<(std::ostream &os, const Sphere &obj)
+{
+  os << "Sphere { c = " << obj.center << ", r = " << obj.radius << " }";
+  return os;
+}
 
 enum MaterialType: uint {
   DIFFUSE       = 0,

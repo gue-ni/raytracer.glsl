@@ -22,6 +22,7 @@ struct Ray
   glm::vec3 direction;
 };
 
+//__declspec(align(16))
 struct AABB
 {
   glm::vec4 min;
@@ -58,7 +59,7 @@ inline std::ostream &operator<<(std::ostream &os, const AABB &obj)
   return os;
 }
 
-
+//__declspec(align(16))
 struct KdNode : public AABB
 {
   uint left = INVALID;
@@ -66,6 +67,12 @@ struct KdNode : public AABB
   uint offset = 0;
   uint count = 0;
 };
+
+inline std::ostream &operator<<(std::ostream &os, const KdNode &obj)
+{
+  os << "Node { l = " << obj.left << ", r = " << obj.right << ", o = " << obj.offset << ", c = " << obj.count << " }";
+  return os;
+}
 
 template <class Bounded, uint NODE_SIZE = 8, uint MAX_DEPTH = 5>
 class KdTree
@@ -82,6 +89,8 @@ public:
     {
       uint offset = m_primitives.size();
       uint node_id = m_nodes.size();
+      uint count = primitives.size();
+      //assert(0 < count);
 
       m_primitives.insert(m_primitives.end(), primitives.begin(), primitives.end());
 
@@ -91,9 +100,9 @@ public:
       node.left = INVALID;
       node.right = INVALID;
       node.offset = offset;
-      node.count = primitives.size();
+      node.count = count;
       m_nodes.push_back(node);
-      printf("Node = %u, offset = %u, count = %u\n", node_id, node.offset, node.count);
+      std::cout << "ID = " << node_id << ", " << node << std::endl;
       return node_id;
     }
     else
@@ -110,8 +119,8 @@ public:
       int axis = depth % 3;
       AABB left_aabb, right_aabb;
 
-      left_aabb.min = bounds.min;
-      right_aabb.max = bounds.max;
+      left_aabb = bounds;
+      right_aabb = bounds;
 
 #if 0
       // simplest heuristic
@@ -124,23 +133,30 @@ public:
       std::sort(primitives.begin(), primitives.end(), compare);
       float boundary = primitives[primitives.size() / 2].bounds().min[axis];
 #endif
-      left_aabb.max[axis] = boundary;
+      left_aabb.max[axis] = boundary - 0.001f;
       right_aabb.min[axis] = boundary;
 
       std::vector<Bounded> left, right;
 
-      for (auto primtive : primitives)
+      for (auto primitive : primitives)
       {
-        AABB aabb = primtive.bounds();
+        AABB aabb = primitive.bounds();
 
-        if (intersect(&left_aabb, &aabb))
+        if (intersect(&left_aabb, &aabb) && intersect(&right_aabb, &aabb)) 
         {
-          left.push_back(primtive);
-        }
+          printf("insert both\n");
+          left.push_back(primitive);
+          right.push_back(primitive);
 
-        if (intersect(&right_aabb, &aabb))
+        } else if (intersect(&left_aabb, &aabb))
         {
-          right.push_back(primtive);
+          printf("insert left\n");
+          left.push_back(primitive);
+
+        } else if (intersect(&right_aabb, &aabb))
+        {
+          printf("insert right\n");
+          right.push_back(primitive);
         }
       }
 
@@ -148,7 +164,7 @@ public:
       node.right = construct(right, right_aabb, depth + 1);
 
       m_nodes[node_id] = node;
-      printf("Node = %u, left = %u, right = %u\n", node_id, node.left, node.right);
+      std::cout << "ID = " << node_id << ", " << node << std::endl;
       return node_id;
     }
   }

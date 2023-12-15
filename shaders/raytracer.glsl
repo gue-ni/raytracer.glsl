@@ -31,8 +31,8 @@ struct Triangle {
 };
 
 struct Node {
-  vec3 min;
-  vec3 max;
+  vec4 min;
+  vec4 max;
   uint left;
   uint right;
   uint offset;
@@ -263,30 +263,67 @@ float triangle_intersect(Ray r, Triangle t) {
     return INF;
 }
 
-bool aabb_intersect(Ray ray, vec3 min, vec3 max) {
-  return false;
-}
+bool aabb_intersect(Ray ray, vec4 aabb_min, vec4 aabb_max) {
+  float tmin = 0.0, tmax = 1e6;
 
-int traverse_tree(Ray ray, inout HitInfo hit) {
-  
-  Node node = nodes[0];
+  for (int d = 0; d < 3; ++d) {
+    float t1 = (aabb_min[d] - ray.origin[d]) / ray.direction[d];
+    float t2 = (aabb_max[d] - ray.origin[d]) / ray.direction[d];
 
-
-  while (true) {
-
-    if (!aabb_intersect(ray, node.min, node.max)) {
-      break;
-    } else {
-      if (node.count > 0) {
-        // TODO test triangle
-      }
-    }
-
-
-
+    tmin = max(tmin, min(t1, t2));
+    tmax = min(tmax, max(t1, t2));
   }
 
-  return NO_HIT;
+  return tmin < tmax;
+}
+
+int traverse(Ray ray, inout HitInfo hit) {
+  
+  float max_t = INF;
+  int closest = NO_HIT;
+
+  uint id = 0;
+
+  Stack s;
+  init(s);
+  push(s, id);
+
+  while (!is_empty(s)) {
+    id = pop(s);
+    Node node = nodes[id];
+
+    if (!aabb_intersect(ray, node.min, node.max)) {
+      continue;
+    }
+
+    if (node.left != INVALID) {
+      push(s, node.left);
+    }
+
+    if (node.right != INVALID) {
+      push(s, node.right);
+    }
+
+    if (node.count > 0) {
+      for (uint i = node.offset; i < node.offset + node.count; i++) {
+
+        float t = sphere_intersect(ray, spheres[i]);
+
+        if (EPSILON < t && t < max_t) 
+        {
+          hit.t = t;
+          hit.point = ray.origin + ray.direction * t;
+          hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
+          hit.material = spheres[i].material;
+    
+          max_t = hit.t;
+          closest = int(i);
+        }
+      }
+    }
+  }
+
+  return closest;
 }
 
 int find_closest_triangle(Ray ray, uint offset, uint count, float min_t, float max_t, inout HitInfo hit) { 
@@ -296,7 +333,6 @@ int find_closest_triangle(Ray ray, uint offset, uint count, float min_t, float m
 
 int find_closest_mesh(Ray ray, inout HitInfo hit) 
 {
-#if 1
   float max_t = INF;
   int closest = NO_HIT;
 
@@ -326,9 +362,33 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
   }
 
   return closest;
-#else 
-  // traverse kd tree
-#endif
+}
+
+int find_closest_sphere_range(Ray ray, inout HitInfo hit, int begin, int end)
+{
+  float max_t = INF;
+  int closest = NO_HIT;
+
+  float t;
+
+  for (int i = begin; i < end || i < spheres.length(); i++) 
+  {
+    float t = sphere_intersect(ray, spheres[i]);
+
+    if (EPSILON < t && t < max_t) 
+    {
+      hit.t = t;
+      hit.point = ray.origin + ray.direction * t;
+      hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
+      hit.material = spheres[i].material;
+ 
+      max_t = hit.t;
+      closest = i;
+    }
+  }
+
+  return closest;
+
 }
 
 int find_closest_sphere(Ray ray, inout HitInfo hit)
@@ -375,7 +435,11 @@ vec3 trace_path(Ray ray)
     hit2.t = INF;
     HitInfo hit;
 
-    int i = find_closest_sphere(ray, hit1);
+#if 1
+    int i = find_closest_sphere_range(ray, hit1, int(nodes[0].offset), int(nodes[0].offset +  nodes[0].count));
+#else
+    int i = traverse(ray, hit1);
+#endif
     int j = find_closest_mesh(ray, hit2);
 
     

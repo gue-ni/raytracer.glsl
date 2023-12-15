@@ -98,7 +98,6 @@ void setup_scene(Renderer& renderer)
 #endif
 }
 
-
 void setup_scene_02(Renderer& renderer)
 {
   const std::vector<Material> materials = {
@@ -108,14 +107,37 @@ void setup_scene_02(Renderer& renderer)
 
   renderer.set_materials(materials);
 
+#if 1
   const std::vector<Sphere> spheres = {
     Sphere( { 0.0f, 0.0f, 0.0f}, 5.0f, 0),
+    Sphere( { 12.0f, 0.0f, 0.0f}, 5.0f, 0),
   };
+#else
+  // random spheres
+  uint material = 0;
+  const std::vector<Sphere> spheres;
+#endif
 
-  KdTree<Sphere, 8> tree(spheres);
+  KdTree<Sphere, 1, 2> tree(spheres);
 
   auto nodes = tree.nodes();
   auto primitives = tree.primitives();
+
+
+  for (auto& p : primitives) std::cout << p << std::endl;
+
+#if 0
+  nodes[1].offset = 0;
+  nodes[1].count = 1;
+  nodes[2].offset = 1;
+  nodes[2].count = 1;
+#endif
+
+
+  for (auto& n : nodes) std::cout << n << std::endl;
+
+  // TODO: fix the returned node
+
 
   renderer.set_kd_nodes(nodes);
 
