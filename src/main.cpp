@@ -111,6 +111,8 @@ void setup_scene_02(Renderer& renderer)
   const std::vector<Sphere> spheres = {
     Sphere( { 0.0f, 0.0f, 0.0f}, 5.0f, 0),
     Sphere( { 12.0f, 0.0f, 0.0f}, 5.0f, 0),
+    Sphere( { 20.0f, 0.0f, 0.0f}, 5.0f, 0),
+
   };
 #else
   // random spheres

@@ -435,7 +435,7 @@ vec3 trace_path(Ray ray)
     hit2.t = INF;
     HitInfo hit;
 
-#if 1
+#if 0
     int i = find_closest_sphere_range(ray, hit1, int(nodes[0].offset), int(nodes[0].offset +  nodes[0].count));
 #else
     int i = traverse(ray, hit1);
