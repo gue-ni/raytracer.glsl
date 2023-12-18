@@ -110,7 +110,7 @@ public:
       KdNode node;
       node.min = bounds.min;
       node.max = bounds.max;
-      node.offset = INVALID;
+      node.offset = 0;
       node.count = 0;
 
       uint node_id = m_nodes.size();

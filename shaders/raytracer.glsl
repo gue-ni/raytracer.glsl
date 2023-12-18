@@ -298,7 +298,6 @@ int traverse(Ray ray, inout HitInfo hit) {
 
 #if 1
         float t = sphere_intersect(ray, spheres[i]);
-
         if (EPSILON < t && t < hit.t) {
           hit.t = t;
           hit.point = ray.origin + ray.direction * t;
@@ -307,16 +306,23 @@ int traverse(Ray ray, inout HitInfo hit) {
           closest = int(i);
         }
 #else
+        vec3 v0 = vec3(vertices[i * 3 + 0]);
+        vec3 v1 = vec3(vertices[i * 3 + 1]);
+        vec3 v2 = vec3(vertices[i * 3 + 2]);
+        float t = triangle_intersect(ray, v0, v1, v2);
+
+        if (EPSILON < t && t < hit.t) {
+          hit.t = t;
+          hit.point = ray.origin + ray.direction * t;
+          hit.normal = normalize(cross(v1 - v0, v2 - v0));
+          hit.material = int(vertices[v * 3].w);
+          closest = i;
+        }
 #endif
       }
     }
   }
 
-  return closest;
-}
-
-int find_closest_triangle(Ray ray, uint offset, uint count, float min_t, float max_t, inout HitInfo hit) { 
-  int closest = NO_HIT;
   return closest;
 }
 
@@ -426,25 +432,17 @@ vec3 trace_path(Ray ray)
 #else
     int i = traverse(ray, hit1);
 #endif
+
+
     int j = find_closest_mesh(ray, hit2);
 
-    
-
     if (i == NO_HIT && j == NO_HIT) {
-#if 0
-      vec3 background = u_background;
-#else
       vec3 background = u_use_envmap ? texture(u_envmap, ray.direction).rgb : u_background;
-#endif
       radiance += background * throughput;
       break;
     }
 
-    if (hit1.t < hit2.t) {
-      hit = hit1;
-    } else {
-      hit = hit2;
-    }
+    hit = (hit1.t < hit2.t) ? hit1 : hit2;
 
     Material material = materials[hit.material];
 

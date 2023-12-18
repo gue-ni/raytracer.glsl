@@ -163,6 +163,8 @@ void setup_scene_02(Renderer& renderer)
   auto nodes = tree.nodes();
   auto primitives = tree.primitives();
 
+  printf("original: %zd, primitives: %zd\n", spheres.size(), primitives.size());
+
   for (auto& p : primitives) std::cout << p << std::endl;
   for (auto& n : nodes) std::cout << n << std::endl;
 
