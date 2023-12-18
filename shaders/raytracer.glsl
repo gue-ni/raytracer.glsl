@@ -56,7 +56,7 @@ layout(std140, binding = 3) readonly buffer mesh_buffer {
 };
 
 layout(std430, binding = 4) readonly buffer vertex_buffer {
-  vec3 vertices[];
+  vec4 vertices[];  // w encodes material id
 };
 
 layout(std430, binding = 5) readonly buffer kd_tree {
@@ -223,12 +223,14 @@ float sphere_intersect(Ray r, Sphere s) {
     return INF;
 }
 
+#if 1
 float triangle_intersect(Ray r, Triangle t) {
-
     vec3 v0 = t.v0;
     vec3 v1 = t.v1;
     vec3 v2 = t.v2;
-
+#else
+float triangle_intersect(Ray r, vec3 v0, vec3 v1, vec3 v2) {
+#endif
     float min_t = INF;
 
     vec3 center_u = r.direction;
@@ -344,9 +346,9 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
     for (uint v = offset; v < offset + count; v++) {
       
       Triangle triangle;
-      triangle.v0 = vertices[v * 3 + 0];
-      triangle.v1 = vertices[v * 3 + 1];
-      triangle.v2 = vertices[v * 3 + 2];
+      triangle.v0 = vec3(vertices[v * 3 + 0]);
+      triangle.v1 = vec3(vertices[v * 3 + 1]);
+      triangle.v2 = vec3(vertices[v * 3 + 2]);
 
       float t = triangle_intersect(ray, triangle);
 

@@ -83,7 +83,10 @@ void setup_scene(Renderer& renderer)
   std::vector<glm::vec4> obj = Renderer::load_obj("assets/models/icosphere.obj");
 
   glm::mat4 matrix = Renderer::transform(glm::vec3(6.0f, -room_size.y + sr, 0.0f), glm::vec3(sr));
-  for (glm::vec4& vertex : obj) vertex = matrix * vertex;
+  for (glm::vec4& vertex : obj) {
+    vertex = matrix * vertex;
+    vertex.w = 6; // mesh material
+  }
 
   renderer.set_vertices(obj);
 
@@ -121,6 +124,16 @@ void setup_scene_02(Renderer& renderer)
   uint material = 0;
   const std::vector<Sphere> spheres;
 #endif
+
+
+  std::vector<glm::vec4> mesh = Renderer::load_obj("assets/models/icosphere.obj");
+  glm::mat4 matrix = Renderer::transform(glm::vec3(6.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+  for (glm::vec4& vertex : mesh) {
+    vertex = matrix * vertex;
+    vertex.w = static_cast<float>(0); // encode material
+  }
+
+
 
   KdTree<Sphere, 1, 3> tree(spheres);
 
