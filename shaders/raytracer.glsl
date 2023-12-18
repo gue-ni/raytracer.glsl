@@ -24,12 +24,6 @@ struct Mesh {
   int material;
 };
 
-struct Triangle {
-  vec3 v0;
-  vec3 v1;
-  vec3 v2;
-};
-
 struct Node {
   vec4 min;
   vec4 max;
@@ -223,14 +217,8 @@ float sphere_intersect(Ray r, Sphere s) {
     return INF;
 }
 
-#if 1
-float triangle_intersect(Ray r, Triangle t) {
-    vec3 v0 = t.v0;
-    vec3 v1 = t.v1;
-    vec3 v2 = t.v2;
-#else
+
 float triangle_intersect(Ray r, vec3 v0, vec3 v1, vec3 v2) {
-#endif
     float min_t = INF;
 
     vec3 center_u = r.direction;
@@ -281,7 +269,6 @@ bool aabb_intersect(Ray ray, vec4 aabb_min, vec4 aabb_max) {
 
 int traverse(Ray ray, inout HitInfo hit) {
   
-  float max_t = INF;
   int closest = NO_HIT;
 
   uint id = 0;
@@ -309,18 +296,18 @@ int traverse(Ray ray, inout HitInfo hit) {
     if (node.count > 0) {
       for (uint i = node.offset; i < node.offset + node.count; i++) {
 
+#if 1
         float t = sphere_intersect(ray, spheres[i]);
 
-        if (EPSILON < t && t < max_t) 
-        {
+        if (EPSILON < t && t < hit.t) {
           hit.t = t;
           hit.point = ray.origin + ray.direction * t;
           hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
           hit.material = spheres[i].material;
-    
-          max_t = hit.t;
           closest = int(i);
         }
+#else
+#endif
       }
     }
   }
@@ -345,18 +332,17 @@ int find_closest_mesh(Ray ray, inout HitInfo hit)
 
     for (uint v = offset; v < offset + count; v++) {
       
-      Triangle triangle;
-      triangle.v0 = vec3(vertices[v * 3 + 0]);
-      triangle.v1 = vec3(vertices[v * 3 + 1]);
-      triangle.v2 = vec3(vertices[v * 3 + 2]);
+      vec3 v0 = vec3(vertices[v * 3 + 0]);
+      vec3 v1 = vec3(vertices[v * 3 + 1]);
+      vec3 v2 = vec3(vertices[v * 3 + 2]);
 
-      float t = triangle_intersect(ray, triangle);
+      float t = triangle_intersect(ray, v0, v1, v2);
 
       if (EPSILON < t && t < max_t) {
         hit.t = t;
         hit.point = ray.origin + ray.direction * t;
-        hit.normal = normalize(cross(triangle.v1 - triangle.v0, triangle.v2 - triangle.v0));
-        hit.material = mesh.material;
+        hit.normal = normalize(cross(v1 - v0, v2 - v0));
+        hit.material = int(vertices[v * 3].w);
         max_t = hit.t;
         closest = i;
       }
@@ -377,8 +363,7 @@ int find_closest_sphere_range(Ray ray, inout HitInfo hit, int begin, int end)
   {
     float t = sphere_intersect(ray, spheres[i]);
 
-    if (EPSILON < t && t < max_t) 
-    {
+    if (EPSILON < t && t < max_t) {
       hit.t = t;
       hit.point = ray.origin + ray.direction * t;
       hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
@@ -404,8 +389,7 @@ int find_closest_sphere(Ray ray, inout HitInfo hit)
   {
     float t = sphere_intersect(ray, spheres[i]);
 
-    if (EPSILON < t && t < max_t) 
-    {
+    if (EPSILON < t && t < max_t) {
       hit.t = t;
       hit.point = ray.origin + ray.direction * t;
       hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
@@ -438,7 +422,7 @@ vec3 trace_path(Ray ray)
     HitInfo hit;
 
 #if 0
-    int i = find_closest_sphere_range(ray, hit1, int(nodes[0].offset), int(nodes[0].offset +  nodes[0].count));
+    int i = find_closest_sphere(ray, hit1);
 #else
     int i = traverse(ray, hit1);
 #endif

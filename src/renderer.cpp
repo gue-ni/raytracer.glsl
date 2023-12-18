@@ -197,7 +197,7 @@ void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices)
 #endif
 }
 
-void Renderer::set_kd_nodes(const std::vector<KdNode>& nodes)
+void Renderer::set_nodes(const std::vector<KdNode>& nodes)
 {
   m_kdtree->bind();
   m_kdtree->buffer_data(std::span(nodes));

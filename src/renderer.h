@@ -137,7 +137,7 @@ public:
   void set_vertices(const std::vector<glm::vec4>& vertices);
   void set_meshes(const std::vector<Mesh>& meshes);
   void set_kdtree(const std::vector<glm::vec4>& vertices);
-  void set_kd_nodes(const std::vector<KdNode>& nodes);
+  void set_nodes(const std::vector<KdNode>& nodes);
 
   static std::vector<glm::vec4> load_obj(const std::string& path);
   static glm::mat4 transform(const glm::vec3& translate, const glm::vec3& scale, const glm::quat& rotate = glm::quat(glm::vec3(0.0f)));

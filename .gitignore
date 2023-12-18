@@ -6,3 +6,4 @@ build/
 cubemap_2/
 tmp/
 .vscode/
+*.obj

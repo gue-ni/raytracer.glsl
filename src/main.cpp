@@ -1,12 +1,30 @@
 #include "renderer.h"
 
+#include <random>
+
 #include <json.hpp>
 
 #ifndef CORNELL_BOX
 #define CORNELL_BOX 0
 #endif
 
-void setup_scene(Renderer& renderer)
+float random(float min = 0, float max = 1)
+{
+  static std::default_random_engine e;
+  static std::uniform_real_distribution<> dis(min, max); // range [min, max)
+  return dis(e);
+}
+
+glm::vec3 random(const glm::vec3& min, const glm::vec3& max) 
+{
+  return {
+    random(min.x, max.x),
+    random(min.y, max.y),
+    random(min.z, max.z)
+  };
+}
+
+void setup_scene_01(Renderer& renderer)
 {
   float r = 10000;
   float l = 100.0f;
@@ -85,7 +103,7 @@ void setup_scene(Renderer& renderer)
   glm::mat4 matrix = Renderer::transform(glm::vec3(6.0f, -room_size.y + sr, 0.0f), glm::vec3(sr));
   for (glm::vec4& vertex : obj) {
     vertex = matrix * vertex;
-    vertex.w = 6; // mesh material
+    vertex.w = 0; // mesh material
   }
 
   renderer.set_vertices(obj);
@@ -112,54 +130,44 @@ void setup_scene_02(Renderer& renderer)
 
   float r = 2;
 
-#if 1
+#if 0
   const std::vector<Sphere> spheres = {
     Sphere( {  0.0f, 0.0f, 0.0f}, r, 0),
     Sphere( { 10.0f, 0.0f, 0.0f}, r, 0),
     Sphere( { 20.0f, 0.0f, 0.0f}, r, 0),
-
   };
 #else
   // random spheres
+  auto min = glm::vec3(-20.0f);
+  auto max = glm::vec3(+20.0f);
   uint material = 0;
-  const std::vector<Sphere> spheres;
+  std::vector<Sphere> spheres;
+
+  for (int i = 0; i < 100; i++) {
+    spheres.push_back(Sphere( random(min, max), r, material));
+  }
 #endif
 
+  KdTree<Sphere, 1, 3> tree(spheres);
 
   std::vector<glm::vec4> mesh = Renderer::load_obj("assets/models/icosphere.obj");
-  glm::mat4 matrix = Renderer::transform(glm::vec3(6.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+  glm::mat4 matrix = Renderer::transform(glm::vec3(30.0f, 0.0f, 0.0f), glm::vec3(1.0f));
   for (glm::vec4& vertex : mesh) {
     vertex = matrix * vertex;
     vertex.w = static_cast<float>(0); // encode material
   }
 
-
-
-  KdTree<Sphere, 1, 3> tree(spheres);
+  auto triangles = to_triangles(mesh);
+  KdTree<Triangle> triangle_tree(triangles);
 
   auto nodes = tree.nodes();
   auto primitives = tree.primitives();
 
-
   for (auto& p : primitives) std::cout << p << std::endl;
-
-#if 0
-  nodes[1].offset = 0;
-  nodes[1].count = 1;
-  nodes[2].offset = 1;
-  nodes[2].count = 1;
-#endif
-
-
   for (auto& n : nodes) std::cout << n << std::endl;
 
-  // TODO: fix the returned node
-
-
-  renderer.set_kd_nodes(nodes);
-
+  renderer.set_nodes(nodes);
   renderer.set_spheres(primitives);
-
 
   const std::array<std::string, 6>& faces = {
     "assets/cubemap/right.png",  
@@ -172,6 +180,13 @@ void setup_scene_02(Renderer& renderer)
 
   auto envmap = std::make_unique<CubemapTexture>(faces);
   renderer.set_envmap(std::move(envmap));
+}
+
+
+
+void setup_scene_03(Renderer& renderer)
+{
+
 }
 
 int main()
