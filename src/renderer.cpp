@@ -14,6 +14,10 @@
 using namespace gfx;
 using namespace gfx::gl;
 
+const std::string raytracer_shader = R"(
+#include "raytracer.glsl"
+)";
+
 Renderer::Renderer(int width, int height) 
   : Window(width, height, "Pathtracer")
   , m_screen_shader(std::make_unique<ShaderProgram>(
