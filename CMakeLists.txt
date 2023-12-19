@@ -75,6 +75,7 @@ include_directories(${stb_SOURCE_DIR})
 include_directories(${tiny-obj_SOURCE_DIR})
 include_directories(${imgui_SOURCE_DIR})
 include_directories(${json_SOURCE_DIR})
+include_directories(shaders)
 
 add_executable(renderer
     src/main.cpp 
