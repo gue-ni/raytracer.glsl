@@ -122,8 +122,8 @@ void setup_scene_01(Renderer& renderer)
 void setup_scene_02(Renderer& renderer)
 {
   const std::vector<Material> materials = {
-    /* 0 */ Material(gfx::rgb(0xAAAAAA)),
-    /* 1 */ Material(gfx::rgb(0xFFFFFF), gfx::rgb(0xFFFEFA) * 30.0f),
+    /* 0 */ Material(gfx::rgb(0xff0000)),
+    /* 1 */ Material(gfx::rgb(0xff00ff)),
   };
 
   renderer.set_materials(materials);
@@ -148,7 +148,7 @@ void setup_scene_02(Renderer& renderer)
   }
 #endif
 
-  KdTree<Sphere, 1, 3> tree(spheres);
+  KdTree<Sphere, 8, 1> tree(spheres);
 
   std::vector<glm::vec4> mesh = Renderer::load_obj("assets/models/icosphere.obj");
   glm::mat4 matrix = Renderer::transform(glm::vec3(30.0f, 0.0f, 0.0f), glm::vec3(1.0f));
@@ -157,16 +157,17 @@ void setup_scene_02(Renderer& renderer)
     vertex.w = static_cast<float>(0); // encode material
   }
 
-  auto triangles = to_triangles(mesh);
-  KdTree<Triangle> triangle_tree(triangles);
+  //auto triangles = to_triangles(mesh);
+  //KdTree<Triangle> triangle_tree(triangles);
 
   auto nodes = tree.nodes();
   auto primitives = tree.primitives();
 
-  printf("original: %zd, primitives: %zd\n", spheres.size(), primitives.size());
 
-  for (auto& p : primitives) std::cout << p << std::endl;
+  //for (auto& p : primitives) std::cout << p << std::endl;
   for (auto& n : nodes) std::cout << n << std::endl;
+  
+  printf("original: %zd, primitives: %zd\n", spheres.size(), primitives.size());
 
   renderer.set_nodes(nodes);
   renderer.set_spheres(primitives);

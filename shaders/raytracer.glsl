@@ -254,7 +254,7 @@ float triangle_intersect(Ray r, vec3 v0, vec3 v1, vec3 v2) {
 }
 
 bool aabb_intersect(Ray ray, vec4 aabb_min, vec4 aabb_max) {
-  float tmin = 0.0, tmax = 1e6;
+  float tmin = 0.0, tmax = INF;
 
   for (int d = 0; d < 3; ++d) {
     float t1 = (aabb_min[d] - ray.origin[d]) / ray.direction[d];
@@ -270,6 +270,8 @@ bool aabb_intersect(Ray ray, vec4 aabb_min, vec4 aabb_max) {
 int traverse(Ray ray, inout HitInfo hit) {
   
   int closest = NO_HIT;
+
+  int tests = 0;
 
   uint id = 0;
 
@@ -290,7 +292,7 @@ int traverse(Ray ray, inout HitInfo hit) {
     }
 
     if (node.right != INVALID) {
-      push(s, node.right);
+      //push(s, node.right);
     }
 
     if (node.count > 0) {
@@ -302,7 +304,12 @@ int traverse(Ray ray, inout HitInfo hit) {
           hit.t = t;
           hit.point = ray.origin + ray.direction * t;
           hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
-          hit.material = spheres[i].material;
+          //hit.material = spheres[i].material;
+          if (node.offset == 0) {
+            hit.material = 0;
+          } else {
+            hit.material = 1;
+          }
           closest = int(i);
         }
 #else
