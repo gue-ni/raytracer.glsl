@@ -23,11 +23,7 @@ float random(float min = 0, float max = 1)
 
 glm::vec3 random(const glm::vec3& min, const glm::vec3& max) 
 {
-  return {
-    random(min.x, max.x),
-    random(min.y, max.y),
-    random(min.z, max.z)
-  };
+  return { random(min.x, max.x), random(min.y, max.y), random(min.z, max.z) };
 }
 
 void setup_scene_01(Renderer& renderer)
@@ -109,7 +105,7 @@ void setup_scene_01(Renderer& renderer)
   glm::mat4 matrix = Renderer::transform(glm::vec3(6.0f, -room_size.y + sr, 0.0f), glm::vec3(sr));
   for (glm::vec4& vertex : obj) {
     vertex = matrix * vertex;
-    vertex.w = 0; // mesh material
+    vertex.w = 6; // mesh material
   }
 
   renderer.set_vertices(obj);
@@ -187,8 +183,6 @@ void setup_scene_02(Renderer& renderer)
   auto envmap = std::make_unique<CubemapTexture>(faces);
   renderer.set_envmap(std::move(envmap));
 }
-
-
 
 void setup_scene_03(Renderer& renderer)
 {
