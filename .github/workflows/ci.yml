@@ -2,7 +2,7 @@ name: CMake on multiple platforms
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "kd-tree" ]
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:

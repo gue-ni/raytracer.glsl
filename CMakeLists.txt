@@ -107,6 +107,13 @@ add_custom_target(assets
 
 add_dependencies(renderer shaders assets)
 
+add_executable(unittest
+    src/test.cpp
+    src/kdtree.h 
+)
+
+target_link_libraries(unittest glm)
+
 install(TARGETS renderer DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_SOURCE_DIR}/bin)
