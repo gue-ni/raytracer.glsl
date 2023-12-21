@@ -6,6 +6,8 @@
 #define NO_HIT    -1
 #define INVALID   4294967295 // uint max
 
+#define KD_TREE 1
+
 struct Sphere {
   vec3 center;
   float radius;
@@ -283,16 +285,20 @@ int traverse(Ray ray, inout HitInfo hit) {
     id = pop(s);
     Node node = nodes[id];
 
+#if 0
     if (!aabb_intersect(ray, node.min, node.max)) {
       continue;
     }
+#endif
 
+    //if (node.left != INVALID) {
     if (node.left != INVALID) {
       push(s, node.left);
     }
 
+    //if (node.right != INVALID) {
     if (node.right != INVALID) {
-      //push(s, node.right);
+      push(s, node.right);
     }
 
     if (node.count > 0) {
@@ -304,12 +310,15 @@ int traverse(Ray ray, inout HitInfo hit) {
           hit.t = t;
           hit.point = ray.origin + ray.direction * t;
           hit.normal = (hit.point - spheres[i].center) / spheres[i].radius;
-          //hit.material = spheres[i].material;
+#if 1
+          hit.material = spheres[i].material;
+#else
           if (node.offset == 0) {
             hit.material = 0;
           } else {
             hit.material = 1;
           }
+#endif
           closest = int(i);
         }
 #else
@@ -434,10 +443,10 @@ vec3 trace_path(Ray ray)
     hit2.t = INF;
     HitInfo hit;
 
-#if 0
-    int i = find_closest_sphere(ray, hit1);
-#else
+#if (KD_TREE == 1)
     int i = traverse(ray, hit1);
+#else
+    int i = find_closest_sphere(ray, hit1);
 #endif
 
 

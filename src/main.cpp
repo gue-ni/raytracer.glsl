@@ -10,9 +10,15 @@
 
 float random(float min = 0, float max = 1)
 {
-  static std::default_random_engine e;
+#if 0
+  static std::random_device r;
+  static std::default_random_engine e{r()};
   static std::uniform_real_distribution<> dis(min, max); // range [min, max)
   return dis(e);
+#else
+  float r = static_cast<float>(rand()) / RAND_MAX;
+  return min + r * (max - min);
+#endif
 }
 
 glm::vec3 random(const glm::vec3& min, const glm::vec3& max) 
@@ -148,7 +154,7 @@ void setup_scene_02(Renderer& renderer)
   }
 #endif
 
-  KdTree<Sphere, 8, 1> tree(spheres);
+  KdTree<Sphere, 8, 3> tree(spheres);
 
   std::vector<glm::vec4> mesh = Renderer::load_obj("assets/models/icosphere.obj");
   glm::mat4 matrix = Renderer::transform(glm::vec3(30.0f, 0.0f, 0.0f), glm::vec3(1.0f));
@@ -194,6 +200,7 @@ void setup_scene_03(Renderer& renderer)
 
 int main()
 {
+  srand(0);
   Renderer renderer(1080, 720);
   setup_scene_02(renderer);
   renderer.run();
