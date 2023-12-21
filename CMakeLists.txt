@@ -38,10 +38,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-file(GLOB EXTERNAL_SOURCE
+file(GLOB imgui_SOURCE
     ${imgui_SOURCE_DIR}/*.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+file(GLOB gfx_SOURCE
+    ${CMAKE_SOURCE_DIR}/src/gfx/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/gfx/*.h
 )
 
 if(WIN32)
@@ -88,7 +93,7 @@ add_executable(renderer
     src/gfx/gl.cpp src/gfx/gl.h
     src/gfx/image.cpp src/gfx/image.h
 
-    ${EXTERNAL_SOURCE}
+    ${imgui_SOURCE}
 )
 
 target_link_libraries(renderer glm ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
@@ -118,4 +123,6 @@ install(TARGETS renderer DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 
+
+install(TARGETS unittest DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 

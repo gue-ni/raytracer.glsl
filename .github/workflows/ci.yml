@@ -62,11 +62,15 @@ jobs:
     - name: Install
       run: cmake --install '${{ github.workspace }}/build' 
 
+    - name: Run Tests
+      run: ./${{ github.workspace}}/bin/unittest
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.release_name }}
         path: ${{ github.workspace }}/bin
+      
 
 
 
