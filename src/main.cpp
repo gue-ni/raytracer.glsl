@@ -114,9 +114,6 @@ void setup_scene_01(Renderer& renderer)
 
   renderer.set_vertices(obj);
 
-  renderer.set_kdtree(obj);
-
-
   const std::vector<Mesh> meshes = {
     Mesh(0, obj.size() / 3, 6),
   };
@@ -202,7 +199,7 @@ int main()
 {
   srand(0);
   Renderer renderer(1080, 720);
-  setup_scene_02(renderer);
+  setup_scene_01(renderer);
   renderer.run();
   return 0;
 }

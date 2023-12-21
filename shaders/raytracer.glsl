@@ -6,7 +6,7 @@
 #define NO_HIT    -1
 #define INVALID   4294967295 // uint max
 
-#define KD_TREE 1
+#define KD_TREE 0
 
 struct Sphere {
   vec3 center;
@@ -468,11 +468,7 @@ vec3 trace_path(Ray ray)
 
     bool inside = dot(-ray.direction, hit.normal) < 0;
 
-#if 1
     vec3 point = hit.point;
-#else
-    vec3 point = hit.point + hit.normal * EPSILON * (inside ? -1 : 1);
-#endif
     vec3 normal = hit.normal;
 
     ray.origin = point;
