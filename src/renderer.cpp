@@ -190,6 +190,31 @@ void Renderer::set_nodes(const std::vector<KdNode>& nodes)
   m_kdtree->buffer_data(std::span(nodes));
 }
 
+void Renderer::set_kdtree(const std::vector<Sphere>& objects)
+{
+  KdTree<Sphere, 1, 2> tree(objects);
+  auto nodes = tree.nodes();
+  auto primitives = tree.primitives();
+  m_spheres->bind();
+  m_spheres->buffer_data(std::span(primitives));
+  m_kdtree->bind();
+  m_kdtree->buffer_data(std::span(nodes));
+  m_use_bvh = true;
+}
+
+void Renderer::set_kdtree(const std::vector<glm::vec4>& objects)
+{
+  auto triangles = to_triangles(objects);
+  KdTree<Triangle, 8, 1> tree(triangles);
+  auto nodes = tree.nodes();
+  auto primitives = tree.primitives();
+  m_vertices->bind();
+  m_vertices->buffer_data(std::span(primitives));
+  m_kdtree->bind();
+  m_kdtree->buffer_data(std::span(nodes));
+  m_use_bvh = true;
+}
+
 void Renderer::save_to_file() const
 {
   GLubyte* pixels = new GLubyte[m_width * m_height * 4]; 

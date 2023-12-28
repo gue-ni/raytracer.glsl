@@ -6,7 +6,7 @@
 #define NO_HIT    -1
 #define INVALID   4294967295 // uint max
 
-#define KD_TREE 0
+#define KD_TREE 1
 
 struct Sphere {
   vec3 center;
@@ -304,8 +304,8 @@ int traverse(Ray ray, inout HitInfo hit) {
     if (node.count > 0) {
       for (uint i = node.offset; i < node.offset + node.count; i++) {
 
-#if 1
         float t = sphere_intersect(ray, spheres[i]);
+
         if (EPSILON < t && t < hit.t) {
           hit.t = t;
           hit.point = ray.origin + ray.direction * t;
@@ -321,20 +321,6 @@ int traverse(Ray ray, inout HitInfo hit) {
 #endif
           closest = int(i);
         }
-#else
-        vec3 v0 = vec3(vertices[i * 3 + 0]);
-        vec3 v1 = vec3(vertices[i * 3 + 1]);
-        vec3 v2 = vec3(vertices[i * 3 + 2]);
-        float t = triangle_intersect(ray, v0, v1, v2);
-
-        if (EPSILON < t && t < hit.t) {
-          hit.t = t;
-          hit.point = ray.origin + ray.direction * t;
-          hit.normal = normalize(cross(v1 - v0, v2 - v0));
-          hit.material = int(vertices[v * 3].w);
-          closest = i;
-        }
-#endif
       }
     }
   }
