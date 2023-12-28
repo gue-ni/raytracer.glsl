@@ -110,6 +110,7 @@ void Renderer::render(float dt)
   }
 
   m_render_shader->set_uniform("u_use_dof", m_use_dof);
+  m_render_shader->set_uniform("u_use_bvh", m_use_bvh);
 
   m_render_shader->set_uniform("u_camera_position", m_camera.position);
   m_render_shader->set_uniform("u_camera_fov", glm::radians(m_camera.fov));
@@ -181,23 +182,6 @@ void Renderer::set_meshes(const std::vector<Mesh>& meshes)
 {
   m_meshes->bind();
   m_meshes->buffer_data(std::span(meshes));
-}
-
-void Renderer::set_kdtree(const std::vector<glm::vec4>& vertices) 
-{
-  auto triangles = to_triangles(vertices);
-  KdTree tree(triangles);
-
-  auto primitives = tree.primitives();
-  auto nodes = tree.nodes();
-
-#if 0
-  m_vertices->bind();
-  m_vertices->buffer_data(std::span(primitives));
-
-  m_kdtree->bind();
-  m_kdtree->buffer_data(std::span(nodes));
-#endif
 }
 
 void Renderer::set_nodes(const std::vector<KdNode>& nodes)

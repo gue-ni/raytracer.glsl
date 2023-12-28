@@ -136,7 +136,20 @@ public:
   void set_envmap(std::unique_ptr<CubemapTexture> envmap);
   void set_vertices(const std::vector<glm::vec4>& vertices);
   void set_meshes(const std::vector<Mesh>& meshes);
-  void set_kdtree(const std::vector<glm::vec4>& vertices);
+
+  template<typename Bounded>
+  void set_kdtree(const std::vector<Bounded>& objects)
+  {
+    KdTree<Bounded, 8, 3> tree(objects);
+    auto nodes = tree.nodes();
+    auto primitives = tree.primitives();
+    m_vertices->bind();
+    m_vertices->buffer_data(std::span(primitives));
+    m_kdtree->bind();
+    m_kdtree->buffer_data(std::span(nodes));
+    m_use_bvh = true;
+  }
+
   void set_nodes(const std::vector<KdNode>& nodes);
 
   static std::vector<glm::vec4> load_obj(const std::string& path);
@@ -169,6 +182,7 @@ private:
   bool m_mousedown = false;
   bool m_use_envmap = true;
   bool m_use_dof = true;
+  bool m_use_bvh = false;
 
   void reset_buffer();
   void save_to_file() const;

@@ -8,17 +8,25 @@
 #define CORNELL_BOX 0
 #endif
 
+void setup_envmap(Renderer& renderer)
+{
+  const std::array<std::string, 6>& faces = {
+    "assets/cubemap/right.png",  
+    "assets/cubemap/left.png",  
+    "assets/cubemap/top.png",
+    "assets/cubemap/bottom.png", 
+    "assets/cubemap/front.png", 
+    "assets/cubemap/back.png ",
+  };
+
+  auto envmap = std::make_unique<CubemapTexture>(faces);
+  renderer.set_envmap(std::move(envmap));
+}
+
 float random(float min = 0, float max = 1)
 {
-#if 0
-  static std::random_device r;
-  static std::default_random_engine e{r()};
-  static std::uniform_real_distribution<> dis(min, max); // range [min, max)
-  return dis(e);
-#else
   float r = static_cast<float>(rand()) / RAND_MAX;
   return min + r * (max - min);
-#endif
 }
 
 glm::vec3 random(const glm::vec3& min, const glm::vec3& max) 
@@ -70,17 +78,7 @@ void setup_scene_01(Renderer& renderer)
 
 #if (!CORNELL_BOX)
   // setup environment map
-  const std::array<std::string, 6>& faces = {
-    "assets/cubemap/right.png",  
-    "assets/cubemap/left.png",  
-    "assets/cubemap/top.png",
-    "assets/cubemap/bottom.png", 
-    "assets/cubemap/front.png", 
-    "assets/cubemap/back.png ",
-  };
-
-  auto envmap = std::make_unique<CubemapTexture>(faces);
-  renderer.set_envmap(std::move(envmap));
+  setup_envmap(renderer);
 #endif
 
 #if (CORNELL_BOX)
@@ -171,29 +169,44 @@ void setup_scene_02(Renderer& renderer)
   renderer.set_nodes(nodes);
   renderer.set_spheres(primitives);
 
-  const std::array<std::string, 6>& faces = {
-    "assets/cubemap/right.png",  
-    "assets/cubemap/left.png",  
-    "assets/cubemap/top.png",
-    "assets/cubemap/bottom.png", 
-    "assets/cubemap/front.png", 
-    "assets/cubemap/back.png ",
-  };
-
-  auto envmap = std::make_unique<CubemapTexture>(faces);
-  renderer.set_envmap(std::move(envmap));
+  setup_envmap(renderer);
 }
 
 void setup_scene_03(Renderer& renderer)
 {
+  setup_envmap(renderer);
 
+  const std::vector<Material> materials = {
+    /* 0 */ Material(gfx::rgb(0xff0000)),
+  };
+
+  renderer.set_materials(materials);
+
+  std::vector<Sphere> spheres;
+
+  float radius = 1.0f;
+  float spacing = radius * 2.5f;
+
+  int n = 10;
+
+  for (int x = 0; x < n; x++) {
+    for (int y = 0; y < n; y++) {
+      spheres.push_back(Sphere(glm::vec3(x * spacing, y * spacing, 0.0f), radius, 0));
+    }
+  }
+
+#if 1
+  renderer.set_spheres(spheres);
+#else
+  renderer.set_kdtree(spheres);
+#endif
 }
 
 int main()
 {
   srand(0);
   Renderer renderer(1080, 720);
-  setup_scene_01(renderer);
+  setup_scene_03(renderer);
   renderer.run();
   return 0;
 }
